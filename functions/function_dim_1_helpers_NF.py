@@ -1196,7 +1196,7 @@ def add_newton_model_NF(function_id, my_cursor, model_name='original', log_file=
         query['newton_polynomial_coeffs'] = C
 
         my_cursor.execute("""UPDATE functions_dim_1_NF
-            SET newton_polynomial_coeffs = %(newton_model.polynomial_coeffs)s,
+            SET newton_polynomial_coeffs = %(newton_polynomial_coeffs)s,
                 is_newton = %(is_newton)s
             WHERE
                 function_id = %(function_id)s

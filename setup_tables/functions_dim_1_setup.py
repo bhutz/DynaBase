@@ -117,7 +117,7 @@ CREATE TABLE functions_dim_1_NF (
     original_model model_type,
     monic_centered model_type,
     reduced_model model_type,
-    netwon_polynomial_coeffs varchar[],
+    newton_polynomial_coeffs varchar[],
     display_model display_model_type,
     is_polynomial boolean,
     is_chebyshev boolean,
