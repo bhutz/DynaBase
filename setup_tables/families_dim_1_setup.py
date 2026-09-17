@@ -54,5 +54,9 @@ CREATE TABLE families_dim_1_NF (
 
 # add descriptive name
 
+#may need to add cp portrait id to families
+
+#need to make a rational preperiodic table for families
+
 
 my_session.commit()

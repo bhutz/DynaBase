@@ -25,8 +25,7 @@ from sage.rings.cc import CC
 from sage.rings.number_field.number_field import NumberField
 from sage.rings.polynomial.polynomial_ring_constructor import PolynomialRing
 from sage.rings.rational_field import QQ
-from six.moves.urllib.request import urlopen
-import json
+from lmf import db
 
 
 def normalize_field_NF(K, emb=None, log_file=sys.stdout):
@@ -91,17 +90,10 @@ def lmfdb_field_label_NF(K, log_file = sys.stdout): #label finding
     if not check_field_normalized_NF(K):
         raise ValueError('field not normalized')
     poly = K.defining_polynomial() 
-    z = poly.parent().gen(0)
-    C = poly.coefficients(sparse=False)
-    url = 'https://beta.lmfdb.org/api/nf_fields/?coeffs={'
-    for i in range(len(C)-1):
-        url += str(C[i]) + ','
-    url += str(C[-1]) + '}&_format=json&_fields=label&_delim=;'
-    page = urlopen(url)
-    dat = str(page.read().decode('utf-8'))
-    dat = json.loads(dat)['data']
-    if dat != []:
-        label = dat[0]['label']
+    C = [int(c) for c in poly.coefficients(sparse=False)]
+    dat = db.nf_fields.lucky({"coeffs": C}, ["label"])
+    if not dat is None:
+        label = dat['label']
         return True, label
     else:
         # can't find the field
@@ -112,14 +104,11 @@ def lmfdb_field_label_NF(K, log_file = sys.stdout): #label finding
 
 def get_sage_field_NF(label): # get field from db, return as sage object
 
-    url = 'https://beta.lmfdb.org/api/nf_fields/?label=' + label + '&_format=json&_fields=coeffs&_delim=;'
-    page = urlopen(url)
-    dat = str(page.read().decode('utf-8'))
-    dat = json.loads(dat)['data']
-    if dat == []:
+    dat = db.nf_fields.lucky({"label": label}, ["coeffs"])
+    if dat is None:
         log_file.write('Field not found in LMFDB: ' + str(label) + '\n')
         return 0
-    C = dat[0]['coeffs']
+    C = dat['coeffs']
     if C == [0,1]:
         return QQ
     R=PolynomialRing(QQ, 'z')
