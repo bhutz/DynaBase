@@ -47,6 +47,9 @@ sage -pip install psycopg2
 # Sage needs the hash library to create labels
 sage -pip install pysha3
 
+# Sage uses the LMFDB-lite interface for number field data
+sage --pip install -U "lmfdb-lite[pgbinary] @ git+https://github.com/roed314/lmfdb-lite.git"
+
 # Connect to the DAD github project
 # log in to you github account
 # navigate to database page
