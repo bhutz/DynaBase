@@ -5,4 +5,4 @@ __pycache__/
 *.ipynb
 sample_data.sage.py
 database.ini
-
+CLAUDE.md
