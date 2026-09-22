@@ -37,7 +37,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
         label = add_function_all_NF(F, my_cursor,
         citations=cites, log_file=log_file)
 
-F = DynamicalSystem([x**2+QQ(1/4)*y**2,y**2])
+F = DynamicalSystem([x**2+QQ(1)/4*y**2,y**2])
 if not model_in_database_NF(F, my_cursor)[0]:
         label = add_function_all_NF(F, my_cursor,
         citations=cites, log_file=log_file)
@@ -52,37 +52,37 @@ if not model_in_database_NF(F, my_cursor)[0]:
         label = add_function_all_NF(F, my_cursor,
         citations=cites, log_file=log_file)
 
-F = DynamicalSystem([x**2-QQ(3/4)*y**2,y**2])
+F = DynamicalSystem([x**2-QQ(3)/4*y**2,y**2])
 if not model_in_database_NF(F, my_cursor)[0]:
         label = add_function_all_NF(F, my_cursor,
         citations=cites, log_file=log_file)
 
-F = DynamicalSystem([x**2-QQ(7/4)*y**2,y**2])
+F = DynamicalSystem([x**2-QQ(7)/4*y**2,y**2])
 if not model_in_database_NF(F, my_cursor)[0]:
         label = add_function_all_NF(F, my_cursor,
         citations=cites, log_file=log_file)
 
-F = DynamicalSystem([x**2-QQ(10/9)*y**2,y**2])
+F = DynamicalSystem([x**2-QQ(10)/9*y**2,y**2])
 if not model_in_database_NF(F, my_cursor)[0]:
         label = add_function_all_NF(F, my_cursor,
         citations=cites, log_file=log_file)
 
-F = DynamicalSystem([x**2-QQ(13/9)*y**2,y**2])
+F = DynamicalSystem([x**2-QQ(13)/9*y**2,y**2])
 if not model_in_database_NF(F, my_cursor)[0]:
         label = add_function_all_NF(F, my_cursor,
         citations=cites, log_file=log_file)
 
-F = DynamicalSystem([x**2-QQ(21/16)*y**2,y**2])
+F = DynamicalSystem([x**2-QQ(21)/16*y**2,y**2])
 if not model_in_database_NF(F, my_cursor)[0]:
         label = add_function_all_NF(F, my_cursor,
         citations=cites, log_file=log_file)
 
-F = DynamicalSystem([x**2-QQ(301/144)*y**2,y**2])
+F = DynamicalSystem([x**2-QQ(301)/144*y**2,y**2])
 if not model_in_database_NF(F, my_cursor)[0]:
         label = add_function_all_NF(F, my_cursor,
         citations=cites, log_file=log_file)
 
-F = DynamicalSystem([x**2-QQ(29/16)*y**2,y**2])
+F = DynamicalSystem([x**2-QQ(29)/16*y**2,y**2])
 if not model_in_database_NF(F, my_cursor)[0]:
         label = add_function_all_NF(F, my_cursor,
         citations=cites, log_file=log_file)
@@ -135,7 +135,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(1/4)
+c0 = QQ(1)/4
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -149,7 +149,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 2
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(1/4)
+c0 = QQ(1)/4
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -219,7 +219,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(1/4)
+c0 = QQ(1)/4
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -233,7 +233,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(1/5)
+c0 = QQ(1)/5
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -261,7 +261,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-4/5)
+c0 = QQ(-4)/5
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -275,7 +275,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-2/3)
+c0 = QQ(-2)/3
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -359,7 +359,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-3/4)
+c0 = QQ(-3)/4
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -373,7 +373,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-3/4)
+c0 = QQ(-3)/4
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -401,7 +401,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-13/9)
+c0 = QQ(-13)/9
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -415,7 +415,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 + 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(1/4)
+c0 = QQ(1)/4
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -429,7 +429,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 8
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-301/144)
+c0 = QQ(-301)/144
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -443,7 +443,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 17
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-301/144)
+c0 = QQ(-301)/144
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -513,7 +513,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 3
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-289/144)
+c0 = QQ(-289)/144
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -527,7 +527,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 4
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-5/16)
+c0 = QQ(-5)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -541,7 +541,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 3
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-40/9)
+c0 = QQ(-40)/9
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -555,7 +555,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 + 2
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-10/9)
+c0 = QQ(-10)/9
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -569,7 +569,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - 10
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-13/9)
+c0 = QQ(-13)/9
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -583,7 +583,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-5/12)
+c0 = QQ(-5)/12
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -597,7 +597,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 3
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-37/9)
+c0 = QQ(-37)/9
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -611,7 +611,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 2
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-13/16)
+c0 = QQ(-13)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -639,7 +639,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(7/12)
+c0 = QQ(7)/12
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -653,7 +653,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-29/16)
+c0 = QQ(-29)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -667,7 +667,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-29/16)
+c0 = QQ(-29)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -681,7 +681,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - 10
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-155/72)
+c0 = QQ(-155)/72
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -695,7 +695,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 114
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(199/720)
+c0 = QQ(199)/720
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -723,7 +723,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 2
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(3/16)
+c0 = QQ(3)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -737,7 +737,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 4
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = -1/2*v-13/16
+c0 = -QQ(1)/2*v - QQ(13)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -751,7 +751,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 18
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = 1/9*v-205/144
+c0 = QQ(1)/9*v - QQ(205)/144
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -765,7 +765,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 2
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = -1/2*v-5/16
+c0 = -QQ(1)/2*v - QQ(5)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -779,7 +779,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 4
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-273/64)
+c0 = QQ(-273)/64
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -793,7 +793,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 + 1
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = 3/8*v-1/4
+c0 = QQ(3)/8*v - QQ(1)/4
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -807,7 +807,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 3
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-10/9)
+c0 = QQ(-10)/9
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -821,7 +821,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 2
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-21/16)
+c0 = QQ(-21)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -835,7 +835,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 10
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-29/16)
+c0 = QQ(-29)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -849,7 +849,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 14
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-29/16)
+c0 = QQ(-29)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -863,7 +863,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 84
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-301/144)
+c0 = QQ(-301)/144
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -877,7 +877,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 48
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-301/144)
+c0 = QQ(-301)/144
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -891,7 +891,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - 2
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-15/8)
+c0 = QQ(-15)/8
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -905,7 +905,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 4
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-13/16)
+c0 = QQ(-13)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -919,7 +919,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 8
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-45/16)
+c0 = QQ(-45)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -933,7 +933,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 2
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-5/16)
+c0 = QQ(-5)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -947,7 +947,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 18
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-301/144)
+c0 = QQ(-301)/144
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -961,7 +961,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 26
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-95/48)
+c0 = QQ(-95)/48
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -975,7 +975,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t + 4
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-31/48)
+c0 = QQ(-31)/48
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -989,7 +989,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 8
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-71/48)
+c0 = QQ(-71)/48
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -1003,7 +1003,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 4
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-21/16)
+c0 = QQ(-21)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -1017,7 +1017,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 8
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-29/16)
+c0 = QQ(-29)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()
@@ -1031,7 +1031,7 @@ if not model_in_database_NF(F, my_cursor)[0]:
 poly = t**2 - t - 4
 K0 = NumberField(poly, 'v')
 v = K0.gen()
-c0 = QQ(-29/16)
+c0 = QQ(-29)/16
 K, phi = normalize_field_NF(K0)
 P = ProjectiveSpace(K, 1, 'x,y')
 x, y = P.gens()

@@ -17,3 +17,6 @@ load("sample_data/add_families.py")
 # functions data
 load("connect.py")
 load("sample_data/add_functions_quadratic_polys_dim_1.py")
+
+load("connect.py")
+load("sample_data/add_functions_cubic_polys_dim_1.py")
