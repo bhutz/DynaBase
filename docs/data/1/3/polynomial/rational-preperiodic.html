@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Degree 3 Polynomial Rational Preperiodic &mdash; DynaBase</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<h1 class="site-title">Dynabase</h1>
+
+<nav class="static-links">
+  <a href="../../../../about.html">About Dynabase</a>
+  <a href="../../../../data-summary.html">Summary of Included Data</a>
+  <a href="../../../../extreme-examples.html">Summary of Extreme Examples</a>
+</nav>
+
+<hr class="header-rule">
+
+<form class="selectors" id="selectors">
+  <label>Dimension
+    <select id="sel-dimension">
+      <option value="1" selected>1</option>
+    </select>
+  </label>
+  <label>Degree
+    <select id="sel-degree">
+      <option value="2" >2</option>
+      <option value="3" selected>3</option>
+    </select>
+  </label>
+  <label>Type
+    <select id="sel-type">
+      <option value="polynomial" selected>polynomial</option>
+      <option value="rational" >rational</option>
+    </select>
+  </label>
+  <label>Problem
+    <select id="sel-problem">
+      <option value="rational-preperiodic" selected>Rational Preperiodic</option>
+    </select>
+  </label>
+  <button type="submit">View</button>
+</form>
+<script>
+document.getElementById('selectors').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var dim = document.getElementById('sel-dimension').value;
+  var deg = document.getElementById('sel-degree').value;
+  var typ = document.getElementById('sel-type').value;
+  var prob = document.getElementById('sel-problem').value;
+  window.location.href = '../../../../data/' + dim + '/' + deg + '/' + typ + '/' + prob + '.html';
+});
+</script>
+
+<main>
+
+<h1>Dimension 1, Degree 3, Polynomial: Rational Preperiodic Points</h1>
+
+
+  
+  <section class="data-table">
+    <h2>Functions over &#x211A;</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Label</th>
+          <th>Function</th>
+          <th>Field of Definition</th>
+          <th>Cardinality</th>
+          <th>Periodic Cycles</th>
+          <th>Preperiodic Components</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>1.9a82bd54.3667f7d9.1</td>
+          <td class="fn">(x<sup>3</sup> + y<sup>3</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>1</td>
+          <td>1</td>
+          <td>1</td>
+        </tr>
+        
+        <tr>
+          <td>1.7e36c441.20e2ac14.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; y<sup>3</sup>&nbsp;:&nbsp;-y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>3</td>
+          <td>2, 1</td>
+          <td>2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.0055c590.ed64de1e.1</td>
+          <td class="fn">(x<sup>3</sup> + xy<sup>2</sup> + y<sup>3</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>2</td>
+          <td>1, 1</td>
+          <td>1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.b00ed9b9.04728702.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; xy<sup>2</sup> + y<sup>3</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>4</td>
+          <td>1, 1</td>
+          <td>3, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.cb051a84.cd6fab67.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; xy<sup>2</sup> + 2y<sup>3</sup>&nbsp;:&nbsp;2y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>1, 1, 1</td>
+          <td>3, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.d4a34d4b.6a79bec0.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; xy<sup>2</sup> &minus; 2y<sup>3</sup>&nbsp;:&nbsp;-2y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>2, 1</td>
+          <td>4, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.facf0049.688d3315.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 3xy<sup>2</sup> &minus; y<sup>3</sup>&nbsp;:&nbsp;-y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>3</td>
+          <td>1, 1</td>
+          <td>2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.5ac401c2.34c3c88c.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 3xy<sup>2</sup> + 2y<sup>3</sup>&nbsp;:&nbsp;2y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>2, 1, 1</td>
+          <td>3, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.5b621046.0e8d94e9.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 3xy<sup>2</sup> &minus; 2y<sup>3</sup>&nbsp;:&nbsp;-2y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>3, 1</td>
+          <td>5, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.5aac8d61.852d660b.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; xy<sup>2</sup> + 3y<sup>3</sup>&nbsp;:&nbsp;3y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>1, 1</td>
+          <td>4, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.f1d8a4f8.0c07551b.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 2xy<sup>2</sup> + 2y<sup>3</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>3</td>
+          <td>1, 1, 1</td>
+          <td>1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.7131a09e.8573ce82.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 3xy<sup>2</sup> &minus; y<sup>3</sup>&nbsp;:&nbsp;-y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>4</td>
+          <td>2, 1</td>
+          <td>3, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.bd42efc7.6176739e.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 4xy<sup>2</sup> + 3y<sup>3</sup>&nbsp;:&nbsp;3y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>2, 1</td>
+          <td>5, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.8aeb464f.0c20066b.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 4xy<sup>2</sup> + 3y<sup>3</sup>&nbsp;:&nbsp;3y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>1, 1, 1, 1</td>
+          <td>3, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.34f852bb.e2925272.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 5xy<sup>2</sup> &minus; 4y<sup>3</sup>&nbsp;:&nbsp;-4y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>4</td>
+          <td>3, 1</td>
+          <td>3, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.7c4d9da4.cf052ce5.1</td>
+          <td class="fn">(2x<sup>3</sup> &minus; 5xy<sup>2</sup> &minus; 3y<sup>3</sup>&nbsp;:&nbsp;-3y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>4, 1</td>
+          <td>4, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.930d87c7.62a84f51.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; xy<sup>2</sup> + 6y<sup>3</sup>&nbsp;:&nbsp;6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>1, 1, 1, 1</td>
+          <td>4, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.4f2ccba6.7a3e142f.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; xy<sup>2</sup> &minus; 6y<sup>3</sup>&nbsp;:&nbsp;-6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>1, 1</td>
+          <td>5, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.ae26dd44.18f135b8.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; xy<sup>2</sup> &minus; 6y<sup>3</sup>&nbsp;:&nbsp;-6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>2, 2, 1</td>
+          <td>4, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.9f695940.aa1b7dc0.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; xy<sup>2</sup> &minus; 6y<sup>3</sup>&nbsp;:&nbsp;-6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>2, 1, 1</td>
+          <td>4, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.596006ca.582041e4.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 7xy<sup>2</sup> + 3y<sup>3</sup>&nbsp;:&nbsp;3y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>1, 1</td>
+          <td>7, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.2f943509.9f423aad.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 7xy<sup>2</sup> + 6y<sup>3</sup>&nbsp;:&nbsp;6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>9</td>
+          <td>1, 1, 1, 1</td>
+          <td>4, 3, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.d073ed60.88a37e20.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 7xy<sup>2</sup> &minus; 6y<sup>3</sup>&nbsp;:&nbsp;-6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>2, 1</td>
+          <td>7, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.74f13bd4.f40f7ed9.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 7xy<sup>2</sup> &minus; 6y<sup>3</sup>&nbsp;:&nbsp;-6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>9</td>
+          <td>2, 1</td>
+          <td>8, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.e25e3e69.bbc2e348.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 7xy<sup>2</sup> + 6y<sup>3</sup>&nbsp;:&nbsp;6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>2, 1</td>
+          <td>7, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.062d6fd4.8aa6fecd.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 7xy<sup>2</sup> &minus; 6y<sup>3</sup>&nbsp;:&nbsp;-6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>1, 1</td>
+          <td>7, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.0e5bf0af.6c3e1388.1</td>
+          <td class="fn">(3x<sup>3</sup> &minus; 9xy<sup>2</sup> + 2y<sup>3</sup>&nbsp;:&nbsp;2y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>4</td>
+          <td>1, 1</td>
+          <td>3, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.daf0cc02.21d9e611.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 9/4&middot;xy<sup>2</sup> + 1/2&middot;y<sup>3</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>3, 1</td>
+          <td>5, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.721c6bfd.9ba98839.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 5xy<sup>2</sup> + 2y<sup>3</sup>&nbsp;:&nbsp;2y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>4</td>
+          <td>1, 1, 1, 1</td>
+          <td>1, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.7b2113e3.48912438.1</td>
+          <td class="fn">(9x<sup>3</sup> + xy<sup>2</sup> &minus; 10y<sup>3</sup>&nbsp;:&nbsp;-10y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>4</td>
+          <td>2, 1, 1</td>
+          <td>2, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.43a9b821.d0442390.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 11xy<sup>2</sup> &minus; 10y<sup>3</sup>&nbsp;:&nbsp;-10y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>2, 2, 1</td>
+          <td>2, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.d4e1d9bd.b6030427.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 13xy<sup>2</sup> + 6y<sup>3</sup>&nbsp;:&nbsp;6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>2, 1</td>
+          <td>9, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.3c3b4962.9789849b.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 13xy<sup>2</sup> &minus; 6y<sup>3</sup>&nbsp;:&nbsp;-6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>1, 1, 1, 1</td>
+          <td>4, 4, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.d5b21280.a4b7fd53.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 13xy<sup>2</sup> + 6y<sup>3</sup>&nbsp;:&nbsp;6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>9</td>
+          <td>1, 1</td>
+          <td>8, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.296d565f.20c33639.1</td>
+          <td class="fn">(16x<sup>3</sup> &minus; 13xy<sup>2</sup> &minus; 12y<sup>3</sup>&nbsp;:&nbsp;-12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>9</td>
+          <td>3, 1</td>
+          <td>8, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.c1e1ae4b.d73171c9.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 7/4&middot;xy<sup>2</sup> + 1/4&middot;y<sup>3</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>2, 1</td>
+          <td>6, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.a0adc496.de78e233.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 21xy<sup>2</sup> &minus; 10y<sup>3</sup>&nbsp;:&nbsp;-10y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>2, 1</td>
+          <td>6, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.143c76d8.2e93d8f3.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 28xy<sup>2</sup> &minus; 16y<sup>3</sup>&nbsp;:&nbsp;-16y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>1, 1, 1</td>
+          <td>3, 3, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.cd6f9660.7873c9dd.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 28xy<sup>2</sup> + 48y<sup>3</sup>&nbsp;:&nbsp;48y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>1, 1</td>
+          <td>6, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.818957a8.936c5c87.1</td>
+          <td class="fn">(2x<sup>3</sup> &minus; 38xy<sup>2</sup> + 15y<sup>3</sup>&nbsp;:&nbsp;15y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>1, 1</td>
+          <td>6, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.6502de33.969c7b25.1</td>
+          <td class="fn">(3x<sup>3</sup> &minus; 36xy<sup>2</sup> + 16y<sup>3</sup>&nbsp;:&nbsp;16y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>1, 1</td>
+          <td>4, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.9fcfd25c.91fd0195.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 3/4&middot;xy<sup>2</sup> + 3/4&middot;y<sup>3</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>1, 1, 1, 1</td>
+          <td>2, 2, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.194ce1a9.8660b31e.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 12xy<sup>2</sup> &minus; 16y<sup>3</sup>&nbsp;:&nbsp;-16y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>2, 1</td>
+          <td>4, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.1e4d1273.5dc5464a.1</td>
+          <td class="fn">(16x<sup>3</sup> &minus; 16xy<sup>2</sup> &minus; 15y<sup>3</sup>&nbsp;:&nbsp;-15y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>1, 2, 1</td>
+          <td>4, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.8b819948.3ed81102.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 21xy<sup>2</sup> + 10y<sup>3</sup>&nbsp;:&nbsp;10y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>1, 1, 1, 1</td>
+          <td>3, 3, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.9722bcc8.3f1e1a77.1</td>
+          <td class="fn">(25x<sup>3</sup> &minus; 25xy<sup>2</sup> + 12y<sup>3</sup>&nbsp;:&nbsp;12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>1, 2, 1</td>
+          <td>3, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.1da98dda.1cfac040.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 25xy<sup>2</sup> + 12y<sup>3</sup>&nbsp;:&nbsp;12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>5, 1</td>
+          <td>7, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.9c94c3be.8f280c56.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 25xy<sup>2</sup> &minus; 12y<sup>3</sup>&nbsp;:&nbsp;-12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>9</td>
+          <td>3, 1, 1, 1, 1</td>
+          <td>5, 1, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.8873a09e.feb3ffc2.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 25xy<sup>2</sup> + 12y<sup>3</sup>&nbsp;:&nbsp;12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>3, 1, 1</td>
+          <td>6, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.10af2e63.d5d4442d.1</td>
+          <td class="fn">(7x<sup>3</sup> &minus; 25xy<sup>2</sup> + 6y<sup>3</sup>&nbsp;:&nbsp;6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>3, 1, 1</td>
+          <td>3, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.3e6c85c6.a07c0a70.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 19xy<sup>2</sup> &minus; 30y<sup>3</sup>&nbsp;:&nbsp;-30y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>1, 1</td>
+          <td>5, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.96253f25.4f70736a.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 37xy<sup>2</sup> &minus; 12y<sup>3</sup>&nbsp;:&nbsp;-12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>2, 1, 1</td>
+          <td>6, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.7e1c6f61.f94f3b7b.1</td>
+          <td class="fn">(16x<sup>3</sup> &minus; 37xy<sup>2</sup> &minus; 12y<sup>3</sup>&nbsp;:&nbsp;-12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>1, 1</td>
+          <td>6, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.57c6ed2f.aa46601a.1</td>
+          <td class="fn">(64x<sup>3</sup> &minus; 37xy<sup>2</sup> &minus; 6y<sup>3</sup>&nbsp;:&nbsp;-6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>2, 1</td>
+          <td>6, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.e21821ae.66818176.1</td>
+          <td class="fn">(32x<sup>3</sup> &minus; 47xy<sup>2</sup> + 15y<sup>3</sup>&nbsp;:&nbsp;15y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>2, 1, 1, 1, 1</td>
+          <td>2, 1, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.c953bd66.ebeb7ac0.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 76xy<sup>2</sup> + 48y<sup>3</sup>&nbsp;:&nbsp;48y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>9</td>
+          <td>2, 1</td>
+          <td>8, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.94bd291c.95d1a964.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 124xy<sup>2</sup> + 48y<sup>3</sup>&nbsp;:&nbsp;48y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>2, 2, 1</td>
+          <td>5, 4, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.173ccadf.ccc3dbc2.1</td>
+          <td class="fn">(49x<sup>3</sup> &minus; 76xy<sup>2</sup> &minus; 48y<sup>3</sup>&nbsp;:&nbsp;-48y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>2, 2, 1</td>
+          <td>5, 4, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.2c40cb6c.bc0790b1.1</td>
+          <td class="fn">(25x<sup>3</sup> &minus; 49xy<sup>2</sup> + 24y<sup>3</sup>&nbsp;:&nbsp;24y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>2, 1</td>
+          <td>9, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.7b36f59a.95831402.1</td>
+          <td class="fn">(25x<sup>3</sup> &minus; 49xy<sup>2</sup> + 60y<sup>3</sup>&nbsp;:&nbsp;60y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>1, 1</td>
+          <td>9, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.d17acb7c.63e986f1.1</td>
+          <td class="fn">(25x<sup>3</sup> &minus; 49xy<sup>2</sup> &minus; 60y<sup>3</sup>&nbsp;:&nbsp;-60y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>2, 1</td>
+          <td>9, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.90fab641.c4a4a8a3.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 61xy<sup>2</sup> + 30y<sup>3</sup>&nbsp;:&nbsp;30y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>4, 1</td>
+          <td>6, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.e61d8484.65d4dcaa.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 73xy<sup>2</sup> + 24y<sup>3</sup>&nbsp;:&nbsp;24y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>9</td>
+          <td>2, 1</td>
+          <td>8, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.6e125599.2bc4970f.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 73xy<sup>2</sup> &minus; 24y<sup>3</sup>&nbsp;:&nbsp;-24y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>1, 1</td>
+          <td>6, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.39cb5615.d8266ebf.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 79xy<sup>2</sup> + 30y<sup>3</sup>&nbsp;:&nbsp;30y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>2, 2, 1</td>
+          <td>5, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.8aa5e8e4.fa972e5e.1</td>
+          <td class="fn">(49x<sup>3</sup> &minus; 79xy<sup>2</sup> + 30y<sup>3</sup>&nbsp;:&nbsp;30y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>2, 1, 1</td>
+          <td>5, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.e2ccbdf8.be93fd76.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 91xy<sup>2</sup> &minus; 30y<sup>3</sup>&nbsp;:&nbsp;-30y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>9</td>
+          <td>3, 1</td>
+          <td>8, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.ba669632.1388f678.1</td>
+          <td class="fn">(16x<sup>3</sup> &minus; 121xy<sup>2</sup> + 30y<sup>3</sup>&nbsp;:&nbsp;30y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>3, 1</td>
+          <td>6, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.ee12426a.efb26159.1</td>
+          <td class="fn">(121x<sup>3</sup> &minus; 364xy<sup>2</sup> + 80y<sup>3</sup>&nbsp;:&nbsp;80y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>1, 1, 1, 1</td>
+          <td>3, 3, 3, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.56efb0a4.f101c3f5.1</td>
+          <td class="fn">(121x<sup>3</sup> &minus; 284xy<sup>2</sup> &minus; 80y<sup>3</sup>&nbsp;:&nbsp;-80y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>2, 2, 2, 1</td>
+          <td>2, 2, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.8f2b80e6.c0500433.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 75xy<sup>2</sup> + 250y<sup>3</sup>&nbsp;:&nbsp;250y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>1, 1, 1, 1</td>
+          <td>2, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.a4ad0d55.083a96b2.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 12xy<sup>2</sup> + 12y<sup>3</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>1, 1, 1, 1</td>
+          <td>2, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.9f5ab3b9.1d588276.1</td>
+          <td class="fn">(16x<sup>3</sup> &minus; 300xy<sup>2</sup> + 125y<sup>3</sup>&nbsp;:&nbsp;125y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>2, 1, 1</td>
+          <td>2, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.56de700a.098d271b.1</td>
+          <td class="fn">(121x<sup>3</sup> &minus; 75xy<sup>2</sup> &minus; 250y<sup>3</sup>&nbsp;:&nbsp;-250y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>1, 2, 1</td>
+          <td>2, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.a8de819c.37accabd.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 880xy<sup>2</sup> + 384y<sup>3</sup>&nbsp;:&nbsp;384y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>4, 1, 1</td>
+          <td>4, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.2bd9f383.ea9751b0.1</td>
+          <td class="fn">(441x<sup>3</sup> &minus; 124xy<sup>2</sup> &minus; 240y<sup>3</sup>&nbsp;:&nbsp;-240y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>9</td>
+          <td>2, 2, 1</td>
+          <td>4, 4, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.3e7c18e1.86a5f1f4.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 169xy<sup>2</sup> &minus; 120y<sup>3</sup>&nbsp;:&nbsp;-120y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>1, 1, 1, 1</td>
+          <td>5, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.5d99de76.000c31d9.1</td>
+          <td class="fn">(49x<sup>3</sup> &minus; 169xy<sup>2</sup> + 120y<sup>3</sup>&nbsp;:&nbsp;120y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>9</td>
+          <td>2, 1, 1</td>
+          <td>7, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.54fc67f0.1e4b51b9.1</td>
+          <td class="fn">(169x<sup>3</sup> &minus; 436xy<sup>2</sup> &minus; 96y<sup>3</sup>&nbsp;:&nbsp;-96y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>9</td>
+          <td>2, 2, 2, 1</td>
+          <td>4, 2, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.127b28ef.d2895030.1</td>
+          <td class="fn">(441x<sup>3</sup> &minus; 181xy<sup>2</sup> &minus; 30y<sup>3</sup>&nbsp;:&nbsp;-30y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>2, 1, 1, 1, 1</td>
+          <td>4, 1, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.cc9dd188.453dbf8b.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 604xy<sup>2</sup> + 240y<sup>3</sup>&nbsp;:&nbsp;240y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>11</td>
+          <td>2, 2, 2, 1</td>
+          <td>4, 4, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.bd2a8de2.6265c653.1</td>
+          <td class="fn">(729x<sup>3</sup> &minus; 151xy<sup>2</sup> + 30y<sup>3</sup>&nbsp;:&nbsp;30y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>7</td>
+          <td>3, 1, 1</td>
+          <td>5, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.44d31e0e.f2c2067f.1</td>
+          <td class="fn">(49x<sup>3</sup> &minus; 675xy<sup>2</sup> &minus; 250y<sup>3</sup>&nbsp;:&nbsp;-250y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>2, 1</td>
+          <td>4, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.76f5d3bb.c95e3845.1</td>
+          <td class="fn">(289x<sup>3</sup> &minus; 108xy<sup>2</sup> &minus; 16y<sup>3</sup>&nbsp;:&nbsp;-16y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>5</td>
+          <td>2, 1</td>
+          <td>4, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.58e0e473.30035c41.1</td>
+          <td class="fn">(81x<sup>3</sup> &minus; 2128xy<sup>2</sup> + 768y<sup>3</sup>&nbsp;:&nbsp;768y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>3, 1</td>
+          <td>7, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.5fe37194.3d72adff.1</td>
+          <td class="fn">(x<sup>3</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>4</td>
+          <td>1, 1, 1, 1</td>
+          <td>1, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.5fe37194.3d72adff.2</td>
+          <td class="fn">(x<sup>3</sup>&nbsp;:&nbsp;-y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>4</td>
+          <td>2, 1, 1</td>
+          <td>2, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.9554125a.42669779.1</td>
+          <td class="fn">(x<sup>3</sup> + xy<sup>2</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>2</td>
+          <td>1, 1</td>
+          <td>1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.f0a5cca7.42669779.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; xy<sup>2</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>4</td>
+          <td>1, 1</td>
+          <td>3, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.4b199b71.fe98c06c.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 3xy<sup>2</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>1, 1, 1, 1</td>
+          <td>2, 2, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.e8bb745c.fe98c06c.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 3xy<sup>2</sup>&nbsp;:&nbsp;-y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>2, 1, 1</td>
+          <td>4, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.830adc73.63421593.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; xy<sup>2</sup>&nbsp;:&nbsp;3y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>1, 1, 1, 1</td>
+          <td>3, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.a35fcee9.63421593.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; xy<sup>2</sup>&nbsp;:&nbsp;-3y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>1, 2, 1</td>
+          <td>3, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.aaf571cf.60a28dd0.1</td>
+          <td class="fn">(x<sup>3</sup> &minus; 5/4&middot;xy<sup>2</sup>&nbsp;:&nbsp;y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>2, 1, 1, 1, 1</td>
+          <td>2, 1, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.86af38cb.639acb45.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 5xy<sup>2</sup>&nbsp;:&nbsp;2y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>2, 2, 1, 1</td>
+          <td>2, 2, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.615e9ea3.bdd217dc.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; xy<sup>2</sup>&nbsp;:&nbsp;6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>1, 1</td>
+          <td>5, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.6a4159e9.82516cf9.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 7xy<sup>2</sup>&nbsp;:&nbsp;2y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>1, 1, 1, 1</td>
+          <td>3, 3, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.6767275a.82516cf9.1</td>
+          <td class="fn">(4x<sup>3</sup> &minus; 7xy<sup>2</sup>&nbsp;:&nbsp;-2y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>2, 1, 1</td>
+          <td>6, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.00a8d209.fb578664.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 13xy<sup>2</sup>&nbsp;:&nbsp;6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>2, 2, 1, 1</td>
+          <td>4, 4, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.eda89b36.4c6458de.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 13xy<sup>2</sup>&nbsp;:&nbsp;12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>2, 1, 1, 1, 1</td>
+          <td>6, 1, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.f8b704d7.4c6458de.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 13xy<sup>2</sup>&nbsp;:&nbsp;-12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>1, 1, 2, 1, 1</td>
+          <td>3, 3, 2, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.283c46e9.58a61ee5.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 85xy<sup>2</sup>&nbsp;:&nbsp;30y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>6</td>
+          <td>4, 1, 1</td>
+          <td>4, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.8559ffe5.347dee9d.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 19xy<sup>2</sup>&nbsp;:&nbsp;6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>12</td>
+          <td>1, 1, 1, 1</td>
+          <td>5, 5, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.cd902a24.347dee9d.1</td>
+          <td class="fn">(9x<sup>3</sup> &minus; 19xy<sup>2</sup>&nbsp;:&nbsp;-6y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>12</td>
+          <td>2, 1, 1</td>
+          <td>10, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.5c0a726d.766edf39.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; xy<sup>2</sup>&nbsp;:&nbsp;24y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>1, 1, 1, 1</td>
+          <td>5, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.c8db720a.766edf39.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; xy<sup>2</sup>&nbsp;:&nbsp;-24y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>1, 2, 1</td>
+          <td>5, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.184d863d.9f8684f6.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 25xy<sup>2</sup>&nbsp;:&nbsp;12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>1, 2, 2, 1</td>
+          <td>3, 2, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.c9f75935.05cf79d3.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 25xy<sup>2</sup>&nbsp;:&nbsp;24y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>1, 2, 1, 1, 1</td>
+          <td>3, 2, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.1e2b5cc3.42692a0a.1</td>
+          <td class="fn">(25x<sup>3</sup> &minus; 34xy<sup>2</sup>&nbsp;:&nbsp;15y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>2, 2, 1, 1, 1, 1</td>
+          <td>2, 2, 1, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.9f549580.42692a0a.1</td>
+          <td class="fn">(25x<sup>3</sup> &minus; 34xy<sup>2</sup>&nbsp;:&nbsp;-15y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>8</td>
+          <td>2, 2, 2, 1, 1</td>
+          <td>2, 2, 2, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.79ee5a65.0f4c28a2.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 37xy<sup>2</sup>&nbsp;:&nbsp;12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>12</td>
+          <td>1, 1, 2, 1, 1</td>
+          <td>4, 4, 2, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.d780f2b1.0f4c28a2.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 37xy<sup>2</sup>&nbsp;:&nbsp;-12y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>12</td>
+          <td>2, 1, 1, 1, 1</td>
+          <td>8, 1, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.7cfe5367.3d07bd2a.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 49xy<sup>2</sup>&nbsp;:&nbsp;24y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>2, 1, 1</td>
+          <td>6, 3, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.3fddde41.3d07bd2a.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 49xy<sup>2</sup>&nbsp;:&nbsp;-24y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>1, 1, 1, 1</td>
+          <td>3, 3, 3, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.7a8d9186.ba7e61ef.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 73xy<sup>2</sup>&nbsp;:&nbsp;24y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>12</td>
+          <td>2, 2, 2, 1, 1</td>
+          <td>4, 4, 2, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.863416b3.ba7e61ef.1</td>
+          <td class="fn">(36x<sup>3</sup> &minus; 73xy<sup>2</sup>&nbsp;:&nbsp;-24y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>12</td>
+          <td>2, 2, 1, 1, 1, 1</td>
+          <td>4, 4, 1, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.52685069.30202a88.1</td>
+          <td class="fn">(49x<sup>3</sup> &minus; 163xy<sup>2</sup>&nbsp;:&nbsp;42y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>2, 1, 1</td>
+          <td>8, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.a351b371.30202a88.1</td>
+          <td class="fn">(49x<sup>3</sup> &minus; 163xy<sup>2</sup>&nbsp;:&nbsp;-42y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>1, 1, 1, 1</td>
+          <td>4, 4, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.0914e46b.014962df.1</td>
+          <td class="fn">(144x<sup>3</sup> &minus; 169xy<sup>2</sup>&nbsp;:&nbsp;120y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>12</td>
+          <td>2, 1, 1, 1, 1</td>
+          <td>6, 3, 1, 1, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.ff7fdce9.014962df.1</td>
+          <td class="fn">(144x<sup>3</sup> &minus; 169xy<sup>2</sup>&nbsp;:&nbsp;-120y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>12</td>
+          <td>1, 1, 1, 2, 1</td>
+          <td>3, 3, 3, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.c9377ea5.ffb2a57a.1</td>
+          <td class="fn">(144x<sup>3</sup> &minus; 289xy<sup>2</sup>&nbsp;:&nbsp;120y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>1, 2, 2, 2, 1</td>
+          <td>3, 2, 2, 2, 1</td>
+        </tr>
+        
+        <tr>
+          <td>1.aca30c10.ffb2a57a.1</td>
+          <td class="fn">(144x<sup>3</sup> &minus; 289xy<sup>2</sup>&nbsp;:&nbsp;-120y<sup>3</sup>)</td>
+          <td>1.1.1.1</td>
+          <td>10</td>
+          <td>1, 2, 2, 1, 1, 1</td>
+          <td>3, 2, 2, 1, 1, 1</td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </section>
+  
+
+
+</main>
+
+<footer class="site-footer">
+  <p>DynaBase &mdash; Database of Arithmetic Dynamics</p>
+</footer>
+</body>
+</html>

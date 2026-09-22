@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Dimension {{ dimension }}, Degree {{ degree }}, {{ type_label }}: Rational Preperiodic Points</h1>
+
+{% if groups %}
+  {% for heading, rows in groups %}
+  <section class="data-table">
+    <h2>{{ heading | safe }}</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Label</th>
+          <th>Function</th>
+          <th>Field of Definition</th>
+          <th>Cardinality</th>
+          <th>Periodic Cycles</th>
+          <th>Preperiodic Components</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.label }}</td>
+          <td class="fn">{{ row.function | safe }}</td>
+          <td>{{ row.field | safe }}</td>
+          <td>{{ row.cardinality }}</td>
+          <td>{{ row.periodic_cycles | safe }}</td>
+          <td>{{ row.preperiodic_components | safe }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endfor %}
+{% else %}
+  <p class="empty">No data has been generated for this combination yet.</p>
+{% endif %}
+{% endblock %}

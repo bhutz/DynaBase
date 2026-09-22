@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }} &mdash; DynaBase</title>
+<link rel="stylesheet" href="{{ root }}assets/style.css">
+</head>
+<body>
+<h1 class="site-title">Dynabase</h1>
+
+<nav class="static-links">
+  <a href="{{ root }}about.html">About Dynabase</a>
+  <a href="{{ root }}data-summary.html">Summary of Included Data</a>
+  <a href="{{ root }}extreme-examples.html">Summary of Extreme Examples</a>
+</nav>
+
+<hr class="header-rule">
+
+<form class="selectors" id="selectors">
+  <label>Dimension
+    <select id="sel-dimension">
+      <option value="1" selected>1</option>
+    </select>
+  </label>
+  <label>Degree
+    <select id="sel-degree">
+      <option value="2" {% if degree == 2 %}selected{% endif %}>2</option>
+      <option value="3" {% if degree == 3 %}selected{% endif %}>3</option>
+    </select>
+  </label>
+  <label>Type
+    <select id="sel-type">
+      <option value="polynomial" {% if type_ == 'polynomial' %}selected{% endif %}>polynomial</option>
+      <option value="rational" {% if type_ == 'rational' %}selected{% endif %}>rational</option>
+    </select>
+  </label>
+  <label>Problem
+    <select id="sel-problem">
+      <option value="rational-preperiodic" selected>Rational Preperiodic</option>
+    </select>
+  </label>
+  <button type="submit">View</button>
+</form>
+<script>
+document.getElementById('selectors').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var dim = document.getElementById('sel-dimension').value;
+  var deg = document.getElementById('sel-degree').value;
+  var typ = document.getElementById('sel-type').value;
+  var prob = document.getElementById('sel-problem').value;
+  window.location.href = '{{ root }}data/' + dim + '/' + deg + '/' + typ + '/' + prob + '.html';
+});
+</script>
+
+<main>
+{% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <p>DynaBase &mdash; Database of Arithmetic Dynamics</p>
+</footer>
+</body>
+</html>

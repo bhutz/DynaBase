@@ -1,0 +1,113 @@
+:root {
+  --border: #c2c2c2;
+  --header-bg: #1b2a4a;
+  --header-fg: #f4f4f4;
+  --link: #1b4fa0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  color: #1a1a1a;
+  background: #fff;
+}
+
+.site-title {
+  text-align: center;
+  margin: 0;
+  padding: 1rem 1.25rem 0.5rem;
+  font-size: 1.75rem;
+  letter-spacing: 0.03em;
+}
+
+.static-links {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 0 1.25rem 0.75rem;
+}
+
+.static-links a {
+  color: var(--link);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.static-links a:hover { text-decoration: underline; }
+
+hr.header-rule {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+form.selectors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: #f7f8fa;
+}
+
+form.selectors label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  color: #444;
+}
+
+form.selectors select {
+  margin-top: 0.25rem;
+  padding: 0.3rem;
+}
+
+form.selectors button {
+  padding: 0.4rem 1rem;
+  cursor: pointer;
+}
+
+main {
+  padding: 1.25rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+h1 { font-size: 1.4rem; }
+h2 { font-size: 1.1rem; margin-top: 2rem; }
+
+table {
+  border-collapse: collapse;
+  border: 1px solid var(--border);
+  width: 100%;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+th, td {
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+th { background: #eef1f6; }
+
+td.fn { font-family: "Cambria Math", Cambria, Georgia, serif; }
+
+p.empty { color: #777; font-style: italic; }
+p.stub-note { color: #8a5a00; background: #fff6e0; padding: 0.6rem 0.9rem; border: 1px solid #f0d18a; }
+
+main ul { margin: 0.25rem 0; padding-left: 1.5rem; }
+main li { margin: 0.15rem 0; }
+
+.site-footer {
+  text-align: center;
+  color: #888;
+  font-size: 0.8rem;
+  padding: 1.5rem;
+}

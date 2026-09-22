@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Summary of Included Data &mdash; DynaBase</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<h1 class="site-title">Dynabase</h1>
+
+<nav class="static-links">
+  <a href="about.html">About Dynabase</a>
+  <a href="data-summary.html">Summary of Included Data</a>
+  <a href="extreme-examples.html">Summary of Extreme Examples</a>
+</nav>
+
+<hr class="header-rule">
+
+<form class="selectors" id="selectors">
+  <label>Dimension
+    <select id="sel-dimension">
+      <option value="1" selected>1</option>
+    </select>
+  </label>
+  <label>Degree
+    <select id="sel-degree">
+      <option value="2" >2</option>
+      <option value="3" >3</option>
+    </select>
+  </label>
+  <label>Type
+    <select id="sel-type">
+      <option value="polynomial" >polynomial</option>
+      <option value="rational" >rational</option>
+    </select>
+  </label>
+  <label>Problem
+    <select id="sel-problem">
+      <option value="rational-preperiodic" selected>Rational Preperiodic</option>
+    </select>
+  </label>
+  <button type="submit">View</button>
+</form>
+<script>
+document.getElementById('selectors').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var dim = document.getElementById('sel-dimension').value;
+  var deg = document.getElementById('sel-degree').value;
+  var typ = document.getElementById('sel-type').value;
+  var prob = document.getElementById('sel-problem').value;
+  window.location.href = 'data/' + dim + '/' + deg + '/' + typ + '/' + prob + '.html';
+});
+</script>
+
+<main>
+
+<h1>Data sources</h1>
+<p>This file lists the data and data sources.</p>
+<h1>Published Sources</h1>
+<ul>
+<li>Quadratic polynomials z^2 + c
+<ul>
+<li>Over QQ
+<ul>
+<li>Bjorn Poonen. The classificiation of rational preperiodic points of quadratic polynomials over Q: a refined conjecture. Math. Z., 228(1):11--29, 1998
+<ul>
+<li>The examples contained in the main table
+</li></ul>
+</li></ul>
+</li>
+<li>Quadratic Number Fields
+<ul>
+<li>John R. Doyle, Xander Faber, and David Krumm. Preperiodic points for quadratic polynomials over quadratic fields. New York J. Math., 20:507--605, 2014
+<ul>
+<li>The examples contained in the appendix
+</li></ul>
+</li></ul>
+</li></ul>
+</li>
+<li>Cubic Polynomials
+<ul>
+<li>Over QQ
+<ul>
+<li>Robert Benedetto, Ben Dickman, Sasha Joseph, Ben Krause, Dan Rubin, and Xinwen Zhou. Computing points of small height for cubic polynomials. Involve, 2:37--64, 2009.
+<ul>
+<li>103 distinct preperiodic graphs from https://mgolech.github.io/cubics/index.html
+</li></ul>
+</li></ul>
+</li></ul>
+</li></ul>
+
+</main>
+
+<footer class="site-footer">
+  <p>DynaBase &mdash; Database of Arithmetic Dynamics</p>
+</footer>
+</body>
+</html>

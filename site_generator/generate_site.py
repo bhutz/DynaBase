@@ -1,0 +1,147 @@
+#!/usr/bin/env python3
+"""
+Generate the public static site (into ../docs/) from the DynaBase database.
+
+../docs/ is deliberate, not just a name choice: GitHub Pages' "Deploy from a
+branch" source only offers repo root or /docs as the served folder, so this
+lets Pages serve the site directly with no build/Actions step.
+
+Usage:
+    python3 generate_site.py               # uses postgresql_local
+    python3 generate_site.py --section postgresql   # Neon - currently stale, avoid
+
+This only ever reads from the database. It requires no Sage, only psycopg2 +
+Jinja2 (both plain Python).
+"""
+
+import argparse
+import os
+import shutil
+import sys
+
+from jinja2 import Environment, FileSystemLoader
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import db
+import render
+import mdlite
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = os.path.dirname(HERE)
+SITE_DIR = os.path.join(REPO_ROOT, 'docs')
+DATA_SOURCES_MD = os.path.join(REPO_ROOT, 'sample_data', 'data_sources.md')
+
+CUSTOM_DOMAIN = 'dynabase.org'
+
+DIMENSIONS = [1]
+DEGREES = [2, 3]
+TYPES = [('polynomial', True), ('rational', False)]
+PROBLEM = 'rational-preperiodic'
+TYPE_LABELS = {'polynomial': 'Polynomial', 'rational': 'Rational'}
+
+DEFAULT_DEGREE = 2
+DEFAULT_TYPE = 'polynomial'
+
+
+def make_env():
+    return Environment(
+        loader=FileSystemLoader(os.path.join(HERE, 'templates')),
+        autoescape=False,  # we control escaping ourselves; most fields are pre-built HTML
+    )
+
+
+def write(path, content):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
+        f.write(content)
+
+
+def root_prefix(rel_path):
+    """
+    '../' once per directory level rel_path is nested under SITE_DIR, so every
+    page - regardless of depth - links to assets/other pages relative to
+    itself. Needed for GitHub Pages (domain root) *and* for opening files
+    directly via file:// while testing locally: a root-absolute '/assets/...'
+    resolves against the filesystem root under file://, not the site root,
+    which is exactly why the selector/View button appeared to do nothing in
+    local testing before this fix.
+    """
+    depth = rel_path.count('/')
+    return '../' * depth
+
+
+def render_data_page(env, conn, dimension, degree, type_name, is_polynomial, root):
+    rows = db.get_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
+    groups = render.group_by_field_degree(dimension, rows)
+    template = env.get_template('data_page.html')
+    return template.render(
+        title=f'Degree {degree} {TYPE_LABELS[type_name]} Rational Preperiodic',
+        dimension=dimension,
+        degree=degree,
+        type_=type_name,
+        type_label=TYPE_LABELS[type_name],
+        groups=groups,
+        root=root,
+    )
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--section', default='postgresql_local',
+                         help="database.ini section to read from "
+                              "(default: postgresql_local; 'postgresql' [Neon] is stale as of 2026-09-22)")
+    args = parser.parse_args()
+
+    conn = db.connect(section=args.section)
+    env = make_env()
+    type_by_name = dict(TYPES)  # 'polynomial' -> True, 'rational' -> False
+
+    # --- data pages: dimension=1 x degree in {2,3} x type in {polynomial,rational} ---
+    for dimension in DIMENSIONS:
+        for degree in DEGREES:
+            for type_name, is_polynomial in TYPES:
+                rel = f'data/{dimension}/{degree}/{type_name}/{PROBLEM}.html'
+                html = render_data_page(env, conn, dimension, degree, type_name,
+                                         is_polynomial, root=root_prefix(rel))
+                write(os.path.join(SITE_DIR, rel), html)
+                print('wrote', rel)
+
+    # index.html = the default combination re-rendered at depth 0 (root='') -
+    # can't just reuse the data/ page's HTML, its links/JS are relative to a
+    # different depth.
+    index_html = render_data_page(env, conn, DIMENSIONS[0], DEFAULT_DEGREE, DEFAULT_TYPE,
+                                   type_by_name[DEFAULT_TYPE], root='')
+    write(os.path.join(SITE_DIR, 'index.html'), index_html)
+    print('wrote index.html (= dimension 1, degree', DEFAULT_DEGREE, ',', DEFAULT_TYPE, ')')
+
+    # --- static-link pages (all top-level, so root='') ---
+    write(os.path.join(SITE_DIR, 'about.html'),
+          env.get_template('about.html').render(title='About', root=''))
+
+    data_sources_text = open(DATA_SOURCES_MD, encoding='utf-8').read()
+    content_html = mdlite.render(data_sources_text)
+    write(os.path.join(SITE_DIR, 'data-summary.html'),
+          env.get_template('data_summary.html').render(
+              title='Summary of Included Data', root='', content_html=content_html))
+
+    write(os.path.join(SITE_DIR, 'extreme-examples.html'),
+          env.get_template('extreme_examples.html').render(title='Summary of Extreme Examples', root=''))
+
+    # --- assets ---
+    os.makedirs(os.path.join(SITE_DIR, 'assets'), exist_ok=True)
+    shutil.copyfile(os.path.join(HERE, 'static', 'style.css'),
+                     os.path.join(SITE_DIR, 'assets', 'style.css'))
+
+    # GitHub Pages: don't run this through Jekyll
+    open(os.path.join(SITE_DIR, '.nojekyll'), 'a').close()
+
+    # Custom domain - GitHub Pages reads this file to serve dynabase.org.
+    # Written here (not just once by hand) so it survives every regeneration.
+    write(os.path.join(SITE_DIR, 'CNAME'), CUSTOM_DOMAIN + '\n')
+
+    conn.close()
+    print('done ->', SITE_DIR)
+
+
+if __name__ == '__main__':
+    main()
