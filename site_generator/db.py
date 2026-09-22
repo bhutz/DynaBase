@@ -41,6 +41,7 @@ def get_functions_dim_1(conn, degree, is_polynomial):
             f.sigma_one,
             f.sigma_two,
             f.ordinal,
+            f.citations,
             f.display_model,
             (f.original_model).coeffs   AS original_coeffs,
             (f.reduced_model).coeffs    AS reduced_coeffs,
@@ -57,6 +58,15 @@ def get_functions_dim_1(conn, degree, is_polynomial):
         ORDER BY f.base_field_degree, f.function_id
     """, {'degree': degree, 'is_polynomial': is_polynomial})
     return [dict(row) for row in cur.fetchall()]
+
+
+def get_citations_by_id(conn):
+    """{citations.id: {label, authors, journal, year, citation, mathscinet}} for every
+    row in the citations table - small (~20 rows), loaded once per generation run
+    and used to resolve functions_dim_1_NF.citations (an int[] of these ids)."""
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("SELECT id, label, authors, journal, year, citation, mathscinet FROM citations")
+    return {row['id']: dict(row) for row in cur.fetchall()}
 
 
 def get_summary_counts(conn):

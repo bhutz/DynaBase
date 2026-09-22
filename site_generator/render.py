@@ -112,7 +112,25 @@ def format_label(dimension, row):
     return f"{dimension}.{row['sigma_one']}.{row['sigma_two']}.{row['ordinal']}"
 
 
-def build_table_rows(dimension, rows):
+def format_citations(citation_ids, citations_by_id, root):
+    """
+    functions_dim_1_NF.citations is int[] of citations.id. Render each as its
+    short label, linked to its entry in the Summary of Included Data page's
+    bibliography (see format_bibliography / the #cite-<label> anchors it
+    writes there).
+    """
+    if not citation_ids:
+        return '&mdash;'
+    parts = []
+    for cid in citation_ids:
+        c = citations_by_id.get(cid)
+        if c is None:
+            continue  # stale id, shouldn't happen, but don't break the page over it
+        parts.append(f'<a href="{root}data-summary.html#cite-{c["label"]}">{c["label"]}</a>')
+    return ', '.join(parts) if parts else '&mdash;'
+
+
+def build_table_rows(dimension, rows, citations_by_id, root):
     """Turn raw DB rows into the exact cell strings the table template needs."""
     out = []
     for row in rows:
@@ -123,11 +141,12 @@ def build_table_rows(dimension, rows):
             'cardinality': row['cardinality'] if row['cardinality'] is not None else '&mdash;',
             'periodic_cycles': format_int_list(row['periodic_cycles']),
             'preperiodic_components': format_int_list(row['preperiodic_components']),
+            'citations': format_citations(row.get('citations'), citations_by_id, root),
         })
     return out
 
 
-def group_by_field_degree(dimension, rows):
+def group_by_field_degree(dimension, rows, citations_by_id, root):
     """
     Group already-sorted (by base_field_degree, function_id) rows into a list
     of (heading, [row, ...]) tuples, one per distinct base_field_degree
@@ -143,4 +162,27 @@ def group_by_field_degree(dimension, rows):
             current_rows = []
             groups.append((field_degree_label(d), current_rows))
         current_rows.append(row)
-    return [(heading, build_table_rows(dimension, rs)) for heading, rs in groups]
+    return [(heading, build_table_rows(dimension, rs, citations_by_id, root)) for heading, rs in groups]
+
+
+def format_bibliography(citation_rows):
+    """
+    citation_rows: list of citations-table dicts (label, authors, journal,
+    year, citation, mathscinet), already sorted by caller. Renders the actual
+    reference text, each with an #cite-<label> anchor matching the links
+    format_citations() builds from the data tables, plus a MathSciNet link
+    when available.
+    """
+    if not citation_rows:
+        return '<p class="empty">No citations are attached to any function currently on this site.</p>'
+    items = []
+    for c in citation_rows:
+        mr = c.get('mathscinet')
+        mr_link = ''
+        if mr:
+            mr_num = mr[2:] if mr.upper().startswith('MR') else mr
+            mr_link = f' <a href="https://mathscinet.ams.org/mathscinet-getitem?mr={mr_num}">{mr}</a>'
+        items.append(
+            f'<li id="cite-{c["label"]}"><b>[{c["label"]}]</b> {c["citation"]}{mr_link}</li>'
+        )
+    return '<ul class="bibliography">\n' + '\n'.join(items) + '\n</ul>'

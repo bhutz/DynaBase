@@ -105,6 +105,10 @@ p.stub-note { color: #8a5a00; background: #fff6e0; padding: 0.6rem 0.9rem; borde
 main ul { margin: 0.25rem 0; padding-left: 1.5rem; }
 main li { margin: 0.15rem 0; }
 
+ul.bibliography { list-style: none; padding-left: 0; }
+ul.bibliography li { margin: 0.5rem 0; scroll-margin-top: 1rem; }
+ul.bibliography li:target { background: #fff6e0; }
+
 .site-footer {
   text-align: center;
   color: #888;

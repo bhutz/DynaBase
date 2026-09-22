@@ -70,9 +70,12 @@ def root_prefix(rel_path):
     return '../' * depth
 
 
-def render_data_page(env, conn, dimension, degree, type_name, is_polynomial, root):
+def render_data_page(env, conn, dimension, degree, type_name, is_polynomial, root,
+                      citations_by_id, used_citation_ids):
     rows = db.get_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
-    groups = render.group_by_field_degree(dimension, rows)
+    for row in rows:
+        used_citation_ids.update(row.get('citations') or [])
+    groups = render.group_by_field_degree(dimension, rows, citations_by_id, root)
     template = env.get_template('data_page.html')
     return template.render(
         title=f'Degree {degree} {TYPE_LABELS[type_name]} Rational Preperiodic',
@@ -96,13 +99,18 @@ def main():
     env = make_env()
     type_by_name = dict(TYPES)  # 'polynomial' -> True, 'rational' -> False
 
+    citations_by_id = db.get_citations_by_id(conn)
+    used_citation_ids = set()
+
     # --- data pages: dimension=1 x degree in {2,3} x type in {polynomial,rational} ---
     for dimension in DIMENSIONS:
         for degree in DEGREES:
             for type_name, is_polynomial in TYPES:
                 rel = f'data/{dimension}/{degree}/{type_name}/{PROBLEM}.html'
                 html = render_data_page(env, conn, dimension, degree, type_name,
-                                         is_polynomial, root=root_prefix(rel))
+                                         is_polynomial, root=root_prefix(rel),
+                                         citations_by_id=citations_by_id,
+                                         used_citation_ids=used_citation_ids)
                 write(os.path.join(SITE_DIR, rel), html)
                 print('wrote', rel)
 
@@ -110,7 +118,9 @@ def main():
     # can't just reuse the data/ page's HTML, its links/JS are relative to a
     # different depth.
     index_html = render_data_page(env, conn, DIMENSIONS[0], DEFAULT_DEGREE, DEFAULT_TYPE,
-                                   type_by_name[DEFAULT_TYPE], root='')
+                                   type_by_name[DEFAULT_TYPE], root='',
+                                   citations_by_id=citations_by_id,
+                                   used_citation_ids=used_citation_ids)
     write(os.path.join(SITE_DIR, 'index.html'), index_html)
     print('wrote index.html (= dimension 1, degree', DEFAULT_DEGREE, ',', DEFAULT_TYPE, ')')
 
@@ -120,9 +130,18 @@ def main():
 
     data_sources_text = open(DATA_SOURCES_MD, encoding='utf-8').read()
     content_html = mdlite.render(data_sources_text)
+    # Bibliography = citations actually attached to a function on some page
+    # just generated above, not the whole citations table - keeps this in
+    # sync with what's really on the site rather than what's merely planned.
+    bib_rows = sorted(
+        (citations_by_id[cid] for cid in used_citation_ids if cid in citations_by_id),
+        key=lambda c: c['label']
+    )
+    bibliography_html = render.format_bibliography(bib_rows)
     write(os.path.join(SITE_DIR, 'data-summary.html'),
           env.get_template('data_summary.html').render(
-              title='Summary of Included Data', root='', content_html=content_html))
+              title='Summary of Included Data', root='',
+              content_html=content_html, bibliography_html=bibliography_html))
 
     write(os.path.join(SITE_DIR, 'extreme-examples.html'),
           env.get_template('extreme_examples.html').render(title='Summary of Extreme Examples', root=''))
