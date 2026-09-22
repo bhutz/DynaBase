@@ -124,6 +124,39 @@ def main():
     write(os.path.join(SITE_DIR, 'index.html'), index_html)
     print('wrote index.html (= dimension 1, degree', DEFAULT_DEGREE, ',', DEFAULT_TYPE, ')')
 
+    # Extreme Examples: for each field category (QQ, quadratic fields - same
+    # grouping as the main data pages) and each degree, the polynomial with
+    # the longest periodic cycle / longest preperiodic tail among those
+    # currently loaded. One row per degree *within* each field-grouped
+    # section - field category is conveyed by the section, not a column.
+    # Computed before the bibliography below, so a citation used only by one
+    # of these winning rows still makes it into the citation list.
+    extreme_rows_by_degree = {degree: db.get_extreme_source_rows(conn, degree) for degree in DEGREES}
+
+    def build_extreme_groups(finder):
+        groups = []
+        for base_field_degree in (1, 2):
+            rows_out = []
+            for degree in DEGREES:
+                candidates = [r for r in extreme_rows_by_degree[degree]
+                              if r['base_field_degree'] == base_field_degree]
+                winner, value = finder(candidates)
+                if winner is None:
+                    continue
+                used_citation_ids.update(winner.get('citations') or [])
+                rows_out.append(render.build_extreme_row(degree, winner, value, citations_by_id, root=''))
+            if rows_out:
+                groups.append((render.field_degree_label(base_field_degree), rows_out))
+        return groups
+
+    longest_cycle_groups = build_extreme_groups(render.find_longest_cycle_row)
+    longest_tail_groups = build_extreme_groups(render.find_longest_tail_row)
+
+    write(os.path.join(SITE_DIR, 'extreme-examples.html'),
+          env.get_template('extreme_examples.html').render(
+              title='Summary of Extreme Examples', root='',
+              longest_cycle_groups=longest_cycle_groups, longest_tail_groups=longest_tail_groups))
+
     # --- static-link pages (all top-level, so root='') ---
     write(os.path.join(SITE_DIR, 'about.html'),
           env.get_template('about.html').render(title='About', root=''))
@@ -142,9 +175,6 @@ def main():
           env.get_template('data_summary.html').render(
               title='Summary of Included Data', root='',
               content_html=content_html, bibliography_html=bibliography_html))
-
-    write(os.path.join(SITE_DIR, 'extreme-examples.html'),
-          env.get_template('extreme_examples.html').render(title='Summary of Extreme Examples', root=''))
 
     # --- assets ---
     os.makedirs(os.path.join(SITE_DIR, 'assets'), exist_ok=True)

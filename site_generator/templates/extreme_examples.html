@@ -1,9 +1,70 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Summary of Extreme Examples</h1>
-<p class="stub-note">
-TODO: this page is a placeholder. It needs a definition of "extreme" (e.g.
-largest rational preperiodic graph, largest height, largest automorphism
-group) before it can be generated from the database like the other pages.
-</p>
+
+<section class="data-table">
+  <h2>Rational Periodic Cycles for Polynomials</h2>
+  {% if longest_cycle_groups %}
+    {% for heading, rows in longest_cycle_groups %}
+    <h3>{{ heading | safe }}</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Degree</th>
+          <th>Function</th>
+          <th>Field of Definition</th>
+          <th>Longest Cycle</th>
+          <th>Citations</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.degree }}</td>
+          <td class="fn">{{ row.function | safe }}</td>
+          <td>{{ row.field | safe }}</td>
+          <td>{{ row.value }}</td>
+          <td>{{ row.citations | safe }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endfor %}
+  {% else %}
+  <p class="empty">No data yet.</p>
+  {% endif %}
+</section>
+
+<section class="data-table">
+  <h2>Rational Preperiodic Tails for Polynomials</h2>
+  {% if longest_tail_groups %}
+    {% for heading, rows in longest_tail_groups %}
+    <h3>{{ heading | safe }}</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Degree</th>
+          <th>Function</th>
+          <th>Field of Definition</th>
+          <th>Longest Tail</th>
+          <th>Citations</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.degree }}</td>
+          <td class="fn">{{ row.function | safe }}</td>
+          <td>{{ row.field | safe }}</td>
+          <td>{{ row.value }}</td>
+          <td>{{ row.citations | safe }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endfor %}
+  {% else %}
+  <p class="empty">No data yet.</p>
+  {% endif %}
+</section>
 {% endblock %}

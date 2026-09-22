@@ -60,6 +60,39 @@ def get_functions_dim_1(conn, degree, is_polynomial):
     return [dict(row) for row in cur.fetchall()]
 
 
+def get_extreme_source_rows(conn, degree):
+    """
+    Polynomial functions of the given degree, defined over QQ or a quadratic
+    field, with their graph data - the source rows for the Extreme Examples
+    page's per-degree "longest cycle" / "longest tail" tables. Ordered by
+    function_id so tie-breaking (in render.find_longest_*_row) is deterministic.
+    """
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("""
+        SELECT
+            f.function_id,
+            f.base_field_label,
+            f.base_field_degree,
+            f.citations,
+            f.display_model,
+            (f.original_model).coeffs AS original_coeffs,
+            (f.reduced_model).coeffs  AS reduced_coeffs,
+            (f.monic_centered).coeffs AS monic_coeffs,
+            g.periodic_cycles,
+            g.max_tail
+        FROM functions_dim_1_nf f
+        LEFT JOIN rational_preperiodic_dim_1_nf r
+               ON r.function_id = f.function_id
+              AND r.base_field_label = f.base_field_label
+        LEFT JOIN graphs_dim_1_nf g ON g.graph_id = r.graph_id
+        WHERE f.degree = %(degree)s
+          AND f.is_polynomial = true
+          AND f.base_field_degree IN (1, 2)
+        ORDER BY f.function_id
+    """, {'degree': degree})
+    return [dict(row) for row in cur.fetchall()]
+
+
 def get_citations_by_id(conn):
     """{citations.id: {label, authors, journal, year, citation, mathscinet}} for every
     row in the citations table - small (~20 rows), loaded once per generation run

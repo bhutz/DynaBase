@@ -95,12 +95,71 @@ def format_int_list(values):
     return ', '.join(str(v) for v in values)
 
 
+def format_field_link(base_field_label):
+    """Field of Definition cells link out to the field's LMFDB page - the
+    base_field_label is already an LMFDB number-field label (see
+    lmfdb_field_label_NF in fields/field_helpers_NF.py), so this is a direct
+    lookup, not a search."""
+    if not base_field_label:
+        return '&mdash;'
+    return f'<a href="https://www.lmfdb.org/NumberField/{base_field_label}">{base_field_label}</a>'
+
+
 def field_degree_label(base_field_degree):
     if base_field_degree == 1:
         return 'Functions over &#x211A;'  # blackboard-bold Q
     if base_field_degree == 2:
         return 'Functions over quadratic fields'
     return f'Functions over fields of degree {base_field_degree}'
+
+
+def find_longest_cycle_row(rows):
+    """
+    The row (and that row's longest single periodic-cycle length) with the
+    largest such length among rows that have periodic_cycles data. Ties keep
+    whichever row was encountered first - rows should be passed in a stable,
+    deterministic order (e.g. by function_id, see db.get_extreme_source_rows).
+    """
+    best, best_len = None, -1
+    for row in rows:
+        cycles = row.get('periodic_cycles')
+        if not cycles:
+            continue
+        m = max(cycles)
+        if m > best_len:
+            best, best_len = row, m
+    return best, (best_len if best is not None else None)
+
+
+def find_longest_tail_row(rows):
+    """Same idea as find_longest_cycle_row, but for graphs_dim_1_NF.max_tail
+    (already a single integer per function, not a list to take the max of)."""
+    best, best_tail = None, -1
+    for row in rows:
+        tail = row.get('max_tail')
+        if tail is None:
+            continue
+        if tail > best_tail:
+            best, best_tail = row, tail
+    return best, (best_tail if best is not None else None)
+
+
+def build_extreme_row(degree, row, value, citations_by_id, root):
+    """
+    The section a row sits under (see build_extreme_groups in
+    generate_site.py) conveys the field *degree* only - QQ vs. quadratic
+    field - matching how the main data pages group. But a 'quadratic fields'
+    section can span several distinct actual fields (a different one per
+    degree, say), so the specific field still needs its own column, same as
+    the main data pages' 'Field of Definition'.
+    """
+    return {
+        'degree': degree,
+        'function': format_function(row),
+        'field': format_field_link(row['base_field_label']),
+        'value': value,
+        'citations': format_citations(row.get('citations'), citations_by_id, root),
+    }
 
 
 def format_label(dimension, row):
@@ -137,7 +196,7 @@ def build_table_rows(dimension, rows, citations_by_id, root):
         out.append({
             'label': format_label(dimension, row),
             'function': format_function(row),
-            'field': row['base_field_label'] or '&mdash;',
+            'field': format_field_link(row['base_field_label']),
             'cardinality': row['cardinality'] if row['cardinality'] is not None else '&mdash;',
             'periodic_cycles': format_int_list(row['periodic_cycles']),
             'preperiodic_components': format_int_list(row['preperiodic_components']),
