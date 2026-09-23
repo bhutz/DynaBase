@@ -722,7 +722,16 @@ def add_rational_preperiodic_points_NF(function_id, my_cursor, model_name='origi
             F = F.change_ring(K)
         if timeout != 0:
             alarm(timeout)
-        if K.degree() > 4:
+        #special case x^2-3/4
+        if [f.coefficients() for f in F] == [[K(1), K(-3)/4], [K(1)]]\
+          or [f.coefficients() for f in F] == [[K(4), K(-3)], [K(4)]]:
+            log_file.write('special case -3/4')
+            G = F.dehomogenize(1)
+            g = G.weil_restriction().homogenize(1)
+            per = g.possible_periods()
+            per.pop(per.index(2))
+            preper = F.rational_preperiodic_graph(periods=per)
+        elif K.degree() > 4:
             preper = F.rational_preperiodic_graph(prime_bound=[1,5], lifting_prime=5)
         elif K.degree() > 3:
             preper = F.rational_preperiodic_graph(prime_bound=[1,15], lifting_prime=7)

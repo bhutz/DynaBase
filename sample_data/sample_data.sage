@@ -2,9 +2,9 @@ load_attach_path('/home/ben/dynabase')
 import sys
 sys.path.append("/home/ben/dynabase")
 
-# set up tables
+# citations
 load("connect.py")
-load("setup_tables/setup_all.py")
+load("sample_data/add_citations.py")
 
 # field data
 load("connect.py")

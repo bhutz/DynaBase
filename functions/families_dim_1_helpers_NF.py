@@ -179,7 +179,7 @@ def add_family_NF(F, my_cursor, is_poly=None, num_crit=None, num_aut=None, name=
             """,query)
     if my_cursor.rowcount != 0:
         F_id = my_cursor.fetchone()['family_id']
-        log_file.write('family already known : ' + str(list(F)) + ' as ' + F_id + '\n')
+        log_file.write('family already known : ' + str(list(F)) + ' as ' + str(F_id) + '\n')
         return F_id
     # otherwise we'll add the function
     # TODO have multiple families with the same sigmas
