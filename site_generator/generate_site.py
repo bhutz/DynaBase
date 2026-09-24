@@ -29,7 +29,7 @@ import mdlite
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(HERE)
 SITE_DIR = os.path.join(REPO_ROOT, 'docs')
-DATA_SOURCES_MD = os.path.join(REPO_ROOT, 'sample_data', 'data_sources.md')
+DATA_SOURCES_MD = os.path.join(REPO_ROOT, 'extreme_examples_data', 'data_sources.md')
 
 CUSTOM_DOMAIN = 'dynabase.org'
 

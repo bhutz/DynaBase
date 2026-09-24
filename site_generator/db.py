@@ -2,7 +2,7 @@
 Read-only data access for the static site generator.
 
 Connects with plain psycopg2 (no Sage needed - the site only reads columns
-that have already been computed and stored by the sample_data/ scripts).
+that have already been computed and stored by the extreme_examples_data/ scripts).
 
 IMPORTANT: as of 2026-09-22 the 'postgresql' (Neon, remote) section in
 database.ini is stale/outdated. Generate against 'postgresql_local' until
@@ -43,7 +43,7 @@ def get_functions_dim_1(conn, degree, is_polynomial):
     own field, graph columns null) so the caller can report them.
 
     Ordered by preperiodic row id = insertion order = the order the
-    sample_data/ files were loaded, so "first" means first loaded.
+    extreme_examples_data/ files were loaded, so "first" means first loaded.
     """
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute("""

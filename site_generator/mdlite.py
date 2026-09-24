@@ -1,7 +1,7 @@
 """
 A tiny, purpose-built Markdown-subset renderer - not a general Markdown
 library (none is installed, and pulling one in for one file felt like
-overkill). Handles exactly what sample_data/data_sources.md uses:
+overkill). Handles exactly what extreme_examples_data/data_sources.md uses:
 '# ' / '## ' headers, nested '-' bullet lists (2-space indent per level),
 and plain paragraph lines. Nothing else is supported.
 """

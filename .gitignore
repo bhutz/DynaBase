@@ -3,6 +3,6 @@ __pycache__/
 .ipynb_checkpoints/
 *log.txt
 *.ipynb
-sample_data.sage.py
+extreme_examples.sage.py
 database.ini
 CLAUDE.md

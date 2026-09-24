@@ -226,7 +226,7 @@ def filter_distinct_graphs(rows):
     whenever is_isomorphic matches), so two pairs in the same table with the
     same graph_id are duplicates. Rows must arrive in load order (see
     db.get_functions_dim_1); the first-loaded pair for each graph is kept,
-    matching which entry the sample_data/ files leave uncommented.
+    matching which entry the extreme_examples_data/ files leave uncommented.
 
     Rows with no preperiodic data (graph_id null - e.g. the computation timed
     out) can't be shown to be distinct, so they're left out too.
