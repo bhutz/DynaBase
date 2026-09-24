@@ -587,7 +587,7 @@ def add_monic_centered_model_FF(label, model_name='original', log_file=sys.stdou
     height      double precision,
     base_field  varchar,
     conjugation_from_original varchar[],
-    conjugation_from_original_base_field_label varchar(%s)
+    conjugation_from_original_base_field_label varchar
 
     #TODO Note that this has to start from original or the conjugation is wrong
 
@@ -689,7 +689,7 @@ def add_chebyshev_model_FF(label, model_name='original', log_file=sys.stdout, ti
     height      double precision,
     base_field  varchar,
     conjugation_from_original varchar[],
-    conjugation_from_original_base_field_label varchar(%s)
+    conjugation_from_original_base_field_label varchar
 
     """
     query={}

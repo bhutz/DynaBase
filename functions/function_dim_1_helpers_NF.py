@@ -105,22 +105,6 @@ def normalize_function_NF(F, log_file=sys.stdout):
     return F, phi
 
 
-def check_field_label_length_NF(label, my_cursor, log_file=sys.stdout):
-    """
-    Raise ValueError if a field label is too long for the database's label
-    columns - all varchar(field_label_length), see setup_tables/setup_all.py.
-    Matters for fields not in the LMFDB, labeled by their defining polynomial
-    (see lmfdb_field_label_NF). Checked up front because a too-long value
-    fails inside Postgres and aborts the rest of the transaction.
-    """
-    my_cursor.execute("""SELECT character_maximum_length FROM information_schema.columns
-        WHERE table_name = 'functions_dim_1_nf' AND column_name = 'base_field_label'""")
-    max_length = my_cursor.fetchone()[0]
-    if max_length is not None and len(label) > max_length:
-        log_file.write('field label ' + label + ' is longer than ' + str(max_length) + ' characters \n')
-        raise ValueError('field label ' + label + ' longer than ' + str(max_length) + ' characters')
-
-
 def model_in_database_NF(F, my_cursor, sigma_1=None, conj_fns=None, log_file=sys.stdout):
     """
     Determine if the model F is in the database.
@@ -349,8 +333,7 @@ def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, tim
     bool, K_id = lmfdb_field_label_NF(base_field, log_file=log_file)
     if not bool:
         # not in the LMFDB: K_id is the field's defining polynomial instead
-        # (see lmfdb_field_label_NF), which still has to fit the label columns
-        check_field_label_length_NF(K_id, my_cursor, log_file=log_file)
+        # (see lmfdb_field_label_NF)
         log_file.write('base field not in LMFDB, using label: ' + K_id + '\n')
     F.normalize_coordinates()
 
@@ -481,10 +464,8 @@ def add_is_pcf(my_cursor, function_id=None, model_name='original', bool_add_fiel
         pcf['is_pcf']=is_pcf
         K, phi = F.field_of_definition_critical(return_embedding=True)
         L, psi = normalize_field_NF(K, log_file=log_file)
+        # L_id is L's defining polynomial if L is not in the LMFDB (see lmfdb_field_label_NF)
         bool, L_id = lmfdb_field_label_NF(L, log_file=log_file)
-        if not bool:
-            # not in the LMFDB: L_id is the field's defining polynomial instead
-            check_field_label_length_NF(L_id, my_cursor, log_file=log_file)
         F_cp = F.change_ring(psi*phi)
         cp = F_cp.critical_points()
         pcf['cp_cardinality'] = len(cp)
@@ -811,7 +792,7 @@ def add_reduced_model_NF(function_id, my_cursor, model_name='original', log_file
     height      double precision,
     base_field_label varchar,
     conjugation_from_original varchar[],
-    conjugation_from_original_base_field_label varchar(%s)
+    conjugation_from_original_base_field_label varchar
 
     """
     if timeout != 0:
@@ -932,7 +913,7 @@ def add_monic_centered_model_NF(function_id, my_cursor, model_name='original', l
     height      double precision,
     base_field_label varchar,
     conjugation_from_original varchar[],
-    conjugation_from_original_base_field_label varchar(%s)
+    conjugation_from_original_base_field_label varchar
 
     #TODO Note that this has to start from original or the conjugation is wrong
 
@@ -969,10 +950,8 @@ def add_monic_centered_model_NF(function_id, my_cursor, model_name='original', l
         G.scale_by(1/G[0].coefficient({G.domain().gen(0):G.degree()}))
 
         #monic centered model
+        # L_id is L's defining polynomial if L is not in the LMFDB (see lmfdb_field_label_NF)
         bool, L_id = lmfdb_field_label_NF(L, log_file=log_file)
-        if not bool:
-            # not in the LMFDB: L_id is the field's defining polynomial instead
-            check_field_label_length_NF(L_id, my_cursor, log_file=log_file)
         query['monic_centered.coeffs'] = [get_coefficients(g) for g in G]
         query['monic_centered.resultant'] = str(G.resultant())
         if L.degree() == 1:

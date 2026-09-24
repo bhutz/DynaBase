@@ -40,11 +40,11 @@ my_cursor.execute("""
 
 my_cursor.execute("""
 CREATE TABLE finite_fields (
-    label varchar(%s) PRIMARY KEY,
+    label varchar PRIMARY KEY,
     modulus_coeffs integer[],
     characteristic integer,
     cardinality integer
   )
-""",[field_label_length])
+""")
 
 my_session.commit()

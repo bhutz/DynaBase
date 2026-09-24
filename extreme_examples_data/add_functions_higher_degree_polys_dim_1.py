@@ -14,7 +14,7 @@ load("connect.py")
 #########################
 
 path_to_log = "/home/ben/dynabase/functions_log.txt"
-log_file = open(path_to_log, 'w', 1)
+log_file = open(path_to_log, 'a', 1)
 
 ###########################################
 #polynomials of degree 4 through 15, one table per degree

@@ -14,7 +14,7 @@ load("connect.py")
 #########################
 
 path_to_log = "/home/ben/dynabase/functions_log.txt"
-log_file = open(path_to_log, 'w', 1)
+log_file = open(path_to_log, 'a', 1)
 
 ###########################################
 #quadratic rational functions phi(w) = N(w)/D(w) over QQ

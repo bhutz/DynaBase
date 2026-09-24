@@ -62,11 +62,10 @@ CREATE TYPE display_model_type AS ENUM ('original', 'reduced', 'monic centered',
 
 my_cursor.execute("""
 CREATE TYPE base_field_type AS (
-    label   varchar(%s),
+    label   varchar,
     degree  integer
   )
-  """,
-  [field_label_length])
+  """)
 
 
 my_cursor.execute("""
@@ -75,9 +74,8 @@ CREATE TYPE model_type AS (
     resultant   varchar,
     bad_primes  integer[],
     height      real,
-    base_field_label  varchar(%s)
-  )""",
-  [field_label_length])
+    base_field_label  varchar
+  )""")
 
 #my_cursor.execute("""
 #CREATE TYPE newton_model_type AS (
@@ -85,10 +83,9 @@ CREATE TYPE model_type AS (
 #    resultant   varchar,
 #    bad_primes  integer[],
 #    height      real,
-#    base_field_label  varchar(%s),
+#    base_field_label  varchar,
 #    polynomial_coeffs  varchar[]
-#  )""",
-#  [field_label_length])
+#  )""")
 
 
 ######################################
@@ -107,7 +104,7 @@ my_cursor.execute("""
 CREATE TABLE functions_dim_1_NF (
     function_id serial PRIMARY KEY,
     degree integer,
-    base_field_label varchar(%s),
+    base_field_label varchar,
     base_field_degree integer,
     sigma_one varchar,
     sigma_two varchar,
@@ -125,19 +122,21 @@ CREATE TABLE functions_dim_1_NF (
     is_lattes boolean,
     is_pcf boolean,
     cp_cardinality integer,
-    cp_field_of_defn varchar(%s),
+    cp_field_of_defn varchar,
     automorphism_group_cardinality integer,
     rational_twists integer[],
-    critical_portrait_graph_id varchar
+    critical_portrait_graph_id varchar,
+    smallest_height_ratio decimal,
+    smallest_height_point varchar
   )
-""",[field_label_length,field_label_length])
+""")
 
 
 my_cursor.execute("""
 CREATE TABLE functions_dim_1_FF (
     id serial PRIMARY KEY,
     degree integer,
-    base_field_label varchar(%s),
+    base_field_label varchar,
     base_field_degree integer,
     sigma_one varchar,
     sigma_two varchar,
@@ -160,7 +159,7 @@ CREATE TABLE functions_dim_1_FF (
     rational_preperiodic_components integer[],
     avg_tail_length real
   )
-""",[field_label_length])
+""")
 
 
 #edges are stored: index is the point and the value is the image
@@ -188,10 +187,10 @@ my_cursor.execute("""
 CREATE TABLE rational_preperiodic_dim_1_NF (
     id serial PRIMARY KEY,
     function_id integer,
-    base_field_label varchar(%s),
+    base_field_label varchar,
     rational_periodic_points varchar[][2],
     graph_id integer
   )
-""",[field_label_length])
+""")
 
 my_session.commit()

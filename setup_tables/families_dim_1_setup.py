@@ -40,7 +40,7 @@ CREATE TABLE families_dim_1_NF (
     num_parameters integer,
     model_coeffs varchar[],
     model_resultant varchar,
-    base_field_label varchar(%s),
+    base_field_label varchar,
     base_field_degree integer,
     sigma_one varchar,
     sigma_two varchar,
@@ -50,7 +50,7 @@ CREATE TABLE families_dim_1_NF (
     num_critical_points integer,
     automorphism_group_cardinality integer
     )
-""",[field_label_length])
+""")
 
 # add descriptive name
 
