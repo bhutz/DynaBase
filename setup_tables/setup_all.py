@@ -55,7 +55,7 @@ load("connect.py")
 #################################
 ###global constants
 
-field_label_length = 15
+field_label_length = 25
 #function_label_length= 25
 
 #################################

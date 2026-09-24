@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Degree 2 Polynomial Postcritically Finite &mdash; DynaBase</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<h1 class="site-title">Dynabase</h1>
+
+<nav class="static-links">
+  <a href="../../../../about.html">About Dynabase</a>
+  <a href="../../../../data-summary.html">Summary of Included Data</a>
+  <a href="../../../../extreme-examples.html">Summary of Extreme Examples</a>
+</nav>
+
+<hr class="header-rule">
+
+<form class="selectors" id="selectors">
+  <label>Dimension
+    <select id="sel-dimension">
+      <option value="1" selected>1</option>
+    </select>
+  </label>
+  <label>Degree
+    <select id="sel-degree">
+      
+      <option value="2" selected>2</option>
+      
+      <option value="3" >3</option>
+      
+      <option value="4" >4</option>
+      
+      <option value="5" >5</option>
+      
+      <option value="6" >6</option>
+      
+      <option value="7" >7</option>
+      
+      <option value="8" >8</option>
+      
+      <option value="9" >9</option>
+      
+      <option value="10" >10</option>
+      
+      <option value="11" >11</option>
+      
+      <option value="12" >12</option>
+      
+      <option value="13" >13</option>
+      
+      <option value="14" >14</option>
+      
+      <option value="15" >15</option>
+      
+    </select>
+  </label>
+  <label>Type
+    <select id="sel-type">
+      <option value="polynomial" selected>polynomial</option>
+      <option value="rational" >rational</option>
+    </select>
+  </label>
+  <label>Problem
+    <select id="sel-problem">
+      
+      <option value="rational-preperiodic" >Rational Preperiodic</option>
+      
+      <option value="postcritically-finite" selected>Postcritically Finite</option>
+      
+    </select>
+  </label>
+  <button type="submit">View</button>
+</form>
+<script>
+document.getElementById('selectors').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var dim = document.getElementById('sel-dimension').value;
+  var deg = document.getElementById('sel-degree').value;
+  var typ = document.getElementById('sel-type').value;
+  var prob = document.getElementById('sel-problem').value;
+  window.location.href = '../../../../data/' + dim + '/' + deg + '/' + typ + '/' + prob + '.html';
+});
+</script>
+
+<main>
+
+<h1>Dimension 1, Degree 2, Polynomial: Postcritically Finite Maps</h1>
+<p class="intro">A map is postcritically finite (PCF) if every critical point has a finite forward
+orbit. Its critical portrait is the graph of the critical points and their forward orbits.
+Critical points are counted over the algebraic closure, including &infin; for polynomials.</p>
+
+
+  
+  <section class="data-table">
+    <h2>Functions over &#x211A;: 3 conjugacy classes over <span class="qbar">&#x211A;</span></h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Label</th>
+          <th>Function</th>
+          <th>Field of Definition</th>
+          <th>Critical Points</th>
+          <th>Critical Point Field</th>
+          <th>Portrait Size</th>
+          <th>Portrait Cycles</th>
+          <th>Portrait Components</th>
+          <th>Citations</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>1.a6935bbd.880302df.1</td>
+          <td class="fn">(x<sup>2</sup> &minus; 2y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
+          <td><a href="https://www.lmfdb.org/NumberField/1.1.1.1">1.1.1.1</a></td>
+          <td>2</td>
+          <td><a href="https://www.lmfdb.org/NumberField/1.1.1.1">1.1.1.1</a></td>
+          <td>4</td>
+          <td>1, 1</td>
+          <td>3, 1</td>
+          <td><a href="../../../../data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+        </tr>
+        
+        <tr>
+          <td>1.b5876aa4.6951d87f.1</td>
+          <td class="fn">(x<sup>2</sup> &minus; y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
+          <td><a href="https://www.lmfdb.org/NumberField/1.1.1.1">1.1.1.1</a></td>
+          <td>2</td>
+          <td><a href="https://www.lmfdb.org/NumberField/1.1.1.1">1.1.1.1</a></td>
+          <td>3</td>
+          <td>2, 1</td>
+          <td>2, 1</td>
+          <td><a href="../../../../data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+        </tr>
+        
+        <tr>
+          <td>1.a68cf1ff.024ac6d7.1</td>
+          <td class="fn">(x<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
+          <td><a href="https://www.lmfdb.org/NumberField/1.1.1.1">1.1.1.1</a></td>
+          <td>2</td>
+          <td><a href="https://www.lmfdb.org/NumberField/1.1.1.1">1.1.1.1</a></td>
+          <td>2</td>
+          <td>1, 1</td>
+          <td>1, 1</td>
+          <td><a href="../../../../data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </section>
+  
+  <section class="data-table">
+    <h2>Functions over quadratic fields: 1 conjugacy class over <span class="qbar">&#x211A;</span></h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Label</th>
+          <th>Function</th>
+          <th>Field of Definition</th>
+          <th>Critical Points</th>
+          <th>Critical Point Field</th>
+          <th>Portrait Size</th>
+          <th>Portrait Cycles</th>
+          <th>Portrait Components</th>
+          <th>Citations</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>1.e9464d8c.638cd9c2.1</td>
+          <td class="fn">(x<sup>2</sup> + ay<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
+          <td><a href="https://www.lmfdb.org/NumberField/2.0.4.1">2.0.4.1</a></td>
+          <td>2</td>
+          <td><a href="https://www.lmfdb.org/NumberField/2.0.4.1">2.0.4.1</a></td>
+          <td>5</td>
+          <td>2, 1</td>
+          <td>4, 1</td>
+          <td><a href="../../../../data-summary.html#cite-Doyle2014">Doyle2014</a></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </section>
+  
+
+
+</main>
+
+<footer class="site-footer">
+  <p>DynaBase &mdash; Database of Arithmetic Dynamics</p>
+</footer>
+</body>
+</html>

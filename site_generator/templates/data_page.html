@@ -15,6 +15,7 @@
           <th>Cardinality</th>
           <th>Periodic Cycles</th>
           <th>Preperiodic Components</th>
+          <th>Longest Tail</th>
           <th>Citations</th>
         </tr>
       </thead>
@@ -27,6 +28,7 @@
           <td>{{ row.cardinality }}</td>
           <td>{{ row.periodic_cycles | safe }}</td>
           <td>{{ row.preperiodic_components | safe }}</td>
+          <td>{{ row.max_tail }}</td>
           <td>{{ row.citations | safe }}</td>
         </tr>
         {% endfor %}

@@ -17,6 +17,13 @@ from citations.citations_helper import add_citation
 
 
 bibliography=[]
+bibliography.append(['AMT2020', ['Jacqueline Anderson', 'Michelle Manes', 'Bella Tobin'], 'Open Book Ser.', 2020,\
+    'Jacqueline Anderson, Michelle Manes, and Bella Tobin. Cubic post-critically finite polynomials defined over Q. In ANTS XIV - Proceedings of the Fourteenth Algorithmic Number Theory Symposium, volume 4 of Open Book Ser., pages 23--38. Math. Sci. Publ., Berkeley, CA, 2020.',\
+    'MR4235104'])
+bibliography.append(['BCHKW2014', ['Robert L. Benedetto', 'Ruqian Chen', 'Trevor Hyde', 'Yordanka Kovacheva', 'Colin White'],\
+    'Exp. Math.', 2014,\
+    'Robert L. Benedetto, Ruqian Chen, Trevor Hyde, Yordanka Kovacheva, and Colin White. Small dynamical heights for quadratic polynomials and rational functions. Exp. Math., 23(4):433--447, 2014.',\
+    'MR3277939'])
 bibliography.append(['Benedetto2009',['Robert Benedetto', 'Ben Dickman', 'Sasha Joseph', 'Ben Krause', 'Dan Rubin', 'Xinwen Zhou'],\
     'Involve', 2009,\
     'Robert Benedetto, Ben Dickman, Sasha Joseph, Ben Krause, Dan Rubin, and Xinwen Zhou. Computing points of small height for cubic polynomials. Involve, 2:37--64, 2009.',\
@@ -34,6 +41,9 @@ bibliography.append(['Canci2010', ['Jung Kyu Canci'], 'Ann. Inst. Fourier (Greno
 bibliography.append(['Chang2006', ['Jianming Chang'], 'J. Math. Anal. Appl.', 2006,\
     'Jianming Chang. Polynomials without repelling periodic point of given period. J. Math. Anal. Appl., 324:1--13, 2006.',\
     'MR2262451'])
+bibliography.append(['DH2025', ['John R. Doyle', 'Trevor Hyde'], 'Trans. Amer. Math. Soc.', 2025,\
+    'John R. Doyle and Trevor Hyde. Polynomials with many rational preperiodic points. Trans. Amer. Math. Soc., 378(8):5981--6011, 2025.',\
+    'MR4929863'])
 bibliography.append(['Dickson1958', ['Leonard Eugene Dickson'], 'Dover Publications', 1958,\
     'Leonard Eugene Dickson. Linear Groups: With an Exposition of the Galois Field Theory. Dover Publications, New York, 1958.',\
     'MR0104735'])
@@ -46,6 +56,9 @@ bibliography.append(['dFH2018', ['Joao Alberto de Faria', 'Benjamin Hutz'], 'J. 
 bibliography.append(['FMV2015', ['Xander Faber', 'Michelle Manes', 'Bianca Viray'], 'J. Algebra', 2015,\
     'Xander Faber, Michelle Manes, and Bianca Viray. Computing conjugating sets and automorphism groups of rational functions. J. Algebra, 423:1161--1190, 2015.',\
     'MR3283753'])
+bibliography.append(['Fraser2024', ['Benjamin Fraser'], 'PhD thesis, York University', 2024,\
+    'Benjamin Fraser. On PCF polynomials. PhD thesis, York University, Toronto, 2024.',\
+    None])
 bibliography.append(['GHK2023', ['Thomas Gauthier', 'Benjamin Hutz', 'Scott Kaschner'], 'Conform. Geom. Dyn.', 2023,\
     'Thomas Gauthier, Benjamin Hutz, and Scott Kaschner. Symmetrization of rational maps: arithmetic properties and families of Lattes maps of Pk. Conform. Geom. Dyn., 27:98--117, 2023.',\
     'MR4548508'])
@@ -55,6 +68,9 @@ bibliography.append(['Hutz2015', ['Benjamin Hutz'], 'Math. Comp.', 2015,\
 bibliography.append(['Hutz2013', ['Benjamin Hutz', 'Patrick Ingram'], 'Rocky Mountain J. Math.', 2013,\
     "Benjamin Hutz and Patrick Ingram. On Poonen's conjecture concerning rational preperiodic points of quadratic maps. Rocky Mountain J. Math., 43(1):193--204, 2013.",\
     'MR3065461'])
+bibliography.append(['Hutz2026', ['Benjamin Hutz'], 'arXiv preprint', 2026,\
+    'Benjamin Hutz. A genetic algorithm for generating extreme examples in arithmetic dynamics. arXiv:2601.11482, 2026.',\
+    None])
 bibliography.append(['Ingram2012', ['Patrick Ingram'], 'Int. Math. Res. Not. IMRN', 2012,\
     'Patrick Ingram. A finiteness result for post-critically finite polynomials. Int. Math. Res. Not. IMRN, 2012(3):524--543, 2012.',\
     'MR2885981'])
@@ -79,6 +95,9 @@ bibliography.append(['Poonen1998', ['Bjorn Poonen'], 'Math. Z.', 1998,\
 bibliography.append(['Stoll2008', ['Michael Stoll'], 'LMS J. Comput. Math.', 2008,\
     'Michael Stoll. Rational 6-cycles under iteration of quadratic polynomials. LMS J. Comput. Math., 11:367--380, 2008.',\
     'MR2465796'])
+bibliography.append(['Vishkautsan2026', ['Solomon Vishkautsan'], None, 2026,\
+    'Solomon Vishkautsan, personal communication Sept 2026',\
+    None])
 bibliography.append(['WR1994', ['Ralph Walde', 'Paula Russo'], 'Amer. Math. Monthly', 1994,\
     'Ralph Walde and Paula Russo. Rational periodic points of the quadratic function Qc(x) = x^2 + c. Amer. Math. Monthly, 101(4):318--331, 1994.',\
     'MR1270956'])

@@ -25,8 +25,9 @@
   </label>
   <label>Degree
     <select id="sel-degree">
-      <option value="2" {% if degree == 2 %}selected{% endif %}>2</option>
-      <option value="3" {% if degree == 3 %}selected{% endif %}>3</option>
+      {% for d in degrees %}
+      <option value="{{ d }}" {% if degree == d %}selected{% endif %}>{{ d }}</option>
+      {% endfor %}
     </select>
   </label>
   <label>Type
@@ -37,7 +38,9 @@
   </label>
   <label>Problem
     <select id="sel-problem">
-      <option value="rational-preperiodic" selected>Rational Preperiodic</option>
+      {% for value, name in problems %}
+      <option value="{{ value }}" {% if problem == value %}selected{% endif %}>{{ name }}</option>
+      {% endfor %}
     </select>
   </label>
   <button type="submit">View</button>

@@ -116,3 +116,6 @@ ul.bibliography li:target { background: #fff6e0; }
   font-size: 0.8rem;
   padding: 1.5rem;
 }
+
+.qbar { text-decoration: overline; }
+.intro { max-width: 60rem; }

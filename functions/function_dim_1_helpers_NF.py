@@ -105,6 +105,22 @@ def normalize_function_NF(F, log_file=sys.stdout):
     return F, phi
 
 
+def check_field_label_length_NF(label, my_cursor, log_file=sys.stdout):
+    """
+    Raise ValueError if a field label is too long for the database's label
+    columns - all varchar(field_label_length), see setup_tables/setup_all.py.
+    Matters for fields not in the LMFDB, labeled by their defining polynomial
+    (see lmfdb_field_label_NF). Checked up front because a too-long value
+    fails inside Postgres and aborts the rest of the transaction.
+    """
+    my_cursor.execute("""SELECT character_maximum_length FROM information_schema.columns
+        WHERE table_name = 'functions_dim_1_nf' AND column_name = 'base_field_label'""")
+    max_length = my_cursor.fetchone()[0]
+    if max_length is not None and len(label) > max_length:
+        log_file.write('field label ' + label + ' is longer than ' + str(max_length) + ' characters \n')
+        raise ValueError('field label ' + label + ' longer than ' + str(max_length) + ' characters')
+
+
 def model_in_database_NF(F, my_cursor, sigma_1=None, conj_fns=None, log_file=sys.stdout):
     """
     Determine if the model F is in the database.
@@ -128,10 +144,9 @@ def model_in_database_NF(F, my_cursor, sigma_1=None, conj_fns=None, log_file=sys
     model_names = ['original_model', 'monic_centered', 'reduced_model']
     #field_label, emb_index, field_id = get_field_label(F.base_ring(), log_file=log_file)
     F_coeffs = [get_coefficients(g) for g in F]
+    # a field not in the LMFDB is labeled by its defining polynomial instead
+    # (see lmfdb_field_label_NF), which is what gets stored, so compare with that
     bool, K_id = lmfdb_field_label_NF(F.base_ring(), log_file=log_file)
-    if not bool:
-        log_file.write('model' + str(F) + 'base field not found in LMFDB')
-        raise ValueError('base field not found in LMFDB')
     for g in conj_fns:
         for i in range(len(model_names)):
             if g[2*i+1] == F_coeffs and g[2*i+2] == str(K_id):
@@ -331,10 +346,12 @@ def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, tim
 
     F, phi = normalize_function_NF(F, log_file=log_file)
 
-    bool, K_id = lmfdb_field_label_NF(base_field)
+    bool, K_id = lmfdb_field_label_NF(base_field, log_file=log_file)
     if not bool:
-        log_file.write('Could not add : ' + str(list(F)) + ' because ' + str(base_field) + ' not in database \n')
-        raise ValueError("base_field not in database")
+        # not in the LMFDB: K_id is the field's defining polynomial instead
+        # (see lmfdb_field_label_NF), which still has to fit the label columns
+        check_field_label_length_NF(K_id, my_cursor, log_file=log_file)
+        log_file.write('base field not in LMFDB, using label: ' + K_id + '\n')
     F.normalize_coordinates()
 
     f['base_field_label'] = K_id
@@ -464,10 +481,10 @@ def add_is_pcf(my_cursor, function_id=None, model_name='original', bool_add_fiel
         pcf['is_pcf']=is_pcf
         K, phi = F.field_of_definition_critical(return_embedding=True)
         L, psi = normalize_field_NF(K, log_file=log_file)
-        bool, L_id = lmfdb_field_label_NF(L)
+        bool, L_id = lmfdb_field_label_NF(L, log_file=log_file)
         if not bool:
-            log_file.write('Could not add crtical point information for : ' + str(list(F)) + ' because ' + str(L) + ' not in database \n')
-            raise ValueError("base_field not in database")
+            # not in the LMFDB: L_id is the field's defining polynomial instead
+            check_field_label_length_NF(L_id, my_cursor, log_file=log_file)
         F_cp = F.change_ring(psi*phi)
         cp = F_cp.critical_points()
         pcf['cp_cardinality'] = len(cp)
@@ -720,6 +737,19 @@ def add_rational_preperiodic_points_NF(function_id, my_cursor, model_name='origi
             K = get_sage_field_NF(field_label)
             # TODO: this may have embedding issues in some cases
             F = F.change_ring(K)
+
+        preperiodic_data['function_id'] = function_id
+        preperiodic_data['base_field_label'] = field_label
+        #check if its already there before doing the (expensive) computation
+        my_cursor.execute("""SELECT
+            id FROM rational_preperiodic_dim_1_NF
+            WHERE function_id=%(function_id)s AND base_field_label=%(base_field_label)s"""
+            , preperiodic_data)
+        if my_cursor.rowcount != 0:
+            log_file.write('rational preperiodic points already known for:' + str(function_id) + ' over ' + str(field_label) + '\n')
+            cancel_alarm()
+            return True
+
         if timeout != 0:
             alarm(timeout)
         #special case x^2-3/4
@@ -739,17 +769,6 @@ def add_rational_preperiodic_points_NF(function_id, my_cursor, model_name='origi
             preper = F.rational_preperiodic_graph()
         ## TODO: add graph_id
 
-        preperiodic_data['function_id'] = function_id
-        preperiodic_data['base_field_label'] = field_label
-        #check if its already there:
-        my_cursor.execute("""SELECT
-            id FROM rational_preperiodic_dim_1_NF
-            WHERE function_id=%(function_id)s AND base_field_label=%(base_field_label)s"""
-            , preperiodic_data)
-        if my_cursor.rowcount != 0:
-            log_file.write('rational preperiodic points already known for:' + str(function_id) + '\n')
-            cancel_alarm()
-            return True
         periodic = []
         for c in preper.all_simple_cycles():
             periodic.append([str(t) for t in c[0]])
@@ -761,7 +780,6 @@ def add_rational_preperiodic_points_NF(function_id, my_cursor, model_name='origi
         graph_id = identify_graph(preper, F, my_cursor, 1, log_file=log_file)
         preperiodic_data['graph_id'] = graph_id
 
-        #TODO check that it isn't already there
         my_cursor.execute("""INSERT INTO rational_preperiodic_dim_1_NF
             (function_id, base_field_label, rational_periodic_points, graph_id)
             VALUES
@@ -951,8 +969,10 @@ def add_monic_centered_model_NF(function_id, my_cursor, model_name='original', l
         G.scale_by(1/G[0].coefficient({G.domain().gen(0):G.degree()}))
 
         #monic centered model
-        bool, L_id = lmfdb_field_label_NF(L)
-        assert(bool)
+        bool, L_id = lmfdb_field_label_NF(L, log_file=log_file)
+        if not bool:
+            # not in the LMFDB: L_id is the field's defining polynomial instead
+            check_field_label_length_NF(L_id, my_cursor, log_file=log_file)
         query['monic_centered.coeffs'] = [get_coefficients(g) for g in G]
         query['monic_centered.resultant'] = str(G.resultant())
         if L.degree() == 1:
@@ -1189,8 +1209,6 @@ def add_newton_model_NF(function_id, my_cursor, model_name='original', log_file=
             newton = F
             L = F.base_ring()
             M = matrix(QQ,2,2,[1,0,0,1])
-        bool, L_id = lmfdb_field_label_NF(L)
-        assert(bool)
 
         N_aff = newton.dehomogenize(1)
         z = N_aff.domain().gen(0)
@@ -1489,6 +1507,9 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         choose_display_model(F_id, my_cursor, log_file=log_file)
         add_families_NF(F_id, my_cursor, log_file=log_file)
     else:
+        # already in the database, possibly as a conjugate of a different
+        # model - credit this source too (add_citations_NF merges, no duplicates)
+        add_citations_NF(F_id, citations, my_cursor, log_file=log_file)
         add_rational_preperiodic_points_NF(F_id, my_cursor, field_label=base_field_label, log_file=log_file, timeout=timeout)
 
     return F_id

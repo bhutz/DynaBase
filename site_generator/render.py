@@ -3,6 +3,11 @@ Pure formatting helpers: turn raw DB rows into display strings.
 No DB access here - keeps this testable without a live connection.
 """
 
+import html
+import re
+
+from labels import is_lmfdb_label
+
 
 def choose_coeffs(row):
     """
@@ -97,11 +102,17 @@ def format_int_list(values):
 
 def format_field_link(base_field_label):
     """Field of Definition cells link out to the field's LMFDB page - the
-    base_field_label is already an LMFDB number-field label (see
+    base_field_label is normally an LMFDB number-field label (see
     lmfdb_field_label_NF in fields/field_helpers_NF.py), so this is a direct
-    lookup, not a search."""
+    lookup, not a search. A field not in the LMFDB is labeled by its defining
+    polynomial instead (e.g. 'x^2 - x - 1'); that has no LMFDB page, so it is
+    shown as the polynomial, unlinked."""
     if not base_field_label:
         return '&mdash;'
+    if not is_lmfdb_label(base_field_label):
+        poly = html.escape(base_field_label)
+        poly = re.sub(r'\^(\d+)', r'<sup>\1</sup>', poly).replace(' - ', ' &minus; ')
+        return f'&#x211A;[x]/({poly})'
     return f'<a href="https://www.lmfdb.org/NumberField/{base_field_label}">{base_field_label}</a>'
 
 
@@ -200,16 +211,56 @@ def build_table_rows(dimension, rows, citations_by_id, root):
             'cardinality': row['cardinality'] if row['cardinality'] is not None else '&mdash;',
             'periodic_cycles': format_int_list(row['periodic_cycles']),
             'preperiodic_components': format_int_list(row['preperiodic_components']),
+            'max_tail': row['max_tail'] if row['max_tail'] is not None else '&mdash;',
             'citations': format_citations(row.get('citations'), citations_by_id, root),
         })
     return out
 
 
+def filter_distinct_graphs(rows):
+    """
+    Each table (one field degree on one degree/type page) should show one
+    (function, field) pair per rational preperiodic graph structure. graph_id
+    already identifies an isomorphism class (identify_graph in
+    functions/function_dim_1_helpers_NF.py reuses a graphs_dim_1_NF row
+    whenever is_isomorphic matches), so two pairs in the same table with the
+    same graph_id are duplicates. Rows must arrive in load order (see
+    db.get_functions_dim_1); the first-loaded pair for each graph is kept,
+    matching which entry the sample_data/ files leave uncommented.
+
+    Rows with no preperiodic data (graph_id null - e.g. the computation timed
+    out) can't be shown to be distinct, so they're left out too.
+
+    Returns (kept, duplicates, no_graph); kept is re-sorted for display -
+    grouped by base_field_degree, largest cardinality (number of rational
+    preperiodic points) first, then by function_id and field - and
+    duplicates is a list of (row, kept_row) pairs so the caller can report
+    what was dropped.
+    """
+    kept, duplicates, no_graph = [], [], []
+    first_with_graph = {}
+    for row in rows:
+        if row.get('graph_id') is None:
+            no_graph.append(row)
+            continue
+        key = (row['base_field_degree'], row['graph_id'])
+        if key in first_with_graph:
+            duplicates.append((row, first_with_graph[key]))
+        else:
+            first_with_graph[key] = row
+            kept.append(row)
+    kept.sort(key=lambda r: (r['base_field_degree'], -r['cardinality'],
+                             r['function_id'], r['base_field_label']))
+    return kept, duplicates, no_graph
+
+
 def group_by_field_degree(dimension, rows, citations_by_id, root):
     """
-    Group already-sorted (by base_field_degree, function_id) rows into a list
+    Group already-sorted (by base_field_degree first) rows into a list
     of (heading, [row, ...]) tuples, one per distinct base_field_degree
     present - so a table only appears for field-degrees that actually have data.
+    Expects rows already passed through filter_distinct_graphs, so the row
+    count of each table is its number of distinct graph structures.
     """
     groups = []
     current_degree = object()  # sentinel, never equals a real degree
@@ -221,7 +272,76 @@ def group_by_field_degree(dimension, rows, citations_by_id, root):
             current_rows = []
             groups.append((field_degree_label(d), current_rows))
         current_rows.append(row)
-    return [(heading, build_table_rows(dimension, rs, citations_by_id, root)) for heading, rs in groups]
+    return [(f'{heading}: {len(rs)} distinct graph structure{"" if len(rs) == 1 else "s"}',
+             build_table_rows(dimension, rs, citations_by_id, root))
+            for heading, rs in groups]
+
+
+def count_conjugacy_classes(rows):
+    """
+    Number of conjugacy classes over the algebraic closure of QQ among rows.
+    Distinct functions in the database are distinct up to conjugacy over their
+    field, but twists (functions_dim_1_NF.rational_twists) are conjugate over an
+    extension - the same class over QQbar, which is how PCF classifications
+    count. Union-find over the twist links between rows present.
+    """
+    parent = {row['function_id']: row['function_id'] for row in rows}
+
+    def find(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    for row in rows:
+        for t in row.get('rational_twists') or []:
+            if t in parent:
+                parent[find(t)] = find(row['function_id'])
+    return len({find(i) for i in parent})
+
+
+QBAR = '<span class="qbar">&#x211A;</span>'  # styled with an overline
+
+
+def build_pcf_rows(dimension, rows, citations_by_id, root):
+    out = []
+    for row in rows:
+        def dash(v):
+            return v if v is not None else '&mdash;'
+        out.append({
+            'label': format_label(dimension, row),
+            'function': format_function(row),
+            'field': format_field_link(row['base_field_label']),
+            'cp_cardinality': dash(row['cp_cardinality']),
+            'cp_field': format_field_link(row['cp_field_of_defn']),
+            'portrait_cardinality': dash(row['portrait_cardinality']),
+            'portrait_cycles': format_int_list(row['portrait_cycles']),
+            'portrait_components': format_int_list(row['portrait_components']),
+            'citations': format_citations(row.get('citations'), citations_by_id, root),
+        })
+    return out
+
+
+def group_pcf_by_field_degree(dimension, rows, citations_by_id, root):
+    """
+    PCF functions grouped by their field's degree, one table per degree
+    present, each sorted by critical portrait size (largest first) then
+    function_id. Headings count conjugacy classes over QQbar, and the maps
+    too when twists make those differ.
+    """
+    by_degree = {}
+    for row in rows:
+        by_degree.setdefault(row['base_field_degree'], []).append(row)
+    groups = []
+    for d in sorted(by_degree):
+        rs = sorted(by_degree[d], key=lambda r: (-(r['portrait_cardinality'] or 0), r['function_id']))
+        classes = count_conjugacy_classes(rs)
+        heading = (f'{field_degree_label(d)}: {classes} conjugacy class{"" if classes == 1 else "es"}'
+                   f' over {QBAR}')
+        if len(rs) != classes:
+            heading += f' ({len(rs)} maps, counting rational twists separately)'
+        groups.append((heading, build_pcf_rows(dimension, rs, citations_by_id, root)))
+    return groups
 
 
 def format_bibliography(citation_rows):

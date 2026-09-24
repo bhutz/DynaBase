@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Dimension {{ dimension }}, Degree {{ degree }}, {{ type_label }}: Postcritically Finite Maps</h1>
+<p class="intro">A map is postcritically finite (PCF) if every critical point has a finite forward
+orbit. Its critical portrait is the graph of the critical points and their forward orbits.
+Critical points are counted over the algebraic closure, including &infin; for polynomials.</p>
+
+{% if groups %}
+  {% for heading, rows in groups %}
+  <section class="data-table">
+    <h2>{{ heading | safe }}</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Label</th>
+          <th>Function</th>
+          <th>Field of Definition</th>
+          <th>Critical Points</th>
+          <th>Critical Point Field</th>
+          <th>Portrait Size</th>
+          <th>Portrait Cycles</th>
+          <th>Portrait Components</th>
+          <th>Citations</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.label }}</td>
+          <td class="fn">{{ row.function | safe }}</td>
+          <td>{{ row.field | safe }}</td>
+          <td>{{ row.cp_cardinality }}</td>
+          <td>{{ row.cp_field | safe }}</td>
+          <td>{{ row.portrait_cardinality }}</td>
+          <td>{{ row.portrait_cycles | safe }}</td>
+          <td>{{ row.portrait_components | safe }}</td>
+          <td>{{ row.citations | safe }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+  {% endfor %}
+{% else %}
+  <p class="empty">No postcritically finite maps are in the database for this combination yet.</p>
+{% endif %}
+{% endblock %}

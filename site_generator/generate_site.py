@@ -34,9 +34,10 @@ DATA_SOURCES_MD = os.path.join(REPO_ROOT, 'sample_data', 'data_sources.md')
 CUSTOM_DOMAIN = 'dynabase.org'
 
 DIMENSIONS = [1]
-DEGREES = [2, 3]
+DEGREES = list(range(2, 16))  # 2..15
 TYPES = [('polynomial', True), ('rational', False)]
-PROBLEM = 'rational-preperiodic'
+PROBLEMS = [('rational-preperiodic', 'Rational Preperiodic'),
+            ('postcritically-finite', 'Postcritically Finite')]
 TYPE_LABELS = {'polynomial': 'Polynomial', 'rational': 'Rational'}
 
 DEFAULT_DEGREE = 2
@@ -44,10 +45,13 @@ DEFAULT_TYPE = 'polynomial'
 
 
 def make_env():
-    return Environment(
+    env = Environment(
         loader=FileSystemLoader(os.path.join(HERE, 'templates')),
         autoescape=False,  # we control escaping ourselves; most fields are pre-built HTML
     )
+    env.globals['degrees'] = DEGREES  # header selector options, on every page
+    env.globals['problems'] = PROBLEMS
+    return env
 
 
 def write(path, content):
@@ -70,15 +74,57 @@ def root_prefix(rel_path):
     return '../' * depth
 
 
+def report_excluded(dimension, degree, type_name, duplicates, no_graph):
+    """Print which (function, field) pairs filter_distinct_graphs left off a
+    page, so regenerating the site doubles as a check that the data files
+    hold only one pair per graph structure per table."""
+    where = f'dimension {dimension}, degree {degree}, {type_name}'
+    for row, kept in duplicates:
+        print(f'  excluded (duplicate graph, {where}, field degree {row["base_field_degree"]}): '
+              f'{render.format_label(dimension, row)} over {row["base_field_label"]} '
+              f'[function_id {row["function_id"]}] has graph {row["graph_id"]}, already shown for '
+              f'{render.format_label(dimension, kept)} over {kept["base_field_label"]} '
+              f'[function_id {kept["function_id"]}]')
+    for row in no_graph:
+        print(f'  excluded (no preperiodic data, {where}, field degree {row["base_field_degree"]}): '
+              f'{render.format_label(dimension, row)} over {row["base_field_label"]} '
+              f'[function_id {row["function_id"]}]')
+
+
 def render_data_page(env, conn, dimension, degree, type_name, is_polynomial, root,
-                      citations_by_id, used_citation_ids):
+                      citations_by_id, used_citation_ids, report=True):
     rows = db.get_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
+    rows, duplicates, no_graph = render.filter_distinct_graphs(rows)
+    if report:
+        report_excluded(dimension, degree, type_name, duplicates, no_graph)
     for row in rows:
         used_citation_ids.update(row.get('citations') or [])
     groups = render.group_by_field_degree(dimension, rows, citations_by_id, root)
     template = env.get_template('data_page.html')
     return template.render(
         title=f'Degree {degree} {TYPE_LABELS[type_name]} Rational Preperiodic',
+        problem='rational-preperiodic',
+        dimension=dimension,
+        degree=degree,
+        type_=type_name,
+        type_label=TYPE_LABELS[type_name],
+        groups=groups,
+        root=root,
+    )
+
+
+def render_pcf_page(env, conn, dimension, degree, type_name, is_polynomial, root,
+                    citations_by_id, used_citation_ids, report=True):
+    rows, not_computed = db.get_pcf_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
+    if report and not_computed:
+        print(f'  note (dimension {dimension}, degree {degree}, {type_name}): '
+              f'{not_computed} function(s) have is_pcf not computed, so cannot appear on the PCF page')
+    for row in rows:
+        used_citation_ids.update(row.get('citations') or [])
+    groups = render.group_pcf_by_field_degree(dimension, rows, citations_by_id, root)
+    return env.get_template('pcf_page.html').render(
+        title=f'Degree {degree} {TYPE_LABELS[type_name]} Postcritically Finite',
+        problem='postcritically-finite',
         dimension=dimension,
         degree=degree,
         type_=type_name,
@@ -106,13 +152,15 @@ def main():
     for dimension in DIMENSIONS:
         for degree in DEGREES:
             for type_name, is_polynomial in TYPES:
-                rel = f'data/{dimension}/{degree}/{type_name}/{PROBLEM}.html'
-                html = render_data_page(env, conn, dimension, degree, type_name,
-                                         is_polynomial, root=root_prefix(rel),
-                                         citations_by_id=citations_by_id,
-                                         used_citation_ids=used_citation_ids)
-                write(os.path.join(SITE_DIR, rel), html)
-                print('wrote', rel)
+                for problem, renderer in [('rational-preperiodic', render_data_page),
+                                          ('postcritically-finite', render_pcf_page)]:
+                    rel = f'data/{dimension}/{degree}/{type_name}/{problem}.html'
+                    html = renderer(env, conn, dimension, degree, type_name,
+                                    is_polynomial, root=root_prefix(rel),
+                                    citations_by_id=citations_by_id,
+                                    used_citation_ids=used_citation_ids)
+                    write(os.path.join(SITE_DIR, rel), html)
+                    print('wrote', rel)
 
     # index.html = the default combination re-rendered at depth 0 (root='') -
     # can't just reuse the data/ page's HTML, its links/JS are relative to a
@@ -120,7 +168,8 @@ def main():
     index_html = render_data_page(env, conn, DIMENSIONS[0], DEFAULT_DEGREE, DEFAULT_TYPE,
                                    type_by_name[DEFAULT_TYPE], root='',
                                    citations_by_id=citations_by_id,
-                                   used_citation_ids=used_citation_ids)
+                                   used_citation_ids=used_citation_ids,
+                                   report=False)  # same rows as its data/ page, already reported
     write(os.path.join(SITE_DIR, 'index.html'), index_html)
     print('wrote index.html (= dimension 1, degree', DEFAULT_DEGREE, ',', DEFAULT_TYPE, ')')
 

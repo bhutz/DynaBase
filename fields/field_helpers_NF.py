@@ -18,6 +18,7 @@ AUTHORS:
 # ****************************************************************************
 
 
+import re
 import sys
 from sage.categories.number_fields import NumberFields
 from sage.libs.pari import pari
@@ -96,14 +97,30 @@ def lmfdb_field_label_NF(K, log_file = sys.stdout): #label finding
         label = dat['label']
         return True, label
     else:
-        # can't find the field
-        log_file.write('Field not found in LMFDB: ' + str(K) + '\n')
-        label = 0
+        # can't find the field - label it by its defining polynomial instead,
+        # written in x as the LMFDB displays polynomials, e.g. 'x^2 - x - 1'.
+        # get_sage_field_NF recognizes this form and rebuilds the field from it.
+        label = str(poly.change_variable_name('x'))
+        log_file.write('Field not found in LMFDB: ' + str(K) + ' using label ' + label + '\n')
         return False, label
 
 
-def get_sage_field_NF(label): # get field from db, return as sage object
+def is_lmfdb_label_NF(label):
+    """
+    True if label is an LMFDB number field label (n.r.D.i, e.g. '2.2.5.1'),
+    False if it is the defining polynomial lmfdb_field_label_NF uses for a
+    field not in the LMFDB (e.g. 'x^2 - x - 1').
+    """
+    return re.fullmatch(r'\d+\.\d+\.\d+\.\d+', str(label)) is not None
 
+
+def get_sage_field_NF(label, log_file=sys.stdout): # get field from db, return as sage object
+
+    if not is_lmfdb_label_NF(label):
+        # not in the LMFDB: the label is the field's defining polynomial in x
+        # (see lmfdb_field_label_NF), already normalized when it was labeled
+        R = PolynomialRing(QQ, 'x')
+        return NumberField(R(label), 'a')
     dat = db.nf_fields.lucky({"label": label}, ["coeffs"])
     if dat is None:
         log_file.write('Field not found in LMFDB: ' + str(label) + '\n')

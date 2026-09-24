@@ -20,3 +20,12 @@ load("sample_data/add_functions_quadratic_polys_dim_1.py")
 
 load("connect.py")
 load("sample_data/add_functions_cubic_polys_dim_1.py")
+
+load("connect.py")
+load("sample_data/add_functions_quadratic_rational_dim_1.py")
+
+load("connect.py")
+load("sample_data/add_functions_higher_degree_polys_dim_1.py")
+
+load("connect.py")
+load("sample_data/add_functions_higher_degree_rational_dim_1.py")

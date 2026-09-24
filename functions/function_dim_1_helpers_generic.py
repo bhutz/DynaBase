@@ -79,16 +79,16 @@ def choose_display_model(function_id, my_cursor, log_file=sys.stdout):
     query['function_id']=function_id
     my_cursor.execute("""SELECT (original_model).base_field_label FROM functions_dim_1_NF where function_id = %(function_id)s""", query)
     original_field_label = my_cursor.fetchone()['base_field_label']
-    my_cursor.execute("""SELECT is_chebyshev FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
-    is_cheby = my_cursor.fetchone()['is_chebyshev']
-    if is_cheby:
-        query['display_model'] = 'chebyshev'
-        my_cursor.execute("""UPDATE functions_dim_1_NF
-            SET display_model = %(display_model)s
-            WHERE
-                function_id = %(function_id)s
-            """, query)
-        return True
+#    my_cursor.execute("""SELECT is_chebyshev FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
+#    is_cheby = my_cursor.fetchone()['is_chebyshev']
+#    if is_cheby:
+#        query['display_model'] = 'chebyshev'
+#        my_cursor.execute("""UPDATE functions_dim_1_NF
+#            SET display_model = %(display_model)s
+#            WHERE
+#                function_id = %(function_id)s
+#            """, query)
+#        return True
     my_cursor.execute("""SELECT is_polynomial FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
     is_poly = my_cursor.fetchone()['is_polynomial']
     if is_poly:
@@ -115,19 +115,19 @@ def choose_display_model(function_id, my_cursor, log_file=sys.stdout):
                     function_id = %(function_id)s
                 """, query)
             return True
-    my_cursor.execute("""SELECT (newton_model).coeffs FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
-    my_coeffs = my_cursor.fetchone()['coeffs']
-    if not my_coeffs is None:
-        my_cursor.execute("""SELECT (newton_model).base_field_label FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
-        new_field_label = my_cursor.fetchone()['base_field_label']
-        if original_field_label == new_field_label:
-            query['display_model'] = 'newton'
-            my_cursor.execute("""UPDATE functions_dim_1_NF
-                SET display_model = %(display_model)s
-                WHERE
-                    function_id = %(function_id)s
-                """, query)
-            return True
+#    my_cursor.execute("""SELECT (newton_model).coeffs FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
+#    my_coeffs = my_cursor.fetchone()['coeffs']
+#    if not my_coeffs is None:
+#        my_cursor.execute("""SELECT (newton_model).base_field_label FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
+#        new_field_label = my_cursor.fetchone()['base_field_label']
+#        if original_field_label == new_field_label:
+#            query['display_model'] = 'newton'
+#            my_cursor.execute("""UPDATE functions_dim_1_NF
+#                SET display_model = %(display_model)s
+#                WHERE
+#                    function_id = %(function_id)s
+#                """, query)
+#            return True
     query['display_model'] = 'original'
     my_cursor.execute("""UPDATE functions_dim_1_NF
         SET display_model = %(display_model)s
