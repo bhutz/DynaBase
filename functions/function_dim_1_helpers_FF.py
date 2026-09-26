@@ -138,7 +138,7 @@ def check_conjugates_FF(F,G, normalize_base=False, field_type=None, num_paramete
     Fbar = F.change_ring(KFbar)
     KGbar = Kg.algebraic_closure()
     Gbar = G.change_ring(KFbar)
-    CS = Fbar.conjugating_set(Gbar)
+    CS = Fbar.conjugating_set(Gbar, num_cpus=1)
 
     if len(CS) == 0:
         return 0
@@ -462,7 +462,7 @@ def add_automorphism_group_FF(label, model_name='original', log_file=sys.stdout,
         except ValueError:
             Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
 
-        aut = Fbar.automorphism_group()
+        aut = Fbar.conjugating_set(Fbar, num_cpus=1) #not automorphism_group, see add_automorphism_group_NF
         query['automorphism_group_cardinality'] = int(len(aut))
         my_cursor.execute("""UPDATE functions_dim_1_NF
             SET automorphism_group_cardinality = %(automorphism_group_cardinality)s
@@ -781,7 +781,7 @@ def add_chebyshev_model_FF(label, model_name='original', log_file=sys.stdout, ti
         log_file.write('computing chebyshev model for:' + label + '\n')
         cheby_model = {}
         ch = F.domain().chebyshev_polynomial(d)
-        conj_set = Fbar.conjugating_set(ch.change_ring(QQbar))
+        conj_set = Fbar.conjugating_set(ch.change_ring(QQbar), num_cpus=1)
         K = ch.base_ring()
         bool, K_id = field_in_database_NF(K)
         assert(bool)

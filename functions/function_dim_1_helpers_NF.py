@@ -41,9 +41,6 @@ from sage.schemes.projective.projective_space import ProjectiveSpace
 #sagerel -pip install pysha3
 import sha3  #adds shake to hashlib
 import hashlib  #for shake
-from cysignals.alarm import alarm
-from cysignals.signals import AlarmInterrupt
-from cysignals.alarm import cancel_alarm
 import sys
 
 #length of SHAKE-256S hash for function label
@@ -60,6 +57,8 @@ from functions.function_dim_1_helpers_generic import get_post_critical
 from functions.function_dim_1_helpers_generic import choose_display_model
 from functions.function_dim_1_helpers_generic import graph_to_array
 from functions.function_dim_1_helpers_generic import array_to_graph
+from functions.function_dim_1_helpers_generic import ChildTimeout
+from functions.function_dim_1_helpers_generic import run_in_child
 
 
 ##############################################################
@@ -173,6 +172,7 @@ def get_sage_func_NF(function_id, model_name, my_cursor, log_file=sys.stdout):
 
     return DynamicalSystem(polys, domain=P)
 
+
 def check_conjugates_NF(F,G, normalize_base=False, log_file=sys.stdout):
     """
     F,G are two sage models with same degree, dimension
@@ -258,32 +258,36 @@ def conj_in_database_NF(F, my_cursor, conj_fns=None, log_file=sys.stdout, timeou
         #nothing with the same sigma_1,sigma_2
         return 0, []
 
+    # TODO allow other models?
+    #read the models here, the child process can't use the database
+    Gs = [get_sage_func_NF(g[0], 'original', my_cursor) for g in conj_fns]
+    def compute():
+        for i in range(len(Gs)):
+            twist_val = check_conjugates_NF(Gs[i], F)
+            if twist_val != 0:
+                return i, twist_val
+        return None, 0
     try:
-        if timeout != 0:
-            alarm(timeout)
-        for g in conj_fns:
-            # TODO allow other models?
-            twist_val = check_conjugates_NF(get_sage_func_NF(g[0], 'original', my_cursor),F)
-            if twist_val == 1:
-                log_file.write('already there: conjugate found in db: ' + str(list(F)) + ' as ' + str(g[0]) + '\n')
-                cancel_alarm()
-                return 1, [g['function_id']]
-            elif twist_val == 2:
-                if g['rational_twists'] is None:
-                    twist_list = [g['function_id']]
-                else:
-                    twist_list = g['rational_twists'] + [g['function_id']]
-                    twist_list.sort()
-                log_file.write('has twist in db: ' + str(list(F)) + ' as ' + str(twist_list) + '\n')
-                cancel_alarm()
-                return 2, twist_list
-        #not in database
-        cancel_alarm()
-        return 0, []
-
-    except AlarmInterrupt:
+        i, twist_val = run_in_child(compute, timeout=timeout, log_file=log_file)
+    except ChildTimeout:
         log_file.write('timeout: func_in_db: ' + str(timeout) + ':' + str(list(F)) + '\n')
-        #raise
+        #can't tell whether it is new; this used to return None, which the caller couldn't unpack
+        raise RuntimeError('timeout checking for conjugates in the database: ' + str(list(F)))
+    if twist_val == 1:
+        g = conj_fns[i]
+        log_file.write('already there: conjugate found in db: ' + str(list(F)) + ' as ' + str(g[0]) + '\n')
+        return 1, [g['function_id']]
+    elif twist_val == 2:
+        g = conj_fns[i]
+        if g['rational_twists'] is None:
+            twist_list = [g['function_id']]
+        else:
+            twist_list = g['rational_twists'] + [g['function_id']]
+            twist_list.sort()
+        log_file.write('has twist in db: ' + str(list(F)) + ' as ' + str(twist_list) + '\n')
+        return 2, twist_list
+    #not in database
+    return 0, []
 
 
 def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, timeout=30):
@@ -335,11 +339,29 @@ def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, tim
         # not in the LMFDB: K_id is the field's defining polynomial instead
         # (see lmfdb_field_label_NF)
         log_file.write('base field not in LMFDB, using label: ' + K_id + '\n')
+    given_coeffs = [get_coefficients(g) for g in F] #a stored monic/reduced model may not have normalized coordinates
     F.normalize_coordinates()
 
     f['base_field_label'] = K_id
     f['base_field_degree'] = int(base_field.degree())
     #f['base_field_emb'] = int(emb_index)
+
+    #check for this exact model first: sigma_invariants(2) is very slow for even moderate degree
+    query = {'degree':f['degree'], 'label':K_id,
+        'coeffs':[get_coefficients(g) for g in F], 'given_coeffs':given_coeffs}
+    my_cursor.execute("""SELECT function_id FROM functions_dim_1_NF
+        WHERE degree=%(degree)s AND (
+            ((original_model).coeffs IN (%(coeffs)s::varchar[], %(given_coeffs)s::varchar[])
+                AND (original_model).base_field_label = %(label)s)
+            OR ((monic_centered).coeffs IN (%(coeffs)s::varchar[], %(given_coeffs)s::varchar[])
+                AND (monic_centered).base_field_label = %(label)s)
+            OR ((reduced_model).coeffs IN (%(coeffs)s::varchar[], %(given_coeffs)s::varchar[])
+                AND (reduced_model).base_field_label = %(label)s))
+        """, query)
+    G = my_cursor.fetchone()
+    if G is not None:
+        log_file.write('model already known for : ' + str(G[0]) + '\n')
+        return False, G[0]
 
     # TODO: What about labels for Lattes maps? Should it be based on cremona label?
     s1 = [str(t) for t in F.sigma_invariants(1)]
@@ -451,24 +473,25 @@ def add_is_pcf(my_cursor, function_id=None, model_name='original', bool_add_fiel
     'is_pcf'
 
     """
-    if timeout != 0:
-        alarm(timeout)
     try:
         log_file.write('computing is_pcf for : ' + str(function_id) + '\n')
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
+        def compute():
+            try:
+                is_pcf = F.is_postcritically_finite()
+            except ValueError:
+                is_pcf = F.is_postcritically_finite(embedding=F.base_ring().embeddings(QQbar)[0])
+            K, phi = F.field_of_definition_critical(return_embedding=True)
+            L, psi = normalize_field_NF(K, log_file=log_file)
+            F_cp = F.change_ring(psi*phi)
+            cp = F_cp.critical_points()
+            return is_pcf, L, len(cp)
+        is_pcf, L, cp_cardinality = run_in_child(compute, timeout=timeout, log_file=log_file)
         pcf = {'function_id':function_id}
-        try:
-            is_pcf = F.is_postcritically_finite()
-        except ValueError:
-            is_pcf = F.is_postcritically_finite(embedding=F.base_ring().embeddings(QQbar)[0])
         pcf['is_pcf']=is_pcf
-        K, phi = F.field_of_definition_critical(return_embedding=True)
-        L, psi = normalize_field_NF(K, log_file=log_file)
         # L_id is L's defining polynomial if L is not in the LMFDB (see lmfdb_field_label_NF)
         bool, L_id = lmfdb_field_label_NF(L, log_file=log_file)
-        F_cp = F.change_ring(psi*phi)
-        cp = F_cp.critical_points()
-        pcf['cp_cardinality'] = len(cp)
+        pcf['cp_cardinality'] = cp_cardinality
         pcf['cp_field_of_defn'] = L_id
         my_cursor.execute("""UPDATE functions_dim_1_NF
                     SET is_pcf = %(is_pcf)s,
@@ -483,15 +506,13 @@ def add_is_pcf(my_cursor, function_id=None, model_name='original', bool_add_fiel
         else:
             log_file.write('updated ' + str(my_cursor.rowcount) + ' functions for is_pcf \n')
         log_file.write('is_pcf finished\n')
-        cancel_alarm()
         return True
-    except AlarmInterrupt:
+    except ChildTimeout:
         log_file.write('timeout: is_pcf for:' + str(timeout) + ':' + str(function_id) + '\n')
     except Exception as e:
         log_file.write('failure: is_pcf for:' + str(function_id) + 'with error:' + str(e) + '\n')
         #raise
 
-    cancel_alarm()
     return False
 
 
@@ -508,9 +529,6 @@ def add_critical_portrait(function_id, my_cursor, model_name='original', log_fil
 
     action can be add/replace
     """
-    if timeout != 0:
-        alarm(timeout)
-
     log_file.write('computing critical portrait for:' + str(function_id) + '\n')
     query={}
     query['function_id']=function_id
@@ -524,7 +542,7 @@ def add_critical_portrait(function_id, my_cursor, model_name='original', log_fil
 
     try:
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
-        g = F.critical_point_portrait()
+        g = run_in_child(lambda: F.critical_point_portrait(), timeout=timeout, log_file=log_file)
 
         #identify graph and add if necessary
         query['critical_portrait_graph_id'] = identify_graph(g, F, my_cursor, 2, log_file=log_file)
@@ -535,17 +553,19 @@ def add_critical_portrait(function_id, my_cursor, model_name='original', log_fil
         if my_cursor.rowcount == 0: #error check rowcount after update
             log_file.write('add_critical_portait failure: ' + str(function_id) + ' not updated \n')
         else:
-            log_file.write('add_critical_portrait: ' + str(function_id) + ' successfully updated \n')      
-        cancel_alarm()
+            log_file.write('add_critical_portrait: ' + str(function_id) + ' successfully updated \n')
         log_file.write('critical portrait added:' + str(function_id) + '\n')
         return True
 
     except PariError:
-        log_file.write('pari error create critical portrait:' +  function_id + '\n')
+        log_file.write('pari error create critical portrait:' +  str(function_id) + '\n')
         pass #ran out of memory pari.allocatemem(##) for more
         #or normal_form was not cooercible?
-    except AlarmInterrupt:
+    except ChildTimeout:
         log_file.write('timeout: create critical portrait:' + str(timeout) + ':' + str(function_id) + '\n')
+    except Exception as e:
+        #errors in the child process (including a PariError) arrive as a RuntimeError
+        log_file.write('failure: create critical portrait:' + str(function_id) + 'with error:' + str(e) + '\n')
 
     return False
 
@@ -557,18 +577,16 @@ def add_automorphism_group_NF(function_id, my_cursor, model_name='original', log
     """
     query={}
     query['function_id']=function_id
-    if timeout != 0:
-        alarm(timeout)
     log_file.write('starting aut group for:' + str(function_id) + '\n')
     try:
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
-        try:
-            Fbar = F.change_ring(QQbar)
-        except ValueError:
-            Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
-
-        aut = Fbar.automorphism_group()
-        query['automorphism_group_cardinality'] = int(len(aut))
+        def compute():
+            try:
+                Fbar = F.change_ring(QQbar)
+            except ValueError:
+                Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
+            return len(Fbar.automorphism_group())
+        query['automorphism_group_cardinality'] = int(run_in_child(compute, timeout=timeout, log_file=log_file))
         my_cursor.execute("""UPDATE functions_dim_1_NF
             SET automorphism_group_cardinality = %(automorphism_group_cardinality)s
             WHERE function_id=%(function_id)s
@@ -576,17 +594,16 @@ def add_automorphism_group_NF(function_id, my_cursor, model_name='original', log
         if my_cursor.rowcount == 0: #error check rowcount after update
             log_file.write('add_automorphism_group_NF failure: ' + str(function_id) + ' not updated \n')
         else:
-            log_file.write('add_automorphism_group_NF: ' + str(function_id) + ' successfully updated \n') 
-        cancel_alarm()
+            log_file.write('add_automorphism_group_NF: ' + str(function_id) + ' successfully updated \n')
         log_file.write('aut group computed for:' + str(function_id) + '\n')
         return True
-    except AlarmInterrupt:
+    except ChildTimeout:
         log_file.write('timeout: aut group for:' + str(timeout) + ':' + str(function_id) + '\n')
     except Exception as e:
         log_file.write('failure: aut group for:' + str(function_id) + 'with error:' + str(e) + '\n')
         #raise
-    cancel_alarm()
     return False
+
 
 def identify_graph(G, f, my_cursor, type, log_file=sys.stdout):
     """
@@ -699,9 +716,6 @@ def add_rational_preperiodic_points_NF(function_id, my_cursor, model_name='origi
         preperiodic components
         max_tail
     """
-    if timeout != 0:
-        alarm(timeout)
-
     log_file.write('starting rational preperiodic points for:' + str(function_id) + '\n')
     try:
         graph_data = {}
@@ -728,26 +742,25 @@ def add_rational_preperiodic_points_NF(function_id, my_cursor, model_name='origi
             , preperiodic_data)
         if my_cursor.rowcount != 0:
             log_file.write('rational preperiodic points already known for:' + str(function_id) + ' over ' + str(field_label) + '\n')
-            cancel_alarm()
             return True
 
-        if timeout != 0:
-            alarm(timeout)
-        #special case x^2-3/4
-        if [f.coefficients() for f in F] == [[K(1), K(-3)/4], [K(1)]]\
-          or [f.coefficients() for f in F] == [[K(4), K(-3)], [K(4)]]:
-            log_file.write('special case -3/4')
-            G = F.dehomogenize(1)
-            g = G.weil_restriction().homogenize(1)
-            per = g.possible_periods()
-            per.pop(per.index(2))
-            preper = F.rational_preperiodic_graph(periods=per)
-        elif K.degree() > 4:
-            preper = F.rational_preperiodic_graph(prime_bound=[1,5], lifting_prime=5)
-        elif K.degree() > 3:
-            preper = F.rational_preperiodic_graph(prime_bound=[1,15], lifting_prime=7)
-        else:
-            preper = F.rational_preperiodic_graph()
+        def compute():
+            #special case x^2-3/4
+            if [f.coefficients() for f in F] == [[K(1), K(-3)/4], [K(1)]]\
+              or [f.coefficients() for f in F] == [[K(4), K(-3)], [K(4)]]:
+                log_file.write('special case -3/4')
+                G = F.dehomogenize(1)
+                g = G.weil_restriction().homogenize(1)
+                per = g.possible_periods()
+                per.pop(per.index(2))
+                return F.rational_preperiodic_graph(periods=per)
+            elif K.degree() > 4:
+                return F.rational_preperiodic_graph(prime_bound=[1,5], lifting_prime=5)
+            elif K.degree() > 3:
+                return F.rational_preperiodic_graph(prime_bound=[1,15], lifting_prime=7)
+            else:
+                return F.rational_preperiodic_graph()
+        preper = run_in_child(compute, timeout=timeout, log_file=log_file)
         ## TODO: add graph_id
 
         periodic = []
@@ -769,18 +782,17 @@ def add_rational_preperiodic_points_NF(function_id, my_cursor, model_name='origi
         if my_cursor.rowcount == 0: #error check rowcount after insert
             log_file.write('add_rational_preperiodic_points_NF failure: ' + str(function_id) + ' not inserted \n')
         else:
-            log_file.write('add_rational_preperiodic_points_NF: ' + str(function_id) + ' successfully inserted \n') 
+            log_file.write('add_rational_preperiodic_points_NF: ' + str(function_id) + ' successfully inserted \n')
         log_file.write('rational preperiodic points computed for:' + str(function_id) + '\n')
-        cancel_alarm()
         return True
-    except AlarmInterrupt:
+    except ChildTimeout:
         log_file.write('timeout: preperiodic points for:' + str(timeout) + ':' + str(function_id) + '\n')
     except Exception as e:
         log_file.write('failure: preperiodic points for:' + str(function_id) + 'with error:' + str(e) + '\n')
         #raise
 
-    cancel_alarm()
     return False
+
 
 def add_reduced_model_NF(function_id, my_cursor, model_name='original', log_file=sys.stdout, timeout=30):
     """
@@ -795,42 +807,41 @@ def add_reduced_model_NF(function_id, my_cursor, model_name='original', log_file
     conjugation_from_original_base_field_label varchar
 
     """
-    if timeout != 0:
-        alarm(timeout)
-
     query={}
     query['function_id']=function_id
     log_file.write('Computing reduced model for:' + str(function_id) + '\n')
     try:
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
+        def reduce(dynatomic):
+            def compute():
+                g, M = F.reduced_form(smallest_coeffs=True, dynatomic=dynatomic,\
+                                      return_conjugation=True, start_n=1)
+                if M.base_ring() == ZZ:
+                    M = M.change_ring(QQ)
+                log_file.write('reduced form computed \n')
+                if g.base_ring().degree() == 1:
+                    bad_primes = g.primes_of_bad_reduction()
+                else:
+                    bad_primes = list(set([p.norm() for p in g.primes_of_bad_reduction()])) #remove duplicates
+                    bad_primes.sort()
+
+                g.normalize_coordinates()
+                #reduced model (conjugate by an integral matrix, same base field as F)
+                return {'reduced_model.coeffs': [get_coefficients(h) for h in g],
+                        'reduced_model.resultant': str(g.resultant()),
+                        'reduced_model.bad_primes': [int(p) for p in bad_primes],
+                        'reduced_model.height': float(g.global_height())}
+            return compute
         try:
             log_file.write('trying reduced with dynatomic for:' + str(function_id) + '\n')
-            g, M = F.reduced_form(smallest_coeffs=True, dynatomic=True,\
-                                  return_conjugation=True, start_n=1)
+            query.update(run_in_child(reduce(True), timeout=timeout, log_file=log_file))
         except Exception as e:
+            #a timeout (not an Exception) doesn't get a second try, as with the alarm before
             log_file.write('error reduced with dynatomic for:' + str(function_id) + 'with error:' + str(e) + '\n')
-            if timeout != 0:
-                alarm(timeout)
             log_file.write('trying reduced with periodic for:' + str(function_id) + '\n')
-            g, M = F.reduced_form(smallest_coeffs=True, dynatomic=False,\
-                                   return_conjugation=True, start_n=1)
-        if M.base_ring() == ZZ:
-            M = M.change_ring(QQ)
-        log_file.write('reduced form computed \n')
-        if g.base_ring().degree() == 1:
-            bad_primes = g.primes_of_bad_reduction()
-        else:
-            bad_primes = list(set([p.norm() for p in g.primes_of_bad_reduction()])) #remove duplicates
-            bad_primes.sort()
-
-        g.normalize_coordinates()
-        #original model
+            query.update(run_in_child(reduce(False), timeout=timeout, log_file=log_file))
         bool, K_id = lmfdb_field_label_NF(F.base_ring())
         assert(bool)
-        query['reduced_model.coeffs'] = [get_coefficients(g) for g in F]
-        query['reduced_model.resultant'] = str(F.resultant())
-        query['reduced_model.bad_primes'] = [int(p) for p in bad_primes]
-        query['reduced_model.height'] = float(F.global_height())
         query['reduced_model.base_field_label'] = K_id
         #models['original'].update({'base_field_emb': int(emb_index)})
         #conjugation to original model
@@ -851,18 +862,17 @@ def add_reduced_model_NF(function_id, my_cursor, model_name='original', log_file
         if my_cursor.rowcount == 0: #error check rowcount after update
             log_file.write('add_reduced_model_NF failure: ' + str(function_id) + ' not updated \n')
         else:
-            log_file.write('add_reduced_model_NF: ' + str(function_id) + ' successfully updated \n') 
+            log_file.write('add_reduced_model_NF: ' + str(function_id) + ' successfully updated \n')
         log_file.write('reduced model computed: ' + str(function_id) + '\n')
-        cancel_alarm()
         return True
 
-    except AlarmInterrupt:
+    except ChildTimeout:
         log_file.write('reduced model timeout: ' + str(timeout) + ':' + str(function_id) + '\n')
     except Exception as e:
         log_file.write('reduced model failure: ' + str(function_id) + 'with error:' + str(e) + '\n')
         #raise
-    cancel_alarm()
     return False
+
 
 def add_is_polynomial_NF(function_id, my_cursor, model_name='original', log_file=sys.stdout, timeout=30):
     """
@@ -870,15 +880,13 @@ def add_is_polynomial_NF(function_id, my_cursor, model_name='original', log_file
 
     'is_polynomial'
     """
-    if timeout != 0:
-        alarm(timeout)
     log_file.write('starting is_polynomial for:' + str(function_id) + '\n')
 
     try:
         query={}
         query['function_id']=function_id
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
-        is_poly = F.is_polynomial()
+        is_poly = run_in_child(lambda: F.is_polynomial(), timeout=timeout, log_file=log_file)
 
         query['is_polynomial'] = is_poly
         my_cursor.execute("""UPDATE functions_dim_1_NF
@@ -888,18 +896,17 @@ def add_is_polynomial_NF(function_id, my_cursor, model_name='original', log_file
         if my_cursor.rowcount == 0: #error check rowcount after update
             log_file.write('add_is_polynomial_NF failure: ' + str(function_id) + ' not updated \n')
         else:
-            log_file.write('add_is_polynomial_NF: ' + str(function_id) + ' successfully updated \n')  
+            log_file.write('add_is_polynomial_NF: ' + str(function_id) + ' successfully updated \n')
         log_file.write('is polynomial computed: ' + str(function_id) + '\n')
-        cancel_alarm()
         return True
 
-    except AlarmInterrupt:
+    except ChildTimeout:
         log_file.write('is_polynomial timeout: ' + str(timeout) + ':' + str(function_id) + '\n')
     except Exception as e:
         log_file.write('is_polynomial failure: ' + str(function_id) + 'with error:' + str(e) + '\n')
         #raise
-    cancel_alarm()
     return False
+
 
 def add_monic_centered_model_NF(function_id, my_cursor, model_name='original', log_file=sys.stdout, timeout=30):
     """
@@ -918,8 +925,6 @@ def add_monic_centered_model_NF(function_id, my_cursor, model_name='original', l
     #TODO Note that this has to start from original or the conjugation is wrong
 
     """
-    if timeout != 0:
-        alarm(timeout)
     query={}
     query['function_id'] = function_id
 
@@ -930,37 +935,41 @@ def add_monic_centered_model_NF(function_id, my_cursor, model_name='original', l
         my_cursor.execute("""SELECT is_polynomial FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
         is_poly= my_cursor.fetchone()['is_polynomial']
     if not is_poly:
-        cancel_alarm()
         #no monic centered model if not a polynomial
         return True
 
     monic_centered = {}
     try:
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
-        N = F.domain().dimension()
-        G,M,phi = F.normal_form(return_conjugation=True)
-        #base field may have changed so normalize again
-        G, phi = normalize_function_NF(G, log_file=log_file)
-        L = G.base_ring()
-        M = matrix(L, N+1, N+1, [phi(t) for r in M for t in r])
+        def compute():
+            N = F.domain().dimension()
+            G,M,phi = F.normal_form(return_conjugation=True)
+            #base field may have changed so normalize again
+            G, phi = normalize_function_NF(G, log_file=log_file)
+            L = G.base_ring()
+            M = matrix(L, N+1, N+1, [phi(t) for r in M for t in r])
 
-        G.normalize_coordinates()
-        res = G.resultant()
-        #correction to normal form
-        G.scale_by(1/G[0].coefficient({G.domain().gen(0):G.degree()}))
+            G.normalize_coordinates()
+            res = G.resultant()
+            #correction to normal form
+            G.scale_by(1/G[0].coefficient({G.domain().gen(0):G.degree()}))
 
-        #monic centered model
+            #monic centered model
+            values = {}
+            values['monic_centered.coeffs'] = [get_coefficients(g) for g in G]
+            values['monic_centered.resultant'] = str(G.resultant())
+            if L.degree() == 1:
+                bad_primes = G.primes_of_bad_reduction()
+            else:
+                bad_primes = list(set([p.norm() for p in G.primes_of_bad_reduction()])) #remove duplicates
+                bad_primes.sort()
+            values['monic_centered.bad_primes'] = [int(p) for p in bad_primes]
+            values['monic_centered.height'] = float(G.global_height())
+            return L, values
+        L, values = run_in_child(compute, timeout=timeout, log_file=log_file)
+        query.update(values)
         # L_id is L's defining polynomial if L is not in the LMFDB (see lmfdb_field_label_NF)
         bool, L_id = lmfdb_field_label_NF(L, log_file=log_file)
-        query['monic_centered.coeffs'] = [get_coefficients(g) for g in G]
-        query['monic_centered.resultant'] = str(G.resultant())
-        if L.degree() == 1:
-            bad_primes = G.primes_of_bad_reduction()
-        else:
-            bad_primes = list(set([p.norm() for p in G.primes_of_bad_reduction()])) #remove duplicates
-            bad_primes.sort()
-        query['monic_centered.bad_primes'] = [int(p) for p in bad_primes]
-        query['monic_centered.height'] = float(G.global_height())
         query['monic_centered.base_field_label'] = L_id
         #models['original'].update({'base_field_emb': int(emb_index)})
         #conjugation to original model
@@ -976,22 +985,21 @@ def add_monic_centered_model_NF(function_id, my_cursor, model_name='original', l
             WHERE
                 function_id = %(function_id)s
             """, query)
-        
+
         if my_cursor.rowcount == 0: #error check rowcount after update
             log_file.write('add_monic_centered_model_NF failure: ' + str(function_id) + ' not updated \n')
         else:
-            log_file.write('add_monic_centered_model_NF: ' + str(function_id) + ' successfully updated \n') 
+            log_file.write('add_monic_centered_model_NF: ' + str(function_id) + ' successfully updated \n')
         log_file.write('monic centered model computed: ' + str(function_id) + '\n')
-        cancel_alarm()
         return True
 
-    except AlarmInterrupt:
+    except ChildTimeout:
         log_file.write('monic centered model timeout: ' + str(timeout) + ':' + str(function_id) + '\n')
     except Exception as e:
         log_file.write('monic centered model failure: ' + str(function_id) + 'with error:' + str(e) + '\n')
         #raise
-    cancel_alarm()
     return False
+
 
 def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_file=sys.stdout, timeout=30):
     """
@@ -1010,11 +1018,10 @@ def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_fi
     my_cursor.execute("""SELECT is_polynomial FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
     is_poly= my_cursor.fetchone()['is_polynomial']
     if is_poly is None:
-        add_is_polynomial_NF(function_id, model_name=model_name, log_file=log_file, timeout=timeout)
+        add_is_polynomial_NF(function_id, my_cursor, model_name=model_name, log_file=log_file, timeout=timeout)
         my_cursor.execute("""SELECT is_polynomial FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
         is_poly= my_cursor.fetchone()['is_polynomial']
     if not is_poly:
-        cancel_alarm()
         #not chebyshev if not a polynomial
         query['is_chebyshev']=False
         my_cursor.execute("""UPDATE functions_dim_1_NF
@@ -1025,7 +1032,7 @@ def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_fi
         if my_cursor.rowcount == 0: #error check rowcount after update
             log_file.write('add_chebyshev_model_NF failure: ' + str(function_id) + ' not updated \n')
         else:
-            log_file.write('add_chebyshev_model_NF: ' + str(function_id) + ' successfully updated \n')  
+            log_file.write('add_chebyshev_model_NF: ' + str(function_id) + ' successfully updated \n')
         log_file.write('chebyshev model done for:' + str(function_id) + '\n')
         return True
     #check if chebyshev - Milnor
@@ -1036,7 +1043,6 @@ def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_fi
         my_cursor.execute("""SELECT is_pcf FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
         is_pcf = my_cursor.fetchone()['is_pcf']
     if not is_pcf:
-        cancel_alarm()
         #not chebyshev if not pcf
         query['is_chebyshev'] = False
         my_cursor.execute("""UPDATE functions_dim_1_NF
@@ -1047,41 +1053,42 @@ def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_fi
         if my_cursor.rowcount == 0: #error check rowcount after update
             log_file.write('add_chebyshev_model_NF failure: ' + str(function_id) + ' not updated \n')
         else:
-            log_file.write('add_chebyshev_model_NF: ' + str(function_id) + ' successfully updated \n') 
+            log_file.write('add_chebyshev_model_NF: ' + str(function_id) + ' successfully updated \n')
         log_file.write('chebyshev model done for:' + str(function_id) + '\n')
         return True
     try:
-        if timeout != 0:
-            alarm(timeout)
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
-        try:
-            Fbar = F.change_ring(QQbar)
-        except ValueError:
-            Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
-        d = F.degree()
-        Pbar = Fbar.domain()
-        crit, post_crit = get_post_critical(Fbar)
-        count_crit = 0
-        for Q in crit:
-            if Q != Pbar([1,0]):
-                count_crit += 1
-        if count_crit == d-1:
-            count = 0
-            for Q in post_crit:
-                if Q != Pbar([1,0]) and Q not in crit:
-                    good_Q = Q
-                    count += 1
-            if count == 2:
-                # and we need either [1,1] or both fixed
-                m,n = good_Q.is_preperiodic(Fbar, return_period=True)
-                if n == 1:
-                    is_cheby = True
+        def compute():
+            try:
+                Fbar = F.change_ring(QQbar)
+            except ValueError:
+                Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
+            d = F.degree()
+            Pbar = Fbar.domain()
+            crit, post_crit = get_post_critical(Fbar)
+            count_crit = 0
+            for Q in crit:
+                if Q != Pbar([1,0]):
+                    count_crit += 1
+            if count_crit == d-1:
+                count = 0
+                for Q in post_crit:
+                    if Q != Pbar([1,0]) and Q not in crit:
+                        good_Q = Q
+                        count += 1
+                if count == 2:
+                    # and we need either [1,1] or both fixed
+                    m,n = good_Q.is_preperiodic(Fbar, return_period=True)
+                    if n == 1:
+                        is_cheby = True
+                    else:
+                        is_cheby = False
                 else:
                     is_cheby = False
             else:
                 is_cheby = False
-        else:
-            is_cheby = False
+            return is_cheby
+        is_cheby = run_in_child(compute, timeout=timeout, log_file=log_file)
         query['is_chebyshev'] = is_cheby
         if not is_cheby:
             log_file.write('not chebyshev:' + str(function_id) + '\n')
@@ -1093,7 +1100,7 @@ def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_fi
             if my_cursor.rowcount == 0: #error check rowcount after update
                 log_file.write('add_chebyshev_model_NF failure: ' + str(function_id) + ' not updated \n')
             else:
-                log_file.write('add_chebyshev_model_NF: ' + str(function_id) + ' successfully updated \n') 
+                log_file.write('add_chebyshev_model_NF: ' + str(function_id) + ' successfully updated \n')
             return True
         #else is chebyshev
 
@@ -1103,22 +1110,21 @@ def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_fi
             WHERE
                 function_id = %(function_id)s
             """, query)
-        cancel_alarm()
         if my_cursor.rowcount == 0: #error check rowcount after update
             log_file.write('add_chebyshev_model_NF failure: ' + str(function_id) + ' not updated \n')
         else:
-            log_file.write('add_chebyshev_model_NF: ' + str(function_id) + ' successfully updated \n')   
+            log_file.write('add_chebyshev_model_NF: ' + str(function_id) + ' successfully updated \n')
         log_file.write('chebyshev model done for:' + str(function_id) + '\n')
         return True
 
 
-    except AlarmInterrupt:
+    except ChildTimeout:
         log_file.write('chebyshev model timeout: ' + str(timeout) + ':' + str(function_id) + '\n')
     except Exception as e:
         log_file.write('chebyshev model failure: ' + str(function_id) + 'with error:' + str(e) + '\n')
         #raise
-    cancel_alarm()
     return False
+
 
 def add_newton_model_NF(function_id, my_cursor, model_name='original', log_file=sys.stdout, timeout=30):
     """
@@ -1134,13 +1140,61 @@ def add_newton_model_NF(function_id, my_cursor, model_name='original', log_file=
     #check if newton map
     try:
         F = get_sage_func_NF(function_id, model_name, my_cursor)
-        N = F.domain().dimension()
-        if timeout != 0:
-            alarm(timeout)
-        sigma_1 = F.sigma_invariants(1)
-        d = ZZ(F.degree())
-        newton_sigma = [d/(d-1)] + [0 for _ in range(d)] #almost newton
-        if sigma_1 != newton_sigma:
+        def compute():
+            #returns None if not newton, else the coefficients of the newton polynomial
+            N = F.domain().dimension()
+            sigma_1 = F.sigma_invariants(1)
+            d = ZZ(F.degree())
+            newton_sigma = [d/(d-1)] + [0 for _ in range(d)] #almost newton
+            if sigma_1 != newton_sigma:
+                return None
+            #else is newton
+            try:
+                Fbar = F.change_ring(QQbar)
+            except ValueError:
+                Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
+            Pbar = Fbar.domain()
+            fixed = Fbar.periodic_points(1)
+            for Q in fixed:
+                if Fbar.multiplier(Q,1) != 0:
+                    inf = Q
+                    break
+            if inf != Pbar([1,0]):
+                #need to move inf to infinity
+                fixed.remove(inf)
+                source = [inf] + fixed[:2]
+                target = [Pbar([1,0]), Pbar([0,1]), Pbar([1,1])]
+                M = Pbar.point_transformation_matrix(source, target)
+                M = M.inverse()
+                newton = Fbar.conjugate(M)
+                K, el, psi = number_field_elements_from_algebraics([t for r in M for t in r])
+                L, phi = normalize_field_NF(K, log_file=log_file)
+                M = matrix(L, N+1, N+1, [phi(t) for t in el])
+
+                newton = newton._number_field_from_algebraics()
+                #normalize base field
+                newton, phi = normalize_function_NF(newton, log_file)
+                #fix variable names
+                PN = ProjectiveSpace(newton.base_ring(), Pbar.dimension(), Pbar.variable_names())
+                RN = PN.coordinate_ring()
+                newton = DynamicalSystem([RN(newt) for newt in newton], domain=PN)
+            else:
+                newton = F
+                L = F.base_ring()
+                M = matrix(QQ,2,2,[1,0,0,1])
+
+            N_aff = newton.dehomogenize(1)
+            z = N_aff.domain().gen(0)
+            Npoly = (z-N_aff[0]).numerator()
+            assert(Npoly.derivative(z) == (z-N_aff[0]).denominator()), "not actually newton"
+
+            C = []
+            z = Npoly.parent().gen(0)
+            for i in range(0,Npoly.degree()+1):
+                C.append(str(Npoly.coefficient({z:i})))
+            return C
+        C = run_in_child(compute, timeout=timeout, log_file=log_file)
+        if C is None:
             query['is_newton'] = False
             my_cursor.execute("""UPDATE functions_dim_1_NF
                 SET is_newton = %(is_newton)s
@@ -1150,55 +1204,10 @@ def add_newton_model_NF(function_id, my_cursor, model_name='original', log_file=
             if my_cursor.rowcount == 0: #error check rowcount after update
                 log_file.write('add_newton_model_NF failure: ' + str(function_id) + ' not updated \n')
             else:
-                log_file.write('add_newton_model_NF: ' + str(function_id) + ' successfully updated \n')      
-            cancel_alarm()
+                log_file.write('add_newton_model_NF: ' + str(function_id) + ' successfully updated \n')
             log_file.write('newton model done for:' + str(function_id) + '\n')
             return True
-        #else is newton
-        try:
-            Fbar = F.change_ring(QQbar)
-        except ValueError:
-            Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
-        Pbar = Fbar.domain()
-        fixed = Fbar.periodic_points(1)
-        for Q in fixed:
-            if Fbar.multiplier(Q,1) != 0:
-                inf = Q
-                break
-        if inf != Pbar([1,0]):
-            #need to move inf to infinity
-            fixed.remove(inf)
-            source = [inf] + fixed[:2]
-            target = [Pbar([1,0]), Pbar([0,1]), Pbar([1,1])]
-            M = Pbar.point_transformation_matrix(source, target)
-            M = M.inverse()
-            newton = Fbar.conjugate(M)
-            K, el, psi = number_field_elements_from_algebraics([t for r in M for t in r])
-            L, phi = normalize_field_NF(K, log_file=log_file)
-            M = matrix(L, N+1, N+1, [phi(t) for t in el])
-
-            newton = newton._number_field_from_algebraics()
-            #normalize base field
-            newton, phi = normalize_function_NF(newton, log_file)
-            #fix variable names
-            PN = ProjectiveSpace(newton.base_ring(), Pbar.dimension(), Pbar.variable_names())
-            RN = PN.coordinate_ring()
-            newton = DynamicalSystem([RN(newt) for newt in newton], domain=PN)
-        else:
-            newton = F
-            L = F.base_ring()
-            M = matrix(QQ,2,2,[1,0,0,1])
-
-        N_aff = newton.dehomogenize(1)
-        z = N_aff.domain().gen(0)
-        Npoly = (z-N_aff[0]).numerator()
-        assert(Npoly.derivative(z) == (z-N_aff[0]).denominator()), "not actually newton"
         query['is_newton'] = True
-
-        C = []
-        z = Npoly.parent().gen(0)
-        for i in range(0,Npoly.degree()+1):
-            C.append(str(Npoly.coefficient({z:i})))
         query['newton_polynomial_coeffs'] = C
 
         my_cursor.execute("""UPDATE functions_dim_1_NF
@@ -1208,21 +1217,20 @@ def add_newton_model_NF(function_id, my_cursor, model_name='original', log_file=
                 function_id = %(function_id)s
             """, query)
 
-        cancel_alarm()
         if my_cursor.rowcount == 0: #error check rowcount after update
             log_file.write('add_newton_model_NF failure: ' + str(function_id) + ' not updated \n')
         else:
-            log_file.write('add_newton_model_NF: ' + str(function_id) + ' successfully updated \n')   
+            log_file.write('add_newton_model_NF: ' + str(function_id) + ' successfully updated \n')
         log_file.write('newton model done for:' + str(function_id) + '\n')
         return True
 
-    except AlarmInterrupt:
+    except ChildTimeout:
         log_file.write('newton model timeout: ' + str(timeout) + ':' + str(function_id) + '\n')
     except Exception as e:
         log_file.write('newton model failure: ' + str(function_id) + 'with error:' + str(e) + '\n')
         #raise
-    cancel_alarm()
     return False
+
 
 
 def add_is_lattes_NF(function_id, my_cursor, model_name='original', log_file=sys.stdout, timeout=30):
@@ -1242,7 +1250,6 @@ def add_is_lattes_NF(function_id, my_cursor, model_name='original', log_file=sys
         my_cursor.execute("""SELECT is_pcf FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
         is_pcf = my_cursor.fetchone()['is_pcf']
     if not is_pcf:
-        cancel_alarm()
         #not lattes if not pcf
         query['is_lattes']=False
         my_cursor.execute("""UPDATE functions_dim_1_NF
@@ -1253,51 +1260,51 @@ def add_is_lattes_NF(function_id, my_cursor, model_name='original', log_file=sys
         if my_cursor.rowcount == 0: #error check rowcount after update
             log_file.write('add_is_lattes_NF failure: ' + str(function_id) + ' not updated \n')
         else:
-            log_file.write('add_is_lattes_NF ' + str(function_id) + ' successfully updated \n')   
+            log_file.write('add_is_lattes_NF ' + str(function_id) + ' successfully updated \n')
         log_file.write('lattes done for:' + str(function_id) + '\n')
         return True
 
     #check if lattes map
     try:
-        if timeout != 0:
-            alarm(timeout)
-
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
-        d = ZZ(F.degree())
-        try:
-            Fbar = F.change_ring(QQbar)
-        except ValueError:
-            Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
-        Pbar = Fbar.domain()
-
-        crit, post_crit = get_post_critical(Fbar)
-        if (len(crit) == 2*d - 2) and \
-            (len(set(post_crit).difference(set(crit))) == 4):
-            is_lattes = True
-            #TODO get curve
-            """
+        def compute():
+            d = ZZ(F.degree())
             try:
-                if timeout != 0:
-                    alarm(timeout)
-                P2.<z,w> = ProjectiveSpace(QQbar,1)
-                T = 1
-                for t in post_crit:
-                    T = T*(z-t[0])
-                C = Curve(w^2-T)
-                Q = C(post_crit[0][0],0)
-                E = EllipticCurve_from_plane_curve(C,Q)
-                mult_1 = F.multiplier_spectra(1)
-                for t in mult_1:#multipliers are m, -m, m^2
-                    if t^2 in mult_1:
-                        m = t
-                        break
-                m = max([-m,m])
-                f['lattes_info'] = {'curve': str(E.defining_polynomial()), 'LMFDB_label' : 'xxxx', 'm' : str(m)}
-            except AlarmInterrupt:
-                log_file.write('timeout lattes: ' + str(timeout) + ':' + models['original']['polys']['val'] + '\n')
-            """
-        else:
-           is_lattes = False
+                Fbar = F.change_ring(QQbar)
+            except ValueError:
+                Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
+            Pbar = Fbar.domain()
+
+            crit, post_crit = get_post_critical(Fbar)
+            if (len(crit) == 2*d - 2) and \
+                (len(set(post_crit).difference(set(crit))) == 4):
+                is_lattes = True
+                #TODO get curve
+                """
+                try:
+                    if timeout != 0:
+                        alarm(timeout)
+                    P2.<z,w> = ProjectiveSpace(QQbar,1)
+                    T = 1
+                    for t in post_crit:
+                        T = T*(z-t[0])
+                    C = Curve(w^2-T)
+                    Q = C(post_crit[0][0],0)
+                    E = EllipticCurve_from_plane_curve(C,Q)
+                    mult_1 = F.multiplier_spectra(1)
+                    for t in mult_1:#multipliers are m, -m, m^2
+                        if t^2 in mult_1:
+                            m = t
+                            break
+                    m = max([-m,m])
+                    f['lattes_info'] = {'curve': str(E.defining_polynomial()), 'LMFDB_label' : 'xxxx', 'm' : str(m)}
+                except AlarmInterrupt:
+                    log_file.write('timeout lattes: ' + str(timeout) + ':' + models['original']['polys']['val'] + '\n')
+                """
+            else:
+               is_lattes = False
+            return is_lattes
+        is_lattes = run_in_child(compute, timeout=timeout, log_file=log_file)
 
         query['is_lattes'] = is_lattes
         my_cursor.execute("""UPDATE functions_dim_1_NF
@@ -1306,20 +1313,19 @@ def add_is_lattes_NF(function_id, my_cursor, model_name='original', log_file=sys
                 function_id = %(function_id)s
             """, query)
         log_file.write('is lattes complete for ' + str(function_id) + '\n')
-        cancel_alarm()
         if my_cursor.rowcount == 0: #error check rowcount after update
             log_file.write('add_is_lattes_NF failure: ' + str(function_id) + ' not updated \n')
         else:
-            log_file.write('add_is_lattes_NF ' + str(function_id) + ' successfully updated \n')   
+            log_file.write('add_is_lattes_NF ' + str(function_id) + ' successfully updated \n')
         return True
 
-    except AlarmInterrupt:
+    except ChildTimeout:
         log_file.write('is lattes timeout: ' + str(timeout) + ':' + str(function_id) + '\n')
     except Exception as e:
         log_file.write('is lattes failure: ' + str(function_id) + 'with error:' + str(e) + '\n')
         #raise
-    cancel_alarm()
     return False
+
 
 def add_citations_NF(function_id, citations, my_cursor, log_file=sys.stdout):
     """
@@ -1489,6 +1495,44 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         # already in the database, possibly as a conjugate of a different
         # model - credit this source too (add_citations_NF merges, no duplicates)
         add_citations_NF(F_id, citations, my_cursor, log_file=log_file)
+        # rerun any step whose result is missing, e.g. it timed out when the function was added.
+        # reduced (number fields) and family (no families of that degree) can be missing
+        # legitimately; those reruns fail or return quickly
+        my_cursor.execute("""SELECT is_pcf, critical_portrait_graph_id, automorphism_group_cardinality,
+                (reduced_model).coeffs AS reduced_model, is_polynomial, (monic_centered).coeffs AS monic_centered,
+                is_chebyshev, is_newton, is_lattes, family
+            FROM functions_dim_1_NF WHERE function_id=%s""", [F_id])
+        G = my_cursor.fetchone()
+        missing = [k for k, v in G.items() if v is None]
+        # no critical portrait unless pcf, no monic centered model unless a polynomial
+        if G['is_pcf'] == False:
+            missing = [k for k in missing if k != 'critical_portrait_graph_id']
+        if G['is_polynomial'] == False:
+            missing = [k for k in missing if k != 'monic_centered']
+        if missing:
+            log_file.write('rerunning missing ' + str(missing) + ' for:' + str(F_id) + '\n')
+        if 'is_pcf' in missing:
+            add_is_pcf(my_cursor, F_id, 'original', bool_add_field=True, log_file=log_file, timeout=timeout)
+        if 'critical_portrait_graph_id' in missing:
+            add_critical_portrait(F_id, my_cursor, 'original', log_file=log_file, timeout=timeout)
+        if 'automorphism_group_cardinality' in missing:
+            add_automorphism_group_NF(F_id, my_cursor, 'original', log_file=log_file, timeout=timeout)
         add_rational_preperiodic_points_NF(F_id, my_cursor, field_label=base_field_label, log_file=log_file, timeout=timeout)
+        if 'reduced_model' in missing:
+            add_reduced_model_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
+        if 'is_polynomial' in missing:
+            add_is_polynomial_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
+        if 'monic_centered' in missing:
+            add_monic_centered_model_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
+        if 'is_chebyshev' in missing:
+            add_chebyshev_model_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
+        if 'is_newton' in missing:
+            add_newton_model_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
+        if 'is_lattes' in missing:
+            add_is_lattes_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
+        if missing:
+            choose_display_model(F_id, my_cursor, log_file=log_file)
+        if 'family' in missing:
+            add_families_NF(F_id, my_cursor, log_file=log_file)
 
     return F_id

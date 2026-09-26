@@ -26,4 +26,5 @@ for p in primes(2,20):
 
 
 my_session.commit()
+log_file.close()
 my_session.close()

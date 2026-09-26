@@ -45,3 +45,4 @@ family_id = add_family_NF(F, my_cursor, is_poly=True, num_crit=int(2), num_aut=i
 
 my_session.commit()
 my_session.close()
+log_file.close()

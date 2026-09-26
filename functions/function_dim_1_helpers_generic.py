@@ -28,7 +28,11 @@ from sage.rings.polynomial.polynomial_ring import PolynomialRing_general
 #sagerel -pip install pysha3
 import sha3  #adds shake to hashlib
 import hashlib  #for shake
+import ctypes
+import os
+import signal
 import sys
+from sage.parallel.decorate import fork
 
 
 ###########################################
@@ -151,3 +155,87 @@ def array_to_graph(E):
     for i in range(len(E)):
         Ed.append((i,E[i]))
     return DiGraph(Ed, loops=True)
+
+class ChildTimeout(BaseException):
+    """
+    Raised by run_in_child when the child process is killed for taking too long.
+
+    A BaseException, like cysignals' AlarmInterrupt which it replaces, so an
+    'except Exception' does not swallow it.
+    """
+    pass
+
+
+def run_in_child(compute, timeout=30, log_file=sys.stdout):
+    """
+    Return compute() evaluated in a forked child process (Sage's fork decorator),
+    which is killed after timeout seconds (0 means no limit).
+
+    Raises ChildTimeout on a timeout, and RuntimeError if compute raised (with its
+    message) or the child crashed.
+
+    Why a child process instead of a cysignals alarm: an alarm raises
+    AlarmInterrupt by longjmp-ing out of whatever C/C++ library code is running
+    (PARI, NTL, FLINT, Singular), which skips that library's cleanup (C++
+    destructors, frees, internal bookkeeping). On 2026-09-25 a long data run that
+    had timed out many times in heavy QQbar / number field computations
+    segfaulted inside PARI while merely converting a polynomial for a resultant
+    (add_reduced_model_NF on function 201, degree 13), a computation that is
+    instant and fine in a fresh process. Killing a child leaves this process
+    untouched, whatever state the computation was in, and the kill also works in
+    C code that never checks for signals.
+
+    (A 'Fatal Python error: Aborted' seen with faulthandler during those
+    computations is not the cause: it is Sage's normal fallback when NTL runs out
+    of FFT primes inverting a number field element of huge degree; NTL aborts,
+    cysignals turns that into an NTLError, and Sage retries with PARI.)
+
+    compute must not use the database cursor or the LMFDB connection (e.g.,
+    get_sage_func_NF, get_sage_field_NF, lmfdb_field_label_NF): the child shares
+    their sockets with this process. Do those before or after. Its result must be
+    picklable. It may write to log_file.
+    """
+    #the child makes its own process group and reports its pid, so that afterwards the
+    #whole group is killed: sage's fork only kills the child, and processes the child
+    #forked (e.g. sage's parallel workers in automorphism_group) would keep running
+    pid_read, pid_write = os.pipe()
+    def child():
+        os.close(pid_read)
+        os.setpgid(0, 0)
+        os.write(pid_write, str(os.getpid()).encode())
+        os.close(pid_write) #before compute forks, so its workers don't hold the pipe open
+        os.environ["CYSIGNALS_CRASH_NDEBUG"] = "yes" #skip the slow enhanced backtrace on a crash
+        try:
+            #no core dump on a crash: capturing one (WSL pipes it to a crash handler) takes
+            #seconds for a process this size, so the crash would be reported as a timeout
+            ctypes.CDLL(None).prctl(4, 0, 0, 0, 0) #PR_SET_DUMPABLE = 4
+        except Exception:
+            pass
+        try:
+            result = ('ok', compute())
+        except Exception as e:
+            result = ('error', str(e))
+        log_file.flush()
+        return result
+
+    sys.stdout.flush()
+    log_file.flush()
+    try:
+        result = fork(child, timeout=timeout)()
+    finally:
+        os.close(pid_write)
+        child_pid = os.read(pid_read, 32) #the child has exited, so this doesn't block
+        os.close(pid_read)
+        if child_pid:
+            try:
+                os.killpg(int(child_pid), signal.SIGKILL)
+            except ProcessLookupError:
+                pass #nothing left in the group
+    if isinstance(result, tuple):
+        if result[0] == 'ok':
+            return result[1]
+        raise RuntimeError(result[1])
+    #otherwise a string from sage's fork: 'NO DATA (timed out)', 'NO DATA' or 'INVALID DATA ...'
+    if 'timed out' in result:
+        raise ChildTimeout()
+    raise RuntimeError('child process crashed: ' + result)
