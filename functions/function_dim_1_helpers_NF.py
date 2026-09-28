@@ -262,10 +262,17 @@ def conj_in_database_NF(F, my_cursor, conj_fns=None, log_file=sys.stdout, timeou
     #read the models here, the child process can't use the database
     Gs = [get_sage_func_NF(g[0], 'original', my_cursor) for g in conj_fns]
     def compute():
+        #check them all before settling on a twist: F can be a twist of one candidate
+        #and conjugate to another
+        twist = None
         for i in range(len(Gs)):
             twist_val = check_conjugates_NF(Gs[i], F)
-            if twist_val != 0:
-                return i, twist_val
+            if twist_val == 1:
+                return i, 1
+            if twist_val == 2 and twist is None:
+                twist = i
+        if twist is not None:
+            return twist, 2
         return None, 0
     try:
         i, twist_val = run_in_child(compute, timeout=timeout, log_file=log_file)
@@ -749,8 +756,11 @@ def add_rational_preperiodic_points_NF(function_id, my_cursor, model_name='origi
             if [f.coefficients() for f in F] == [[K(1), K(-3)/4], [K(1)]]\
               or [f.coefficients() for f in F] == [[K(4), K(-3)], [K(4)]]:
                 log_file.write('special case -3/4')
-                G = F.dehomogenize(1)
-                g = G.weil_restriction().homogenize(1)
+                if K == QQ:
+                    g = F
+                else:
+                    G = F.dehomogenize(1)
+                    g = G.weil_restriction().homogenize(1)
                 per = g.possible_periods()
                 per.pop(per.index(2))
                 return F.rational_preperiodic_graph(periods=per)
@@ -759,7 +769,14 @@ def add_rational_preperiodic_points_NF(function_id, my_cursor, model_name='origi
             elif K.degree() > 3:
                 return F.rational_preperiodic_graph(prime_bound=[1,15], lifting_prime=7)
             else:
-                return F.rational_preperiodic_graph()
+                try:
+                    return F.rational_preperiodic_graph()
+                except ValueError as e:
+                    if 'no primes of good reduction' not in str(e):
+                        raise
+                    #every prime in the default range [1, 20] is bad, e.g. some BCHKW2014 maps
+                    log_file.write('no good primes up to 20, using prime_bound [1, 60] for:' + str(function_id) + '\n')
+                    return F.rational_preperiodic_graph(prime_bound=[1, 60])
         preper = run_in_child(compute, timeout=timeout, log_file=log_file)
         ## TODO: add graph_id
 
@@ -874,6 +891,34 @@ def add_reduced_model_NF(function_id, my_cursor, model_name='original', log_file
     return False
 
 
+def is_poly_helper_NF(F):
+    """
+    Return True if F has a totally ramified fixed point over QQbar, i.e., is
+    conjugate to a polynomial - this replaced the built in Sage function
+    F.is_polynomial() until that function can be updated in Sage.
+
+    A point is totally ramified exactly when it is a zero of order d-1 of the
+    Wronskian (the Jacobian determinant, degree 2d-2), so its minimal polynomial
+    is an irreducible factor of multiplicity at least d-1 (hence of degree at
+    most 2), and it is fixed exactly when that factor divides the first
+    dynatomic polynomial. A degree 2 factor is a twist of z^d whose two totally
+    ramified fixed points are conjugate over a quadratic extension.
+
+    Characteristic 0 and degree at least 2 only: with wild ramification (finite
+    fields) the ramification index is not 1 + the multiplicity, and in degree 1
+    every factor passes.
+    """
+    # a check totally ramified fixed by checking if the critical points of high enough degree are
+    # also fixed points
+    wr = F.wronskian_ideal().gen(0)
+    D1 = F.dynatomic_polynomial(1)
+    d = F.degree()
+    for L,e in wr.factor():
+        if e >=d-1 and L.divides(D1):
+            return True
+    return False
+
+
 def add_is_polynomial_NF(function_id, my_cursor, model_name='original', log_file=sys.stdout, timeout=30):
     """
     Determine if the map is a polynomial map (totally ramified fixed point)
@@ -886,7 +931,7 @@ def add_is_polynomial_NF(function_id, my_cursor, model_name='original', log_file
         query={}
         query['function_id']=function_id
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
-        is_poly = run_in_child(lambda: F.is_polynomial(), timeout=timeout, log_file=log_file)
+        is_poly = run_in_child(lambda: is_poly_helper_NF(F), timeout=timeout, log_file=log_file)
 
         query['is_polynomial'] = is_poly
         my_cursor.execute("""UPDATE functions_dim_1_NF
