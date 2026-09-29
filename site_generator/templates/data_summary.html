@@ -1,5 +1,30 @@
 {% extends "base.html" %}
 {% block content %}
+<h1>Status of Problems</h1>
+<p>What each rating means is explained on the <a href="{{ root }}background.html#status">Mathematical Background</a> page.</p>
+{% for problem_name, rows in status_tables %}
+<h2>{{ problem_name }}</h2>
+<table class="status-table">
+  <thead>
+    <tr>
+      <th rowspan="2">Degree</th>
+      {% for _, field_label in status_fields %}<th colspan="{{ type_labels | length }}">{{ field_label }}</th>{% endfor %}
+    </tr>
+    <tr>
+      {% for _ in status_fields %}{% for t in type_labels %}<th>{{ t }}</th>{% endfor %}{% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for degree, statuses in rows %}
+    <tr>
+      <th>{{ degree }}</th>
+      {% for s in statuses %}<td class="status status-{{ s }}">{{ s }}</td>{% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endfor %}
+
 {{ content_html | safe }}
 
 <h1>Citations</h1>

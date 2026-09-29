@@ -9,10 +9,14 @@ import re
 from labels import is_lmfdb_label
 
 
-def choose_coeffs(row):
+def choose_coeffs(row, model=None):
     """
     Pick which model's coefficients to display, following functions_dim_1_NF's
     own 'display_model' column.
+
+    If model is given ('original', 'reduced' or 'monic centered'), that model
+    is used instead, with no fallback: e.g. a smallest height point is in the
+    coordinates of one particular model, and showing another would be wrong.
 
     Only 'original_model', 'reduced_model' and 'monic_centered' actually store
     coefficients (model_type composites). 'chebyshev' and 'newton' are valid
@@ -25,13 +29,14 @@ def choose_coeffs(row):
     last-resort fallback if the named model happens to be null, fall back to
     original_model, which is always populated.
     """
-    model = row.get('display_model')
     by_name = {
         'original': row.get('original_coeffs'),
         'reduced': row.get('reduced_coeffs'),
         'monic centered': row.get('monic_coeffs'),
     }
-    coeffs = by_name.get(model)
+    if model is not None:
+        return by_name.get(model)
+    coeffs = by_name.get(row.get('display_model'))
     if coeffs is None:
         coeffs = row.get('original_coeffs')
     return coeffs
@@ -83,10 +88,11 @@ def format_homog_poly(coeffs):
     return out
 
 
-def format_function(row):
+def format_function(row, model=None):
     """Render '(F0(x,y) : F1(x,y))' for one function row - projective
-    coordinate notation, per Ben's request in place of '[F0, F1]'."""
-    coeffs = choose_coeffs(row)
+    coordinate notation, per Ben's request in place of '[F0, F1]'.
+    model: see choose_coeffs."""
+    coeffs = choose_coeffs(row, model)
     if not coeffs or len(coeffs) != 2:
         return '&mdash;'
     f0 = format_homog_poly(coeffs[0])
@@ -124,6 +130,29 @@ def field_degree_label(base_field_degree):
     return f'Functions over fields of degree {base_field_degree}'
 
 
+def extreme_heading(is_polynomial, base_field_degree):
+    """'Polynomials over QQ', 'Rational maps over quadratic fields', ..."""
+    kind = 'Polynomials' if is_polynomial else 'Rational maps'
+    if base_field_degree == 1:
+        return f'{kind} over &#x211A;'
+    if base_field_degree == 2:
+        return f'{kind} over quadratic fields'
+    return f'{kind} over fields of degree {base_field_degree}'
+
+
+def find_most_points_row(rows):
+    """Same idea as find_longest_cycle_row, for the number of rational
+    preperiodic points (graphs_dim_1_NF.cardinality)."""
+    best, best_n = None, -1
+    for row in rows:
+        n = row.get('cardinality')
+        if n is None:
+            continue
+        if n > best_n:
+            best, best_n = row, n
+    return best, (best_n if best is not None else None)
+
+
 def find_longest_cycle_row(rows):
     """
     The row (and that row's longest single periodic-cycle length) with the
@@ -155,7 +184,7 @@ def find_longest_tail_row(rows):
     return best, (best_tail if best is not None else None)
 
 
-def build_extreme_row(degree, row, value, citations_by_id, root):
+def build_extreme_row(degree, row, value, citations_by_id, root, link=None, model=None):
     """
     The section a row sits under (see build_extreme_groups in
     generate_site.py) conveys the field *degree* only - QQ vs. quadratic
@@ -163,12 +192,16 @@ def build_extreme_row(degree, row, value, citations_by_id, root):
     section can span several distinct actual fields (a different one per
     degree, say), so the specific field still needs its own column, same as
     the main data pages' 'Field of Definition'.
+
+    link: the degree's data page, so the degree cell leads to all the maps.
+    model: display this model (see choose_coeffs), e.g. a small height point's.
     """
     return {
-        'degree': degree,
-        'function': format_function(row),
+        'degree': f'<a href="{link}">{degree}</a>' if link else degree,
+        'function': format_function(row, model=model),
         'field': format_field_link(row['base_field_label']),
         'value': value,
+        'point': html.escape(row.get('smallest_height_point') or '') or '&mdash;',
         'citations': format_citations(row.get('citations'), citations_by_id, root),
     }
 
@@ -341,6 +374,50 @@ def group_pcf_by_field_degree(dimension, rows, citations_by_id, root):
         if len(rs) != classes:
             heading += f' ({len(rs)} maps, counting rational twists separately)'
         groups.append((heading, build_pcf_rows(dimension, rs, citations_by_id, root)))
+    return groups
+
+
+def format_ratio(value):
+    """A (small, positive) height ratio as mantissa &middot; 10^exponent, 5 significant digits."""
+    if value is None:
+        return '&mdash;'
+    mantissa, exponent = f'{float(value):.4e}'.split('e')
+    exponent = int(exponent)
+    if exponent == 0:
+        return mantissa
+    sign = '&minus;' if exponent < 0 else ''
+    return f'{mantissa}&nbsp;&middot;&nbsp;10<sup>{sign}{abs(exponent)}</sup>'
+
+
+def build_small_height_rows(dimension, rows, citations_by_id, root):
+    out = []
+    for row in rows:
+        # heights stored before the smallest_height_model column all used the original model
+        model = row.get('smallest_height_model') or 'original'
+        out.append({
+            'label': format_label(dimension, row),
+            'function': format_function(row, model=model),
+            'field': format_field_link(row['base_field_label']),
+            'point': html.escape(row['smallest_height_point'] or '') or '&mdash;',
+            'ratio': format_ratio(row['smallest_height_ratio']),
+            'citations': format_citations(row.get('citations'), citations_by_id, root),
+        })
+    return out
+
+
+def group_small_height_by_field_degree(dimension, rows, citations_by_id, root):
+    """
+    Functions with a smallest height ratio, one table per field degree present,
+    each sorted by ratio, smallest first, then function_id.
+    """
+    by_degree = {}
+    for row in rows:
+        by_degree.setdefault(row['base_field_degree'], []).append(row)
+    groups = []
+    for d in sorted(by_degree):
+        rs = sorted(by_degree[d], key=lambda r: (r['smallest_height_ratio'], r['function_id']))
+        heading = f'{field_degree_label(d)}: {len(rs)} map{"" if len(rs) == 1 else "s"}'
+        groups.append((heading, build_small_height_rows(dimension, rs, citations_by_id, root)))
     return groups
 
 

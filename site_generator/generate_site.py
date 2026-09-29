@@ -37,11 +37,44 @@ DIMENSIONS = [1]
 DEGREES = list(range(2, 16))  # 2..15
 TYPES = [('polynomial', True), ('rational', False)]
 PROBLEMS = [('rational-preperiodic', 'Rational Preperiodic'),
-            ('postcritically-finite', 'Postcritically Finite')]
+            ('postcritically-finite', 'Postcritically Finite'),
+            ('small-height', 'Small Height Ratio')]
 TYPE_LABELS = {'polynomial': 'Polynomial', 'rational': 'Rational'}
 
 DEFAULT_DEGREE = 2
 DEFAULT_TYPE = 'polynomial'
+
+# Status of each problem, for the chart on the data summary page. Set by hand,
+# not computed from the data. Keyed by problem, then (field, type), then
+# degree; anything not listed is 'open'.
+STATUS_FIELDS = [('QQ', '&#x211A;'), ('quadratic', '[K:&#x211A;] = 2')]
+PROBLEM_STATUS = {
+    'rational-preperiodic': {
+        ('QQ', 'polynomial'): {2: 'conjectural', **{d: 'experimental' for d in range(3, 14)}},
+        ('QQ', 'rational'): {2: 'experimental'},
+        ('quadratic', 'polynomial'): {2: 'experimental'},
+    },
+    'postcritically-finite': {
+        ('QQ', 'polynomial'): {2: 'proven', 3: 'proven', 4: 'proven'},
+        ('QQ', 'rational'): {2: 'proven'},
+    },
+    'small-height': {  # Hutz2026's genetic algorithm data
+        ('QQ', 'polynomial'): {d: 'experimental' for d in range(2, 13)},
+        ('QQ', 'rational'): {d: 'experimental' for d in range(2, 6)},
+    },
+}
+
+
+def build_status_tables():
+    """[(problem name, [(degree, [status per field x type])])] for the chart."""
+    tables = []
+    for problem, problem_name in PROBLEMS:
+        status = PROBLEM_STATUS.get(problem, {})
+        rows = [(degree, [status.get((field, type_name), {}).get(degree, 'open')
+                          for field, _ in STATUS_FIELDS for type_name, _ in TYPES])
+                for degree in DEGREES]
+        tables.append((problem_name, rows))
+    return tables
 
 
 def make_env():
@@ -134,6 +167,27 @@ def render_pcf_page(env, conn, dimension, degree, type_name, is_polynomial, root
     )
 
 
+def render_small_height_page(env, conn, dimension, degree, type_name, is_polynomial, root,
+                             citations_by_id, used_citation_ids, report=True):
+    rows, not_computed = db.get_small_height_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
+    if report and not_computed:
+        print(f'  note (dimension {dimension}, degree {degree}, {type_name}): '
+              f'{not_computed} function(s) have no smallest height ratio, so cannot appear on the small height page')
+    for row in rows:
+        used_citation_ids.update(row.get('citations') or [])
+    groups = render.group_small_height_by_field_degree(dimension, rows, citations_by_id, root)
+    return env.get_template('small_height_page.html').render(
+        title=f'Degree {degree} {TYPE_LABELS[type_name]} Small Height Ratio',
+        problem='small-height',
+        dimension=dimension,
+        degree=degree,
+        type_=type_name,
+        type_label=TYPE_LABELS[type_name],
+        groups=groups,
+        root=root,
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--section', default='postgresql_local',
@@ -153,7 +207,8 @@ def main():
         for degree in DEGREES:
             for type_name, is_polynomial in TYPES:
                 for problem, renderer in [('rational-preperiodic', render_data_page),
-                                          ('postcritically-finite', render_pcf_page)]:
+                                          ('postcritically-finite', render_pcf_page),
+                                          ('small-height', render_small_height_page)]:
                     rel = f'data/{dimension}/{degree}/{type_name}/{problem}.html'
                     html = renderer(env, conn, dimension, degree, type_name,
                                     is_polynomial, root=root_prefix(rel),
@@ -173,42 +228,87 @@ def main():
     write(os.path.join(SITE_DIR, 'index.html'), index_html)
     print('wrote index.html (= dimension 1, degree', DEFAULT_DEGREE, ',', DEFAULT_TYPE, ')')
 
-    # Extreme Examples: for each field category (QQ, quadratic fields - same
-    # grouping as the main data pages) and each degree, the polynomial with
-    # the longest periodic cycle / longest preperiodic tail among those
-    # currently loaded. One row per degree *within* each field-grouped
-    # section - field category is conveyed by the section, not a column.
-    # Computed before the bibliography below, so a citation used only by one
-    # of these winning rows still makes it into the citation list.
-    extreme_rows_by_degree = {degree: db.get_extreme_source_rows(conn, degree) for degree in DEGREES}
+    # Extreme Examples: one section per problem. Each has a table per (field
+    # category - QQ or quadratic fields, as on the data pages - and type) with
+    # data, and one row per degree: the most extreme map currently loaded, ties
+    # going to the lowest function_id. The field category is conveyed by the
+    # table, not a column. Computed before the bibliography below, so a
+    # citation used only by one of these winning rows still makes it into the
+    # citation list.
+    combos = [(degree, type_name, is_polynomial) for degree in DEGREES for type_name, is_polynomial in TYPES]
+    preperiodic_rows = {(d, t): db.get_extreme_source_rows(conn, d, p) for d, t, p in combos}
+    pcf_rows = {(d, t): db.get_pcf_functions_dim_1(conn, degree=d, is_polynomial=p)[0] for d, t, p in combos}
+    small_height_rows = {(d, t): db.get_small_height_functions_dim_1(conn, degree=d, is_polynomial=p)[0]
+                         for d, t, p in combos}
+    status_fields = {1: 'QQ', 2: 'quadratic'}  # base_field_degree -> PROBLEM_STATUS field
 
-    def build_extreme_groups(finder):
+    def build_extreme_groups(source_rows, finder, problem, model_of=None, extra=None):
+        """source_rows: (degree, type_name) -> rows; finder(rows) -> (winner, value).
+        model_of(winner): the model to display; extra(row, rows, status, is_polynomial): more cells."""
         groups = []
         for base_field_degree in (1, 2):
-            rows_out = []
-            for degree in DEGREES:
-                candidates = [r for r in extreme_rows_by_degree[degree]
-                              if r['base_field_degree'] == base_field_degree]
-                winner, value = finder(candidates)
-                if winner is None:
-                    continue
-                used_citation_ids.update(winner.get('citations') or [])
-                rows_out.append(render.build_extreme_row(degree, winner, value, citations_by_id, root=''))
-            if rows_out:
-                groups.append((render.field_degree_label(base_field_degree), rows_out))
+            for type_name, is_polynomial in TYPES:
+                rows_out = []
+                for degree in DEGREES:
+                    candidates = [r for r in source_rows[(degree, type_name)]
+                                  if r['base_field_degree'] == base_field_degree]
+                    winner, value = finder(candidates)
+                    if winner is None or value == 0:  # e.g. no rational preperiodic points: not an example
+                        continue
+                    used_citation_ids.update(winner.get('citations') or [])
+                    row = render.build_extreme_row(
+                        degree, winner, value, citations_by_id, root='',
+                        link=f'data/1/{degree}/{type_name}/{problem}.html',
+                        model=model_of(winner) if model_of else None)
+                    if extra:
+                        status = PROBLEM_STATUS.get(problem, {}).get(
+                            (status_fields[base_field_degree], type_name), {}).get(degree, 'open')
+                        row.update(extra(winner, candidates, status, is_polynomial))
+                    rows_out.append(row)
+                if rows_out:
+                    groups.append((render.extreme_heading(is_polynomial, base_field_degree), rows_out))
         return groups
 
-    longest_cycle_groups = build_extreme_groups(render.find_longest_cycle_row)
-    longest_tail_groups = build_extreme_groups(render.find_longest_tail_row)
+    def any_pcf(rows):
+        # the PCF rows show counts, not one map: any row will do as the "winner"
+        return (rows[0], len(rows)) if rows else (None, None)
+
+    def pcf_extra(winner, rows, status, is_polynomial):
+        # the sources of all of this degree's PCF maps, in order of first appearance
+        cites = []
+        for row in rows:
+            for cid in row.get('citations') or []:
+                if cid not in cites:
+                    cites.append(cid)
+        used_citation_ids.update(cites)
+        return {'classes': render.count_conjugacy_classes(rows), 'status': status,
+                'citations': render.format_citations(cites, citations_by_id, ''),
+                'excludes_polynomials': not is_polynomial}  # footnoted on the page
+
+    def smallest_ratio(rows):
+        best = min(rows, key=lambda r: (r['smallest_height_ratio'], r['function_id']), default=None)
+        return best, (render.format_ratio(best['smallest_height_ratio']) if best is not None else None)
+
+    extreme_sections = {
+        'many_points': build_extreme_groups(preperiodic_rows, render.find_most_points_row, 'rational-preperiodic'),
+        'long_cycles': build_extreme_groups(preperiodic_rows, render.find_longest_cycle_row, 'rational-preperiodic'),
+        'long_tails': build_extreme_groups(preperiodic_rows, render.find_longest_tail_row, 'rational-preperiodic'),
+        'pcf': build_extreme_groups(pcf_rows, any_pcf, 'postcritically-finite', extra=pcf_extra),
+        'small_height': build_extreme_groups(
+            small_height_rows, smallest_ratio, 'small-height',
+            # heights stored before the smallest_height_model column all used the original model
+            model_of=lambda winner: winner.get('smallest_height_model') or 'original'),
+    }
 
     write(os.path.join(SITE_DIR, 'extreme-examples.html'),
           env.get_template('extreme_examples.html').render(
-              title='Summary of Extreme Examples', root='',
-              longest_cycle_groups=longest_cycle_groups, longest_tail_groups=longest_tail_groups))
+              title='Summary of Extreme Examples', root='', sections=extreme_sections))
 
     # --- static-link pages (all top-level, so root='') ---
     write(os.path.join(SITE_DIR, 'about.html'),
           env.get_template('about.html').render(title='About', root=''))
+    write(os.path.join(SITE_DIR, 'background.html'),
+          env.get_template('background.html').render(title='Mathematical Background', root=''))
 
     data_sources_text = open(DATA_SOURCES_MD, encoding='utf-8').read()
     content_html = mdlite.render(data_sources_text)
@@ -223,6 +323,8 @@ def main():
     write(os.path.join(SITE_DIR, 'data-summary.html'),
           env.get_template('data_summary.html').render(
               title='Summary of Included Data', root='',
+              status_tables=build_status_tables(), status_fields=STATUS_FIELDS,
+              type_labels=[TYPE_LABELS[t] for t, _ in TYPES],
               content_html=content_html, bibliography_html=bibliography_html))
 
     # --- assets ---

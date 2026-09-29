@@ -23,6 +23,7 @@ from copy import copy
 from cypari2.handle_error import PariError
 from sage.categories.function_fields import FunctionFields
 from sage.dynamics.arithmetic_dynamics.generic_ds import DynamicalSystem
+from sage.functions.log import exp
 from sage.matrix.constructor import matrix
 from sage.matrix.matrix_space import MatrixSpace
 from sage.misc.verbose import set_verbose
@@ -817,7 +818,7 @@ def add_reduced_model_NF(function_id, my_cursor, model_name='original', log_file
 
     coeffs      varchar[],
     resultant   varchar,
-    bad_primes  integer[],
+    bad_primes  numeric[],
     height      double precision,
     base_field_label varchar,
     conjugation_from_original varchar[],
@@ -961,7 +962,7 @@ def add_monic_centered_model_NF(function_id, my_cursor, model_name='original', l
 
     coeffs      varchar[],
     resultant   varchar,
-    bad_primes  integer[],
+    bad_primes  numeric[],
     height      double precision,
     base_field_label varchar,
     conjugation_from_original varchar[],
@@ -1372,6 +1373,103 @@ def add_is_lattes_NF(function_id, my_cursor, model_name='original', log_file=sys
     return False
 
 
+def add_smallest_height(function_id, my_cursor, B=None, point=None, err=None, model_name='original', log_file=sys.stdout, timeout=30):
+    """
+    Add the point of smallest positive canonical height ratio defined over the base field
+    as well as the point which achieves this height
+
+    The ratio is the canonical height of the point divided by the largest height of
+    the first sigma invariants. If point is given, only that point is used.
+    
+    If a bound is given (and no point) up to that height bound is searched.
+    
+    If no bound is given, it searches up to the height difference bound, which gives
+    the provable smallest nonzero canonical height, but is very slow.
+
+    The point is in the coordinates of model_name ('original', 'reduced' or
+    'monic_centered'), which is stored with it.
+
+    err is the error bound for the canonical heights. If None, it is 1/1000 of the
+    smallest ratio expected in this degree (arXiv:2601.11482): 10^(-3d/2) for
+    polynomials and 10^(-2d) for rational maps (also used when is_polynomial is unknown).
+
+    'smallest_height_ratio', 'smallest_height_point', 'smallest_height_model'
+    """
+    log_file.write('starting smallest height for:' + str(function_id) + '\n')
+    if model_name not in ['original', 'reduced', 'monic_centered']:
+        raise ValueError('model_name must be original, reduced or monic_centered')
+    query={}
+    query['function_id']=function_id
+    query['smallest_height_model'] = model_name.replace('_', ' ') #display_model_type spelling
+    my_cursor.execute("""SELECT smallest_height_ratio, smallest_height_point, degree, is_polynomial
+        FROM functions_dim_1_NF WHERE function_id = %(function_id)s""", query)
+    G = my_cursor.fetchone()
+    if G is None:
+        log_file.write('smallest height failure: ' + str(function_id) + ' not in database\n')
+        return False
+    if G['smallest_height_ratio'] is not None:
+        log_file.write('smallest height already in database for:' + str(function_id) + '\n')
+        return True
+    if err is None:
+        d = G['degree']
+        # comes from estimates in Hutz2026
+        if G['is_polynomial']:
+            err = 10**(-1.5*d)/1000
+        else:
+            err = 10**(-2.0*d)/1000
+
+    try:
+        F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
+        def compute():
+            h_F = max([sig.global_height() for sig in F.sigma_invariants(1)])
+            P = F.domain()
+            
+            if not point is None:
+                h_Q = F.canonical_height(P(point),error_bound=err)
+                return float(h_Q/h_F), str(P(point))
+            #no point given, need to search
+            #if bound is given use that bound, if not use the difference
+            # in the canonical height bound
+            bound = B
+            if bound is None:
+                bound = exp(F.height_difference_bound())
+            smallest = None
+            for Q in P.points_of_bounded_height(bound=bound):
+                if not Q.is_preperiodic(F):
+                    h_Q = F.canonical_height(P(Q),error_bound=err)
+                    ratio = h_Q/h_F
+                    if smallest is None or ratio < smallest[0]:
+                        smallest = [ratio, Q]
+            if smallest is None:
+                return None
+            return float(smallest[0]), str(smallest[1])
+        smallest = run_in_child(compute, timeout=timeout, log_file=log_file)
+        if smallest is None:
+            log_file.write('smallest height failure: no non-preperiodic point found for:' + str(function_id) + '\n')
+            return False
+
+        query['smallest_height_ratio'], query['smallest_height_point'] = smallest
+        my_cursor.execute("""UPDATE functions_dim_1_NF
+            SET smallest_height_ratio = %(smallest_height_ratio)s,
+                smallest_height_point = %(smallest_height_point)s,
+                smallest_height_model = %(smallest_height_model)s
+            WHERE function_id=%(function_id)s
+            """,query)
+        if my_cursor.rowcount == 0: #error check rowcount after update
+            log_file.write('add_smallest_height failure: ' + str(function_id) + ' not updated \n')
+        else:
+            log_file.write('add_smallest_height: ' + str(function_id) + ' successfully updated \n')
+        log_file.write('smallest height computed for:' + str(function_id) + '\n')
+        return True
+
+    except ChildTimeout:
+        log_file.write('smallest height timeout: ' + str(timeout) + ':' + str(function_id) + '\n')
+    except Exception as e:
+        log_file.write('smallest height failure: ' + str(function_id) + 'with error:' + str(e) + '\n')
+        #raise
+    return False
+
+
 def add_citations_NF(function_id, citations, my_cursor, log_file=sys.stdout):
     """
         Add the id of the citations for this functions
@@ -1511,9 +1609,38 @@ def add_families_NF(function_id, my_cursor, log_file=sys.stdout):
         else:
             log_file.write('Families updated: ' + str(function_id) + ' successful \n')   
 
-def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout=30):
+def stored_model_point_NF(F, function_id, point, my_cursor, log_file=sys.stdout):
+    """
+    Given a point in the coordinates of F, return the point over the normalized field
+    and the name of the stored model of function_id that is F ('original',
+    'monic_centered' or 'reduced'), so the point can be used with that model.
+
+    Returns (None, 'original') if no stored model is F, e.g. F was found as a conjugate.
+    """
+    K0 = F.base_ring()
+    G, phi = normalize_function_NF(F, log_file=log_file)
+    given_coeffs = [get_coefficients(g) for g in G]
+    H = DynamicalSystem(list(G), domain=G.domain())
+    H.normalize_coordinates()
+    coeffs = [get_coefficients(g) for g in H]
+    my_cursor.execute("""SELECT (original_model).coeffs AS original, (monic_centered).coeffs AS monic_centered,
+            (reduced_model).coeffs AS reduced
+        FROM functions_dim_1_NF WHERE function_id=%s""", [function_id])
+    models = my_cursor.fetchone()
+    for model_name in ['original', 'monic_centered', 'reduced']:
+        if models[model_name] in [coeffs, given_coeffs]:
+            return [phi(K0(c)) for c in point], model_name
+    log_file.write('no stored model of ' + str(function_id) + ' is the given map, the point is not used\n')
+    return None, 'original'
+
+
+def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout=30, smallest_height_point=None):
     """
     add all entries for one dynamical system
+
+    smallest_height_point - a point, in the coordinates of F, of smallest height ratio
+    (e.g. from a paper): its ratio is stored instead of searching for one, as long as
+    F is one of the stored models of the function
     """
     #TODO add parameter to overwrite data in the database
 
@@ -1521,7 +1648,10 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
     K = F.base_ring()
     K, phi = normalize_field_NF(K)
     bool, base_field_label = lmfdb_field_label_NF(K)
-    
+    sh_point, sh_model = None, 'original'
+    if smallest_height_point is not None:
+        sh_point, sh_model = stored_model_point_NF(F, F_id, smallest_height_point, my_cursor, log_file=log_file)
+
     if is_new:
         add_citations_NF(F_id, citations, my_cursor, log_file=log_file)
         add_is_pcf(my_cursor, F_id, 'original', bool_add_field=True, log_file=log_file, timeout=timeout)
@@ -1536,6 +1666,7 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         add_is_lattes_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
         choose_display_model(F_id, my_cursor, log_file=log_file)
         add_families_NF(F_id, my_cursor, log_file=log_file)
+        add_smallest_height(F_id, my_cursor, point=sh_point, model_name=sh_model, log_file=log_file, timeout=timeout)
     else:
         # already in the database, possibly as a conjugate of a different
         # model - credit this source too (add_citations_NF merges, no duplicates)
@@ -1545,7 +1676,7 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         # legitimately; those reruns fail or return quickly
         my_cursor.execute("""SELECT is_pcf, critical_portrait_graph_id, automorphism_group_cardinality,
                 (reduced_model).coeffs AS reduced_model, is_polynomial, (monic_centered).coeffs AS monic_centered,
-                is_chebyshev, is_newton, is_lattes, family
+                is_chebyshev, is_newton, is_lattes, family, smallest_height_ratio
             FROM functions_dim_1_NF WHERE function_id=%s""", [F_id])
         G = my_cursor.fetchone()
         missing = [k for k, v in G.items() if v is None]
@@ -1579,5 +1710,7 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
             choose_display_model(F_id, my_cursor, log_file=log_file)
         if 'family' in missing:
             add_families_NF(F_id, my_cursor, log_file=log_file)
+        if 'smallest_height_ratio' in missing:
+            add_smallest_height(F_id, my_cursor, point=sh_point, model_name=sh_model, log_file=log_file, timeout=timeout)
 
     return F_id

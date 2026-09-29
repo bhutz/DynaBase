@@ -1,6 +1,91 @@
 {% extends "base.html" %}
 {% block content %}
+<article class="prose">
 <h1>About Dynabase</h1>
-<p>This is a database of arithmetic dynamical systems.</p>
-<p class="stub-note">(We'll fill this in later.)</p>
+
+<p>Dynabase (the Database of Arithmetic Dynamics) is a collection of extreme examples in
+arithmetic dynamics: maps whose rational points behave as unusually as anyone has managed to
+find. Many of the central conjectures in the subject predict that some quantity is bounded
+&mdash; how many rational preperiodic points a map can have, how long a rational cycle can be,
+how small the canonical height of a wandering point can be. The best way to test such a bound,
+and to guess what its true value should be, is to know the most extreme examples. Those examples
+are currently scattered across papers, theses, personal web pages and computer searches. Dynabase
+gathers them in one place, stores them in a uniform format, and computes the same set of
+invariants for every one of them.</p>
+
+<section class="problem-list">
+<h2>The problems</h2>
+<p>Dynabase collects extreme examples for four problems:</p>
+<ol>
+  <li><b>Rational preperiodic points.</b> How extreme can the rational preperiodic points of a map
+      be, given its degree and field of definition?
+    <ul>
+      <li><b>Long cycles</b>: maps with a rational periodic cycle as long as possible.</li>
+      <li><b>Long tails</b>: maps with a rational point that takes as many steps as possible to
+          reach a cycle.</li>
+      <li><b>Many points</b>: maps with as many rational preperiodic points in total as possible.</li>
+    </ul>
+  </li>
+  <li><b>Postcritically finite maps.</b> Maps whose critical points all have finite orbits, which
+      are rare: find all of them, together with their critical portraits.</li>
+  <li><b>Small canonical heights.</b> Maps with a wandering rational point whose canonical height
+      is as small as possible compared to the size of the map.</li>
+  <li><b>Automorphism groups.</b> For each group that can occur as the automorphism group of a map,
+      find maps of the smallest possible degree, defined over the smallest possible field, whose
+      automorphism group is exactly that group (see
+      <a href="https://arxiv.org/abs/1509.06670">de Faria and Hutz</a>). <i>Data for this problem
+      has not been added yet.</i></li>
+</ol>
+<p>The <a href="{{ root }}background.html">Mathematical Background</a> page explains each problem
+and what is known about it.</p>
+</section>
+
+<h2>What is in the database</h2>
+
+<p>The current release covers maps of the projective line (dimension 1): polynomials and rational
+functions of degree 2 through 15, defined over the rational numbers or over quadratic number fields.
+Each entry is a conjugacy class of maps, so two maps that differ only by a change of coordinates
+are stored once. For every entry, Dynabase records:</p>
+<ul>
+  <li>several models of the map: the one given in its source, and when they can be computed a
+      monic centered model (for polynomials) and a reduced model;</li>
+  <li>its field of definition (with a link to the <a href="https://www.lmfdb.org/NumberField/">LMFDB</a>
+      when the field is there), resultant and primes of bad reduction;</li>
+  <li>a label built from its multiplier invariants, which identifies the conjugacy class;</li>
+  <li>its rational preperiodic points, as a directed graph, over its own field and over any other
+      field it was studied over;</li>
+  <li>whether it is postcritically finite, and if so its critical portrait;</li>
+  <li>its automorphism group, rational twists, and whether it is a Chebyshev, Newton or Latt&egrave;s
+      map;</li>
+  <li>the smallest canonical height ratio known for one of its rational points;</li>
+  <li>the sources it comes from.</li>
+</ul>
+<p>The examples come from the published literature, from computer searches and from personal
+communications; each one is credited to its source. The
+<a href="{{ root }}data-summary.html">Summary of Included Data</a> lists every source and shows
+how much is known about each problem in each degree. Every invariant is computed in
+<a href="https://www.sagemath.org/">SageMath</a>. The
+<a href="{{ root }}background.html">Mathematical Background</a> page explains the terms used on
+this site.</p>
+
+<h2>Using the site</h2>
+
+<p>The selectors at the top of every page choose a dimension, a degree, polynomial or rational
+maps, and a problem:</p>
+<ul>
+  <li><b>Rational Preperiodic</b>: maps with many rational preperiodic points, long rational
+      cycles or long rational tails. Each table lists one map for each distinct graph of rational
+      preperiodic points, with the most points first.</li>
+  <li><b>Postcritically Finite</b>: maps whose critical points all have finite orbits, with their
+      critical portraits. Where a complete classification is known, the table is the complete list.</li>
+  <li><b>Small Height Ratio</b>: maps with a wandering rational point of very small canonical
+      height, compared to the size of the map. Each table is sorted from the smallest ratio.</li>
+</ul>
+<p>Tables are split by the degree of the field the data is over. The
+<a href="{{ root }}extreme-examples.html">Summary of Extreme Examples</a> lists, for each degree,
+the polynomials with the longest rational cycle and the longest rational tail in the database.</p>
+
+<p>Dynabase is maintained by Benjamin Hutz (Saint Louis University). Corrections and new examples
+are welcome.</p>
+</article>
 {% endblock %}

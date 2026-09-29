@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Degree 8 Polynomial Small Height Ratio &mdash; DynaBase</title>
+<link rel="stylesheet" href="../../../../assets/style.css">
+</head>
+<body>
+<h1 class="site-title">Dynabase</h1>
+
+<nav class="static-links">
+  <a href="../../../../about.html">About Dynabase</a>
+  <a href="../../../../background.html">Mathematical Background</a>
+  <a href="../../../../data-summary.html">Summary of Included Data</a>
+  <a href="../../../../extreme-examples.html">Summary of Extreme Examples</a>
+</nav>
+
+<hr class="header-rule">
+
+<form class="selectors" id="selectors">
+  <label>Dimension
+    <select id="sel-dimension">
+      <option value="1" selected>1</option>
+    </select>
+  </label>
+  <label>Degree
+    <select id="sel-degree">
+      
+      <option value="2" >2</option>
+      
+      <option value="3" >3</option>
+      
+      <option value="4" >4</option>
+      
+      <option value="5" >5</option>
+      
+      <option value="6" >6</option>
+      
+      <option value="7" >7</option>
+      
+      <option value="8" selected>8</option>
+      
+      <option value="9" >9</option>
+      
+      <option value="10" >10</option>
+      
+      <option value="11" >11</option>
+      
+      <option value="12" >12</option>
+      
+      <option value="13" >13</option>
+      
+      <option value="14" >14</option>
+      
+      <option value="15" >15</option>
+      
+    </select>
+  </label>
+  <label>Type
+    <select id="sel-type">
+      <option value="polynomial" selected>polynomial</option>
+      <option value="rational" >rational</option>
+    </select>
+  </label>
+  <label>Problem
+    <select id="sel-problem">
+      
+      <option value="rational-preperiodic" >Rational Preperiodic</option>
+      
+      <option value="postcritically-finite" >Postcritically Finite</option>
+      
+      <option value="small-height" selected>Small Height Ratio</option>
+      
+    </select>
+  </label>
+  <button type="submit">View</button>
+</form>
+<script>
+document.getElementById('selectors').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var dim = document.getElementById('sel-dimension').value;
+  var deg = document.getElementById('sel-degree').value;
+  var typ = document.getElementById('sel-type').value;
+  var prob = document.getElementById('sel-problem').value;
+  window.location.href = '../../../../data/' + dim + '/' + deg + '/' + typ + '/' + prob + '.html';
+});
+</script>
+
+<main>
+
+<h1>Dimension 1, Degree 8, Polynomial: Small Height Ratio</h1>
+<p class="intro">For a map f and a point P that is not preperiodic, the height ratio is
+&#x0125;<sub>f</sub>(P) / h<sub>M</sub>(f): the canonical height of P divided by a height of f on
+moduli space, here the largest height of the fixed point multiplier invariants
+&sigma;<sub>1</sub>, &hellip;, &sigma;<sub>d+1</sub>. Each row gives the rational point with the
+smallest ratio known for that map, with the map written in the coordinates of that point.</p>
+
+
+  
+  <section class="data-table">
+    <h2>Functions over &#x211A;: 3 maps</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Label</th>
+          <th>Function</th>
+          <th>Field of Definition</th>
+          <th>Point</th>
+          <th>Height Ratio</th>
+          <th>Citations</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>1.4e7307c9.5ac37621.1</td>
+          <td class="fn">(55x<sup>8</sup> + 1846x<sup>7</sup>y + 18550x<sup>6</sup>y<sup>2</sup> + 15988x<sup>5</sup>y<sup>3</sup> &minus; 502775x<sup>4</sup>y<sup>4</sup> &minus; 21686x<sup>3</sup>y<sup>5</sup> + 9132810x<sup>2</sup>y<sup>6</sup> &minus; 12969108xy<sup>7</sup> &minus; 2162160y<sup>8</sup>&nbsp;:&nbsp;-2162160y<sup>8</sup>)</td>
+          <td><a href="https://www.lmfdb.org/NumberField/1.1.1.1">1.1.1.1</a></td>
+          <td class="fn">(0 : 1)</td>
+          <td>8.7710&nbsp;&middot;&nbsp;10<sup>&minus;13</sup></td>
+          <td><a href="../../../../data-summary.html#cite-Hutz2026">Hutz2026</a></td>
+        </tr>
+        
+        <tr>
+          <td>1.6fc2e0ba.762d9ad9.1</td>
+          <td class="fn">(137x<sup>8</sup> + 4224x<sup>7</sup>y + 42434x<sup>6</sup>y<sup>2</sup> + 107184x<sup>5</sup>y<sup>3</sup> &minus; 547687x<sup>4</sup>y<sup>4</sup> &minus; 2176944x<sup>3</sup>y<sup>5</sup> + 1835676x<sup>2</sup>y<sup>6</sup> + 4726656xy<sup>7</sup> &minus; 1330560y<sup>8</sup>&nbsp;:&nbsp;-1330560y<sup>8</sup>)</td>
+          <td><a href="https://www.lmfdb.org/NumberField/1.1.1.1">1.1.1.1</a></td>
+          <td class="fn">(0 : 1)</td>
+          <td>1.1829&nbsp;&middot;&nbsp;10<sup>&minus;12</sup></td>
+          <td><a href="../../../../data-summary.html#cite-Hutz2026">Hutz2026</a></td>
+        </tr>
+        
+        <tr>
+          <td>1.79b47ccf.8642e5ff.1</td>
+          <td class="fn">(387x<sup>8</sup> + 12100x<sup>7</sup>y + 113806x<sup>6</sup>y<sup>2</sup> + 49504x<sup>5</sup>y<sup>3</sup> &minus; 4180757x<sup>4</sup>y<sup>4</sup> &minus; 13474580x<sup>3</sup>y<sup>5</sup> + 30012484x<sup>2</sup>y<sup>6</sup> + 108548016xy<sup>7</sup> + 17297280y<sup>8</sup>&nbsp;:&nbsp;-17297280y<sup>8</sup>)</td>
+          <td><a href="https://www.lmfdb.org/NumberField/1.1.1.1">1.1.1.1</a></td>
+          <td class="fn">(0 : 1)</td>
+          <td>1.3585&nbsp;&middot;&nbsp;10<sup>&minus;12</sup></td>
+          <td><a href="../../../../data-summary.html#cite-Hutz2026">Hutz2026</a></td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </section>
+  
+
+
+</main>
+
+<footer class="site-footer">
+  <p>DynaBase &mdash; Database of Arithmetic Dynamics</p>
+  <p class="footnote">Claude, an AI assistant made by Anthropic, was used in creating this site.</p>
+</footer>
+</body>
+</html>

@@ -117,5 +117,48 @@ ul.bibliography li:target { background: #fff6e0; }
   padding: 1.5rem;
 }
 
+table.status-table { width: auto; }
+table.status-table th, table.status-table td { text-align: center; }
+table.status-table td { min-width: 7rem; }
+
+.status-proven       { background: #d9f0dc; color: #1e5b27; }
+.status-conjectural  { background: #dde8f7; color: #1b3f73; }
+.status-experimental { background: #fff1d1; color: #7a5200; }
+.status-open         { background: #f4f4f4; color: #888; }
+
+.prose { max-width: 46rem; line-height: 1.55; }
+.prose h2 { margin-top: 2.25rem; }
+.nowrap { white-space: nowrap; }
+
+.problem-list {
+  background: #f4f6fa;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--header-bg);
+  padding: 0.25rem 1.25rem 0.75rem;
+  margin: 1.5rem 0;
+}
+.problem-list h2 { margin-top: 0.75rem; }
+.problem-list > ol > li { margin: 0.6rem 0; }
+
+nav.jump-links {
+  background: #f4f6fa;
+  border: 1px solid var(--border);
+  padding: 0.6rem 1rem;
+  margin: 1rem 0 1.5rem;
+  line-height: 1.7;
+}
+nav.jump-links ul { list-style: none; margin: 0; padding-left: 0; }
+nav.jump-links ul ul { padding-left: 1.5rem; }
+nav.jump-links li { margin: 0; }
+section[id], h3[id] { scroll-margin-top: 1rem; }
+h3.subproblem { font-size: 1.05rem; color: #1a1a1a; margin-top: 1.75rem; }
+h4 { font-size: 0.9rem; color: #444; margin: 1.25rem 0 0.25rem; }
+
+a.footnote-ref { text-decoration: none; margin-left: 0.1rem; }
+p.table-footnote { font-size: 0.85rem; color: #555; margin-top: 0.5rem; scroll-margin-top: 1rem; }
+p.table-footnote:target { background: #fff6e0; }
+
+.site-footer .footnote { font-size: 0.75rem; margin-top: 0.25rem; }
+
 .qbar { text-decoration: overline; }
 .intro { max-width: 60rem; }

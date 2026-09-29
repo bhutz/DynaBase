@@ -72,7 +72,7 @@ my_cursor.execute("""
 CREATE TYPE model_type AS (
     coeffs      varchar[],
     resultant   varchar,
-    bad_primes  integer[],
+    bad_primes  numeric[],
     height      real,
     base_field_label  varchar
   )""")
@@ -127,7 +127,8 @@ CREATE TABLE functions_dim_1_NF (
     rational_twists integer[],
     critical_portrait_graph_id varchar,
     smallest_height_ratio decimal,
-    smallest_height_point varchar
+    smallest_height_point varchar,
+    smallest_height_model display_model_type
   )
 """)
 

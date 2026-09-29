@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="prose">
+<h1>Mathematical Background</h1>
+
+<p>This page summarizes the definitions behind the data in Dynabase and the open problems the
+examples are meant to test. Silverman's <i>The Arithmetic of Dynamical Systems</i> (Graduate Texts
+in Mathematics 241, Springer, 2007) is a standard introduction to the subject.</p>
+
+<h2>Iteration and orbits</h2>
+
+<p>A dynamical system is a set <i>S</i> together with a map <i>f</i> from <i>S</i> to itself, which
+can be applied over and over. Write <i>f</i><sup><i>n</i></sup> for the <i>n</i>-th iterate:
+<i>f</i> composed with itself <i>n</i> times, with <i>f</i><sup>0</sup> the identity. The
+(forward) orbit of a point <i>P</i> is the sequence <i>P</i>, <i>f</i>(<i>P</i>),
+<i>f</i><sup>2</sup>(<i>P</i>), &hellip;. The point is</p>
+<ul>
+  <li><b>periodic</b> if the orbit returns to <i>P</i>: <i>f</i><sup><i>n</i></sup>(<i>P</i>) = <i>P</i>
+      for some <i>n</i> &ge; 1, the smallest such <i>n</i> being its (minimal) period;</li>
+  <li><b>preperiodic</b> if its orbit is finite, i.e. some iterate of <i>P</i> is periodic;</li>
+  <li><b>wandering</b> if its orbit is infinite.</li>
+</ul>
+<p>A preperiodic point that is not periodic sits on a <b>tail</b> leading into a cycle. A
+preperiodic point has type (<i>m</i>, <i>n</i>) when it takes <i>m</i> steps to reach a cycle of
+length <i>n</i>.</p>
+
+<p>Arithmetic dynamics studies the case where <i>S</i> is algebraic, typically the points of a
+variety over a number field <i>K</i>, and <i>f</i> is given by polynomials with coefficients in <i>K</i>. The
+questions are about the points defined over <i>K</i> itself.</p>
+
+<p><b>Example.</b> Take <i>f</i>(<i>z</i>) = <i>z</i><sup>2</sup> &minus; 1 over &#x211A;. Then
+0 &rarr; &minus;1 &rarr; 0 is a cycle of length 2, the point 1 maps into it (1 &rarr; 0), and the
+point at infinity is fixed. These four points are all of the rational preperiodic points of
+<i>f</i>; every other rational number, such as 2 &rarr; 3 &rarr; 8 &rarr; &hellip;, wanders off
+to infinity. Drawing an arrow from each point to its image turns the preperiodic points into a
+directed graph, and this graph is what Dynabase stores.</p>
+
+<h2>Maps of projective space</h2>
+
+<p>Dynabase works with self-maps of projective space. This is where the computational tools are
+available (the algorithms, and their implementations in SageMath, are almost all written for
+projective space), and many of the main conjectures of the subject reduce to this case. A map
+from <b>P</b><sup><i>N</i></sup> to itself of degree <i>d</i> is given by <i>N</i> + 1 homogeneous
+polynomials of degree <i>d</i> with no common factor. It is a morphism (defined at every point)
+when the polynomials also have no common zero. On the projective line, <i>N</i> = 1, every such
+map is a morphism. The site displays a map of the projective line as
+(<i>F</i><sub>0</sub>(<i>x</i>, <i>y</i>) : <i>F</i><sub>1</sub>(<i>x</i>, <i>y</i>)), which is
+the rational function <i>F</i><sub>0</sub>(<i>z</i>, 1) / <i>F</i><sub>1</sub>(<i>z</i>, 1) on the
+affine coordinate <i>z</i> = <i>x</i>/<i>y</i>. A polynomial <i>f</i>(<i>z</i>) of degree
+<i>d</i> appears as (<i>y</i><sup><i>d</i></sup><i>f</i>(<i>x</i>/<i>y</i>) : <i>y</i><sup><i>d</i></sup>).</p>
+
+<h2>Conjugation, moduli and models</h2>
+
+<p>Changing coordinates by an invertible linear map &alpha; of projective space (an element of
+PGL<sub><i>N</i>+1</sub>) replaces <i>f</i> by its conjugate
+<i>f</i><sup>&alpha;</sup> = &alpha;<sup>&minus;1</sup> &#8728; <i>f</i> &#8728; &alpha;. Iterating
+commutes with conjugating, (<i>f</i><sup>&alpha;</sup>)<sup><i>n</i></sup> =
+(<i>f</i><sup><i>n</i></sup>)<sup>&alpha;</sup>, so &alpha; carries orbits of one map to orbits of
+the other: the two maps have the same dynamics, written in different coordinates. The conjugacy
+classes of degree <i>d</i> maps form the <b>moduli space</b> <i>M</i><sub><i>d</i></sub>.</p>
+
+<p>Dynabase has <b>one entry per conjugacy class</b>. The different polynomial representatives of
+a class are called <b>models</b>, and a single entry can store several of them:</p>
+<ul>
+  <li><b>Original:</b> the model as it was given by its source.</li>
+  <li><b>Monic centered:</b> a map is conjugate to a polynomial exactly when it has a totally
+      ramified fixed point. Moving that point to infinity and normalizing so that the leading coefficient is 1 and
+      the next coefficient is 0 gives the usual normal form of a polynomial. This may need a field
+      extension.</li>
+  <li><b>Reduced:</b> the model with the smallest resultant and, among those, the smallest
+      coefficients, found by the algorithm of Hutz and Stoll. It is determined by the conjugacy
+      class.</li>
+  <li><b>Chebyshev</b> and <b>Newton</b>: a map is a Chebyshev map if it is conjugate to a
+      Chebyshev polynomial, and a Newton map if it is Newton's method <i>z</i> &minus;
+      <i>F</i>(<i>z</i>)/<i>F</i>&prime;(<i>z</i>) for some polynomial <i>F</i>.</li>
+</ul>
+
+<p>Conjugation does not always respect the field of definition. Two maps defined over <i>K</i> can
+be conjugate only over a larger field; such maps are <b>twists</b> of each other. Their rational
+points can behave differently, so twists are separate entries in Dynabase, linked to each other.
+The maps &alpha; that conjugate <i>f</i> to itself form its <b>automorphism group</b>, which is
+finite for a morphism. Faber, Manes and Viray gave an efficient algorithm to compute it on the
+projective line.</p>
+
+<h2>Multiplier invariants and labels</h2>
+
+<p>If <i>Q</i> is a fixed point of <i>f</i>, its <b>multiplier</b> is the derivative of <i>f</i> at
+<i>Q</i>, computed in a local coordinate. Multipliers do not change under conjugation, and neither
+do the elementary symmetric functions of the multipliers of all the fixed points,
+&sigma;<sub>1</sub><sup>(1)</sup>, &hellip;, &sigma;<sub><i>d</i>+1</sub><sup>(1)</sup>. The
+fixed points of the iterate <i>f</i><sup><i>n</i></sup> give invariants
+&sigma;<sup>(<i>n</i>)</sup> in the same way. The multipliers themselves may only be defined over
+an extension, but these symmetric functions always lie in the field of definition of <i>f</i>.
+By a theorem of McMullen, the invariants of enough periods pin down a conjugacy class up to
+finitely many possibilities, apart from the Latt&egrave;s maps.</p>
+
+<p>This gives each conjugacy class its <b>label</b> <i>dim</i>.<i>sig1</i>.<i>sig2</i>.<i>ord</i>:
+the dimension, then 8-character SHAKE-256 hashes of &sigma;<sup>(1)</sup> and &sigma;<sup>(2)</sup>,
+then an ordinal that tells apart the classes sharing those invariants. Because the label is built
+from invariants, any model of the map leads to the same label.</p>
+
+<h2>Fields and bad reduction</h2>
+
+<p>The <b>field of definition</b> of a model is the field generated by its coefficients. Number
+fields are named by their <a href="https://www.lmfdb.org/NumberField/">LMFDB</a> labels; a field
+not in the LMFDB is shown by its defining polynomial. The <b>resultant</b> of a model is the
+resultant of its defining polynomials. It is nonzero exactly when the model is a morphism, and
+the primes dividing it are the primes where the model has <b>bad reduction</b>.</p>
+
+<h2>The problems</h2>
+
+<h3>Rational preperiodic points</h3>
+
+<p>By Northcott's theorem, a morphism of degree at least 2 has only finitely many preperiodic
+points over a given number field, because every preperiodic point has bounded height. Morton and
+Silverman conjectured much more: the number should be bounded <i>uniformly</i>, by a constant
+<i>C</i>(<i>d</i>, <i>D</i>, <i>N</i>) depending only on the degree <i>d</i> of the map, the degree
+<i>D</i> of the number field and the dimension <i>N</i>. The conjecture is strong. Applied to the
+degree 4 Latt&egrave;s maps coming from multiplication by 2 on elliptic curves, it already implies
+the uniform boundedness of torsion on elliptic curves (Mazur's theorem over &#x211A;, Merel's over
+number fields).</p>
+
+<p>The conjecture is open even for quadratic polynomials over &#x211A;. Poonen showed that if no
+<i>z</i><sup>2</sup> + <i>c</i> has a rational cycle of length more than 3, then such a map has at
+most 9 rational preperiodic points, counting the point at infinity, and he listed the possible
+graphs. Cycles of length 4 and 5 have been ruled out (Morton; Flynn, Poonen and Schaefer), and
+length 6 is ruled out assuming standard conjectures on elliptic curves and abelian varieties
+(Stoll). In the other direction, Doyle and Hyde showed that polynomials of degree <i>d</i> over
+&#x211A; can have at least <i>d</i> + max(6, &lfloor;log<sub>2</sub> <i>d</i>&rfloor;) rational
+preperiodic points, so any uniform bound must grow faster than <i>d</i> itself.</p>
+
+<p>Two special cases get their own attention: <b>long rational cycles</b> and <b>long rational
+tails</b>. Interpolation easily produces cycles and tails whose length grows linearly with the
+degree, so the question is how far beyond that one can go. Bounds on both lengths, together with
+the known (but not explicit) uniform bound on rational preimages, would lead to an explicit
+Morton&ndash;Silverman constant. In the genetic algorithm data of Hutz (2026), no rational cycle
+was longer than <i>d</i> + 3 for polynomials or 2<i>d</i> + 3 for rational maps, and no rational
+tail was longer than <i>d</i> + 2 or 2<i>d</i> + 2 respectively.</p>
+
+<h3>Postcritically finite maps</h3>
+
+<p>The critical points of a map are the points where it fails to be locally one-to-one. A map is
+<b>postcritically finite</b> (PCF) if every critical point is preperiodic. The <b>critical portrait</b>
+is the directed graph formed by the critical points and everything in their forward orbits. PCF maps are rigid: apart from
+the Latt&egrave;s maps they are isolated points of moduli space, and over a number field there are
+only finitely many of each degree up to conjugacy (Ingram for polynomials; Benedetto, Ingram,
+Jones and Levy for rational maps). For small degrees the complete lists over &#x211A; are known:
+quadratic polynomials (only <i>z</i><sup>2</sup>, <i>z</i><sup>2</sup> &minus; 1 and
+<i>z</i><sup>2</sup> &minus; 2, up to conjugacy), cubic polynomials (Anderson, Manes and Tobin),
+quartic polynomials (Fraser) and quadratic rational maps (Lukas, Manes and Yap).</p>
+
+<h3>Small canonical heights</h3>
+
+<p>The height of a rational point measures its arithmetic size; for a rational number
+<i>a</i>/<i>b</i> in lowest terms it is log max(|<i>a</i>|, |<i>b</i>|). Applying a map of degree
+<i>d</i> multiplies heights by roughly <i>d</i>, and the <b>canonical height</b>
+<span class="nowrap">&#x0125;<sub><i>f</i></sub>(<i>P</i>) = lim
+<i>h</i>(<i>f</i><sup><i>n</i></sup>(<i>P</i>)) / <i>d</i><sup><i>n</i></sup></span> makes this
+exact: &#x0125;<sub><i>f</i></sub>(<i>f</i>(<i>P</i>)) = <i>d</i> &#x0125;<sub><i>f</i></sub>(<i>P</i>),
+and &#x0125;<sub><i>f</i></sub> differs from the ordinary height by a bounded amount. Over a number
+field, &#x0125;<sub><i>f</i></sub>(<i>P</i>) = 0 exactly when <i>P</i> is preperiodic, and
+Northcott's theorem guarantees a wandering point with the smallest positive canonical height.</p>
+
+<p>How small can that be? Conjugating a map can make canonical heights as small as we like, so
+the height of a point has to be compared with the size of the map itself, measured by a height
+<i>h</i><sub><i>M</i></sub>(<i>f</i>) on moduli space. The dynamical analogue of Lang's conjecture
+for elliptic curves predicts that &#x0125;<sub><i>f</i></sub>(<i>P</i>) &ge; <i>c</i> &middot;
+<i>h</i><sub><i>M</i></sub>(<i>f</i>) for every wandering point <i>P</i>, with a constant
+<i>c</i> &gt; 0 depending only on the degree of the map and of the field. Looper proved bounds of
+this shape for polynomials, under good reduction hypotheses and, for all polynomials, assuming
+the <i>abcd</i>-conjecture; the constants are not explicit.</p>
+
+<p>Dynabase records the <b>height ratio</b> &#x0125;<sub><i>f</i></sub>(<i>P</i>) /
+<i>h</i><sub><i>M</i></sub>(<i>f</i>), with <i>h</i><sub><i>M</i></sub>(<i>f</i>) the largest height
+of the fixed point invariants &sigma;<sub><i>i</i></sub><sup>(1)</sup>, for the point with the
+smallest ratio known. For quadratic maps these invariants give coordinates on moduli space (Milnor),
+and for polynomials they determine the class up to finitely many choices. For rational maps of
+higher degree they do not, so for those maps this measure is only a stand-in for a moduli height,
+but using the same measure in every degree makes the examples comparable. Earlier searches covered quadratic
+polynomials, cubic polynomials and quadratic rational maps (Benedetto et al.). The genetic
+algorithm data of Hutz (2026) suggests that the smallest ratio over &#x211A; shrinks roughly like
+10<sup>&minus;3<i>d</i>/2</sup> for polynomials and 10<sup>&minus;2<i>d</i></sup> for rational
+maps of degree <i>d</i>.</p>
+
+<h3>Automorphism groups</h3>
+
+<p>The automorphism group of a morphism <i>f</i> (the changes of coordinates that conjugate
+<i>f</i> to itself) is a finite subgroup of PGL<sub><i>N</i>+1</sub>. On the projective line over
+an algebraically closed field of characteristic 0, the finite subgroups are the cyclic and
+dihedral groups and the symmetry groups A<sub>4</sub>, S<sub>4</sub> and A<sub>5</sub> of the
+Platonic solids. De Faria and Hutz showed how to build maps with a prescribed automorphism group
+and that every finite subgroup is the automorphism group of infinitely many maps. What is less
+clear is how simple such a map can be. The problem is to find, for each possible group, maps of
+the smallest possible degree, defined over the smallest possible field, whose automorphism group
+is exactly that group and not a larger one. The field matters because a map defined over
+&#x211A; can have automorphisms that are only defined over an extension. Dynabase already records
+the size of the automorphism group of its maps when it can be computed; examples for this
+problem will be added later.</p>
+
+<h2 id="status">Status of the problems</h2>
+
+<p>The chart on the <a href="{{ root }}data-summary.html">Summary of Included Data</a> page rates
+each problem, degree and field:</p>
+<ul>
+  <li><b>proven</b>: the complete answer is a theorem, so the data is a complete list;</li>
+  <li><b>conjectural</b>: a complete answer has been conjectured, backed by partial proofs and
+      extensive searches;</li>
+  <li><b>experimental</b>: the examples come from computer searches, with no conjectured complete
+      answer;</li>
+  <li><b>open</b>: little or no systematic data is available yet.</li>
+</ul>
+
+<h2>Further reading</h2>
+<ul>
+  <li>J. H. Silverman, <i>The Arithmetic of Dynamical Systems</i>, Graduate Texts in Mathematics
+      241, Springer, 2007.</li>
+  <li>B. Hutz, A genetic algorithm for generating extreme examples in arithmetic dynamics,
+      <a href="https://arxiv.org/abs/2601.11482">arXiv:2601.11482</a>, 2026.</li>
+  <li>The sources of the data are listed, with full citations, on the
+      <a href="{{ root }}data-summary.html">Summary of Included Data</a> page.</li>
+</ul>
+</article>
+{% endblock %}

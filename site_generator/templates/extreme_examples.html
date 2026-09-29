@@ -1,70 +1,94 @@
 {% extends "base.html" %}
+
+{% macro extreme_tables(groups, value_header, point=False, pcf=False) %}
+  {% if groups %}
+    {% for heading, rows in groups %}
+    <h4>{{ heading | safe }}</h4>
+    <table>
+      <thead>
+        <tr>
+          <th>Degree</th>
+          {% if pcf %}<th>Status</th><th>Classes</th>{% else %}
+          <th>Function</th>
+          <th>Field of Definition</th>
+          {% if point %}<th>Point</th>{% endif %}
+          <th>{{ value_header }}</th>{% endif %}
+          <th>Citations</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr>
+          <td>{{ row.degree | safe }}</td>
+          {% if pcf %}<td class="status status-{{ row.status }}">{{ row.status }}</td><td>{{ row.classes }}{% if row.excludes_polynomials %}<a href="#pcf-rational-note" class="footnote-ref">*</a>{% endif %}</td>{% else %}
+          <td class="fn">{{ row.function | safe }}</td>
+          <td>{{ row.field | safe }}</td>
+          {% if point %}<td class="fn">{{ row.point | safe }}</td>{% endif %}
+          <td>{{ row.value | safe }}</td>{% endif %}
+          <td>{{ row.citations | safe }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% endfor %}
+  {% else %}
+  <p class="empty">No data yet.</p>
+  {% endif %}
+{% endmacro %}
+
 {% block content %}
 <h1>Summary of Extreme Examples</h1>
+<p class="intro">For each problem, the most extreme map in the database of each degree, over &#x211A;
+and over quadratic fields. When several maps share the record, the first one loaded is shown; the
+degree links to the full list for that degree. The
+<a href="{{ root }}background.html">Mathematical Background</a> page describes each problem.</p>
 
-<section class="data-table">
-  <h2>Rational Periodic Cycles for Polynomials</h2>
-  {% if longest_cycle_groups %}
-    {% for heading, rows in longest_cycle_groups %}
-    <h3>{{ heading | safe }}</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Degree</th>
-          <th>Function</th>
-          <th>Field of Definition</th>
-          <th>Longest Cycle</th>
-          <th>Citations</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in rows %}
-        <tr>
-          <td>{{ row.degree }}</td>
-          <td class="fn">{{ row.function | safe }}</td>
-          <td>{{ row.field | safe }}</td>
-          <td>{{ row.value }}</td>
-          <td>{{ row.citations | safe }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% endfor %}
-  {% else %}
-  <p class="empty">No data yet.</p>
-  {% endif %}
+<nav class="jump-links">
+  <ul>
+    <li><a href="#rational-preperiodic">Rational preperiodic points</a>
+      <ul>
+        <li><a href="#many-points">Many points</a></li>
+        <li><a href="#long-cycles">Long cycles</a></li>
+        <li><a href="#long-tails">Long tails</a></li>
+      </ul>
+    </li>
+    <li><a href="#postcritically-finite">Postcritically finite maps</a></li>
+    <li><a href="#small-height">Small canonical heights</a></li>
+    <li><a href="#automorphisms">Automorphism groups</a></li>
+  </ul>
+</nav>
+
+<section class="data-table" id="rational-preperiodic">
+  <h2>Rational Preperiodic Points</h2>
+
+  <h3 class="subproblem" id="many-points">Many rational preperiodic points</h3>
+  {{ extreme_tables(sections.many_points, 'Preperiodic Points') }}
+
+  <h3 class="subproblem" id="long-cycles">Long rational cycles</h3>
+  {{ extreme_tables(sections.long_cycles, 'Longest Cycle') }}
+
+  <h3 class="subproblem" id="long-tails">Long rational tails</h3>
+  {{ extreme_tables(sections.long_tails, 'Longest Tail') }}
 </section>
 
-<section class="data-table">
-  <h2>Rational Preperiodic Tails for Polynomials</h2>
-  {% if longest_tail_groups %}
-    {% for heading, rows in longest_tail_groups %}
-    <h3>{{ heading | safe }}</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Degree</th>
-          <th>Function</th>
-          <th>Field of Definition</th>
-          <th>Longest Tail</th>
-          <th>Citations</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in rows %}
-        <tr>
-          <td>{{ row.degree }}</td>
-          <td class="fn">{{ row.function | safe }}</td>
-          <td>{{ row.field | safe }}</td>
-          <td>{{ row.value }}</td>
-          <td>{{ row.citations | safe }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% endfor %}
-  {% else %}
-  <p class="empty">No data yet.</p>
-  {% endif %}
+<section class="data-table" id="postcritically-finite">
+  <h2>Postcritically Finite Maps</h2>
+  <p>For each degree: whether the list is known to be complete, the number of conjugacy classes (over
+  <span class="qbar">&#x211A;</span>) in the database, and the sources of those maps.</p>
+  {{ extreme_tables(sections.pcf, None, pcf=True) }}
+  <p class="table-footnote" id="pcf-rational-note">* Excludes polynomials, which are counted in the
+  polynomial tables.</p>
+</section>
+
+<section class="data-table" id="small-height">
+  <h2>Small Canonical Heights</h2>
+  <p>For each degree, the map with a rational point of the smallest known height ratio.</p>
+  {{ extreme_tables(sections.small_height, 'Height Ratio', point=True) }}
+</section>
+
+<section class="data-table" id="automorphisms">
+  <h2>Automorphism Groups</h2>
+  <p class="empty">No data yet. This problem asks, for each group that can occur, for maps of the
+  smallest degree and smallest field of definition with exactly that automorphism group.</p>
 </section>
 {% endblock %}

@@ -46,15 +46,19 @@ This file lists the data and data sources.
       
       - First 10 maps from each Period X, Length Y file at https://rlbenedetto.people.amherst.edu/quadratdata/ (122 maps; the maps only, not the orbits)
 
-- Polynomials of degree 2 through 13 and rational functions of degree 2 through 4
+- Polynomials of degree 2 through 13 and rational functions of degree 2 through 5
   
   - Over QQ
     
     - Benjamin Hutz. A genetic algorithm for generating extreme examples in arithmetic dynamics. arXiv:2601.11482, 2026.
       
-      - The maps in the appendix (Extended Data Set) tables Many Preperiodic Points, Long Periodic Cycles, and Long Preperiodic Tail; the Small Height ratio tables are not included
+      - The maps in the appendix (Extended Data Set) tables Many Preperiodic Points, Long Periodic Cycles, and Long Preperiodic Tail
       
       - Each map is recovered by interpolation from the orbit the paper lists for it (164 distinct maps: 125 polynomials, 39 rational functions)
+      
+      - Small Height Ratio tables: the 3 smallest ratios for each degree (polynomials of degree 2 through 12, rational functions of degree 2 through 5; 2 maps for quadratic rational functions, and the degree 13 table is empty), 44 maps. The stored smallest height is the ratio of the point 0, the start of the paper's orbit
+      
+      - Two misprints in the Small Height Ratio tables are corrected: for degree 2 polynomials the orbit [0, 1, -1, 2] (ratio 0.01102) should be [0, 1, -2, 6], the orbit of the map printed with it; for degree 11 the ratio 7.8701 * 10^17 should be 7.8701 * 10^-17
 
 - Postcritically finite (PCF) maps over QQ - complete classifications, up to conjugacy over QQbar
   

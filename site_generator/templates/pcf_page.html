@@ -4,6 +4,10 @@
 <p class="intro">A map is postcritically finite (PCF) if every critical point has a finite forward
 orbit. Its critical portrait is the graph of the critical points and their forward orbits.
 Critical points are counted over the algebraic closure, including &infin; for polynomials.</p>
+{% if type_ == 'rational' %}
+<p class="intro">Polynomials are rational maps too, but they are left out here: the PCF polynomials of
+this degree are listed on the <a href="{{ root }}data/{{ dimension }}/{{ degree }}/polynomial/postcritically-finite.html">polynomial page</a>.</p>
+{% endif %}
 
 {% if groups %}
   {% for heading, rows in groups %}
