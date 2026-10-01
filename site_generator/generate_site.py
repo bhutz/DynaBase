@@ -33,10 +33,14 @@ DATA_SOURCES_MD = os.path.join(REPO_ROOT, 'extreme_examples_data', 'data_sources
 
 CUSTOM_DOMAIN = 'dynabase.org'
 
+# GoatCounter page-view counting (no cookies, no personal data): the site's code at
+# goatcounter.com, i.e. <code>.goatcounter.com. None leaves the script off every page.
+GOATCOUNTER_CODE = 'dynabase'
+
 # The comments page embeds this Google Form (fields: who is submitting, contact
 # information, comment). Paste the form's "Send" link - the docs.google.com/forms/
 # .../viewform URL. None shows a "coming soon" note instead.
-COMMENTS_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdbonxno00EEOX-NNrLCMRt6i9o8DedRrbM39mQxInD77qEdg/viewform'
+COMMENTS_FORM_URL ='https://docs.google.com/forms/d/e/1FAIpQLSdbonxno00EEOX-NNrLCMRt6i9o8DedRrbM39mQxInD77qEdg/viewform'
 
 DIMENSIONS = [1]
 DEGREES = list(range(2, 16))  # 2..15
@@ -122,6 +126,7 @@ def make_env():
     )
     env.globals['degrees'] = DEGREES  # header selector options, on every page
     env.globals['problems'] = PROBLEMS
+    env.globals['goatcounter_code'] = GOATCOUNTER_CODE
     return env
 
 

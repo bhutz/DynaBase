@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{{ title }} &mdash; DynaBase</title>
 <link rel="stylesheet" href="{{ root }}assets/style.css">
+{% if goatcounter_code %}
+<script data-goatcounter="https://{{ goatcounter_code }}.goatcounter.com/count"
+        async src="https://gc.zgo.at/count.js"></script>
+{% endif %}
 </head>
 <body>
 <h1 class="site-title">Dynabase</h1>

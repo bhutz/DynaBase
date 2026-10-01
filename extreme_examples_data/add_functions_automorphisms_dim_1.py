@@ -25,18 +25,21 @@ log_file = open(path_to_log, 'a', 1)
 #is exactly that group. The cyclic and dihedral groups are infinite families with
 #the degree depending on n, so they can't be stored as families; their first few
 #members are stored instead:
+#
 #  C_n:    (x^(n+1) + x*y^n : y^(n+1)), degree n+1, n = 2..8
 #  D_2n:   (y^(n-1) : x^(n-1)), degree n-1, n = 3..8 (n = 2 is degree 1, so D_4
 #          is not covered by this formula)
 #  S_4, A_5: as printed.
+#
 #The paper's A_4 map is over QQ(sqrt(-3)), and its Theorem 4.8 says no map over QQ
 #has automorphism group A_4. Gontmacher-Hutz-Jorgenson-Srimani-Xu (GHJSX2021,
 #Section 2/3.1) found (z^3 - 3)/(-3z^2), over QQ, with automorphism group A_4; that
 #map is used instead.
+#
 #The automorphism group is computed over QQbar; its type is stored as GAP's
-#StructureDescription (C2, ..., S3 for D_6, D4 for D_8, A4, S4, A5). Checked for
-#all of these maps before adding them. A_5's group takes ~30 s, so the timeout is
-#raised to 120 s.
+#StructureDescription (C2, ..., S3 for D_6, D4 for D_8, A4, S4, A5). 
+######################
+
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
 timeout = int(120)
