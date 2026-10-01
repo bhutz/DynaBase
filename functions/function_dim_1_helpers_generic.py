@@ -20,6 +20,7 @@ AUTHORS:
 
 from copy import copy
 from sage.graphs.digraph import DiGraph
+from sage.groups.perm_gps.permgroup import PermutationGroup
 from sage.misc.verbose import set_verbose
 from sage.rings.fraction_field import is_FractionField
 from sage.rings.polynomial.multi_polynomial_ring_base import MPolynomialRing_base
@@ -139,6 +140,49 @@ def choose_display_model(function_id, my_cursor, log_file=sys.stdout):
             function_id = %(function_id)s
         """, query)
     return True
+
+def normalize_pgl(m):
+    """the representative of the projective matrix m whose first nonzero entry is 1"""
+    for e in m.list():
+        if e != 0:
+            return m / e
+    raise ValueError('zero matrix')
+
+
+def automorphism_group_structure(G):
+    """
+    The isomorphism type of a finite group G of projective matrices (a list of
+    matrices up to scalars, e.g. from automorphism_group()), as GAP's
+    StructureDescription: 'C2', 'C2 x C2', 'S3', 'D4', 'A4', 'S4', 'A5', and '1'
+    for the trivial group. GAP names the dihedral group of order 2n 'Dn' (but the
+    one of order 6 'S3').
+
+    Builds G as a permutation group, acting on itself by left multiplication. Only
+    generators are needed, so elements are added until they generate all of G:
+    usually 2, so about 2|G| matrix products instead of |G|^2 (for A_5 over QQbar,
+    1 s instead of 19 s). Works in any dimension.
+    """
+    G = [normalize_pgl(g) for g in G]
+    n = len(G)
+
+    def index(m):
+        m = normalize_pgl(m)
+        for i, h in enumerate(G):
+            if h == m:
+                return i + 1
+        raise ValueError('automorphisms not closed under multiplication')
+
+    perms = []
+    for g in G:
+        if perms and PermutationGroup(perms).order() == n:
+            break
+        perm = [index(g*h) for h in G]
+        if perm != list(range(1, n + 1)) and (not perms or perm not in PermutationGroup(perms)):
+            perms.append(perm)
+    if not perms:
+        return '1'
+    return str(PermutationGroup(perms).structure_description())
+
 
 def graph_to_array(G):
     #graph to array

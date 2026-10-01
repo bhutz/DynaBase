@@ -60,6 +60,7 @@ from functions.function_dim_1_helpers_generic import graph_to_array
 from functions.function_dim_1_helpers_generic import array_to_graph
 from functions.function_dim_1_helpers_generic import ChildTimeout
 from functions.function_dim_1_helpers_generic import run_in_child
+from functions.function_dim_1_helpers_generic import automorphism_group_structure
 
 
 ##############################################################
@@ -580,8 +581,15 @@ def add_critical_portrait(function_id, my_cursor, model_name='original', log_fil
 
 def add_automorphism_group_NF(function_id, my_cursor, model_name='original', log_file=sys.stdout, timeout=30):
     """
-    Find the automorphisms group.
+    Find the automorphism group over QQbar: its size and its isomorphism type.
 
+    The type is GAP's StructureDescription (automorphism_group_structure): 'C2',
+    'S3', 'D4', 'A4', ... Sage's own iso_type=True is not used: for a base ring
+    other than QQ or ZZ (here QQbar) automorphism_group ignores it, and its
+    which_group returns a string for cyclic and dihedral groups but a list for
+    A_4, S_4 and A_5.
+
+    'automorphism_group_cardinality', 'automorphism_group_iso_type'
     """
     query={}
     query['function_id']=function_id
@@ -593,10 +601,14 @@ def add_automorphism_group_NF(function_id, my_cursor, model_name='original', log
                 Fbar = F.change_ring(QQbar)
             except ValueError:
                 Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
-            return len(Fbar.automorphism_group())
-        query['automorphism_group_cardinality'] = int(run_in_child(compute, timeout=timeout, log_file=log_file))
+            G = Fbar.automorphism_group()
+            return len(G), automorphism_group_structure(G)
+        n, iso_type = run_in_child(compute, timeout=timeout, log_file=log_file)
+        query['automorphism_group_cardinality'] = int(n)
+        query['automorphism_group_iso_type'] = iso_type
         my_cursor.execute("""UPDATE functions_dim_1_NF
-            SET automorphism_group_cardinality = %(automorphism_group_cardinality)s
+            SET automorphism_group_cardinality = %(automorphism_group_cardinality)s,
+                automorphism_group_iso_type = %(automorphism_group_iso_type)s
             WHERE function_id=%(function_id)s
             """,query)
         if my_cursor.rowcount == 0: #error check rowcount after update
@@ -1676,7 +1688,8 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         # legitimately; those reruns fail or return quickly
         my_cursor.execute("""SELECT is_pcf, critical_portrait_graph_id, automorphism_group_cardinality,
                 (reduced_model).coeffs AS reduced_model, is_polynomial, (monic_centered).coeffs AS monic_centered,
-                is_chebyshev, is_newton, is_lattes, family, smallest_height_ratio
+                is_chebyshev, is_newton, is_lattes, family, smallest_height_ratio,
+                automorphism_group_iso_type
             FROM functions_dim_1_NF WHERE function_id=%s""", [F_id])
         G = my_cursor.fetchone()
         missing = [k for k, v in G.items() if v is None]
@@ -1691,7 +1704,7 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
             add_is_pcf(my_cursor, F_id, 'original', bool_add_field=True, log_file=log_file, timeout=timeout)
         if 'critical_portrait_graph_id' in missing:
             add_critical_portrait(F_id, my_cursor, 'original', log_file=log_file, timeout=timeout)
-        if 'automorphism_group_cardinality' in missing:
+        if 'automorphism_group_cardinality' in missing or 'automorphism_group_iso_type' in missing:
             add_automorphism_group_NF(F_id, my_cursor, 'original', log_file=log_file, timeout=timeout)
         add_rational_preperiodic_points_NF(F_id, my_cursor, field_label=base_field_label, log_file=log_file, timeout=timeout)
         if 'reduced_model' in missing:

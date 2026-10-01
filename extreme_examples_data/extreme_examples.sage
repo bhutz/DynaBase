@@ -32,3 +32,6 @@ load("extreme_examples_data/add_functions_higher_degree_rational_dim_1.py")
 
 load("connect.py")
 load("extreme_examples_data/add_functions_small_height_dim_1.py")
+
+load("connect.py")
+load("extreme_examples_data/add_functions_automorphisms_dim_1.py")

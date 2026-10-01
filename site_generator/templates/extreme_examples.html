@@ -88,7 +88,38 @@ degree links to the full list for that degree. The
 
 <section class="data-table" id="automorphisms">
   <h2>Automorphism Groups</h2>
-  <p class="empty">No data yet. This problem asks, for each group that can occur, for maps of the
-  smallest degree and smallest field of definition with exactly that automorphism group.</p>
+  <p>For each automorphism group in the database, the map of smallest degree with exactly that
+  group, and among those, the one over the smallest field. Groups are named as in GAP:
+  D<sub><i>n</i></sub> is dihedral of order 2<i>n</i> (D<sub>3</sub> is written S<sub>3</sub>).</p>
+  {% if sections.automorphisms %}
+  <table>
+    <thead>
+      <tr>
+        <th>Group</th>
+        <th>Order</th>
+        <th>Degree</th>
+        <th>Type</th>
+        <th>Function</th>
+        <th>Field of Definition</th>
+        <th>Citations</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in sections.automorphisms %}
+      <tr>
+        <td>{{ row.group | safe }}</td>
+        <td>{{ row.order }}</td>
+        <td>{{ row.degree | safe }}</td>
+        <td>{{ row.type }}</td>
+        <td class="fn">{{ row.function | safe }}</td>
+        <td>{{ row.field | safe }}</td>
+        <td>{{ row.citations | safe }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No data yet.</p>
+  {% endif %}
 </section>
 {% endblock %}

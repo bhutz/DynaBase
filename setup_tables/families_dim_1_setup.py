@@ -48,7 +48,8 @@ CREATE TABLE families_dim_1_NF (
     citations integer[],
     is_polynomial boolean,
     num_critical_points integer,
-    automorphism_group_cardinality integer
+    automorphism_group_cardinality integer,
+    automorphism_group_iso_type varchar
     )
 """)
 

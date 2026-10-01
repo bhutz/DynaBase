@@ -124,6 +124,7 @@ CREATE TABLE functions_dim_1_NF (
     cp_cardinality integer,
     cp_field_of_defn varchar,
     automorphism_group_cardinality integer,
+    automorphism_group_iso_type varchar,
     rational_twists integer[],
     critical_portrait_graph_id varchar,
     smallest_height_ratio decimal,

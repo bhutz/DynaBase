@@ -59,7 +59,10 @@ bibliography.append(['FMV2015', ['Xander Faber', 'Michelle Manes', 'Bianca Viray
 bibliography.append(['Fraser2024', ['Benjamin Fraser'], 'PhD thesis, York University', 2024,\
     'Benjamin Fraser. On PCF polynomials. PhD thesis, York University, Toronto, 2024.',\
     None])
-bibliography.append(['GHK2023', ['Thomas Gauthier', 'Benjamin Hutz', 'Scott Kaschner'], 'Conform. Geom. Dyn.', 2023,\
+bibliography.append(['GHJSX2021', ['Brandon Gontmacher', 'Benjamin Hutz', 'Grayson Jorgenson', 'Srinjoy Srimani', 'Simon Xu'], 'New York J. Math.', 2021,\
+    'Brandon Gontmacher, Benjamin Hutz, Grayson Jorgenson, Srinjoy Srimani, and Simon Xu. Automorphism loci for degree 3 and degree 4 endomorphisms of the projective line. New York J. Math., 27:1613--1702, 2021.',\
+    'MR4359208'])
+bibliography.append(['GHK2023',['Thomas Gauthier', 'Benjamin Hutz', 'Scott Kaschner'], 'Conform. Geom. Dyn.', 2023,\
     'Thomas Gauthier, Benjamin Hutz, and Scott Kaschner. Symmetrization of rational maps: arithmetic properties and families of Lattes maps of Pk. Conform. Geom. Dyn., 27:98--117, 2023.',\
     'MR4548508'])
 bibliography.append(['Hutz2015', ['Benjamin Hutz'], 'Math. Comp.', 2015,\

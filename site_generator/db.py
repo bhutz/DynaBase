@@ -159,6 +159,67 @@ def get_small_height_functions_dim_1(conn, degree, is_polynomial):
     return rows, cur.fetchone()[0]
 
 
+AUTOMORPHISM_COLUMNS = """
+            f.function_id,
+            f.degree,
+            f.is_polynomial,
+            f.base_field_label,
+            f.sigma_one,
+            f.sigma_two,
+            f.ordinal,
+            f.citations,
+            f.display_model,
+            (f.original_model).coeffs   AS original_coeffs,
+            (f.reduced_model).coeffs    AS reduced_coeffs,
+            (f.monic_centered).coeffs   AS monic_coeffs,
+            f.automorphism_group_cardinality,
+            f.automorphism_group_iso_type"""
+
+
+def get_automorphism_functions_dim_1(conn, degree, is_polynomial):
+    """
+    Dimension-1 functions of the given degree and type with a nontrivial
+    automorphism group whose type is known (automorphism_group_iso_type, GAP's
+    StructureDescription; '1' is the trivial group). A property of the function
+    over its own field, so one row per function. Also returns how many functions
+    of this degree/type have no type stored, so the caller can report them.
+    """
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(f"""
+        SELECT {AUTOMORPHISM_COLUMNS}
+        FROM functions_dim_1_nf f
+        WHERE f.degree = %(degree)s AND f.is_polynomial = %(is_polynomial)s
+          AND f.automorphism_group_iso_type IS NOT NULL AND f.automorphism_group_iso_type <> '1'
+        ORDER BY f.function_id
+    """, {'degree': degree, 'is_polynomial': is_polynomial})
+    rows = [dict(row) for row in cur.fetchall()]
+    for row in rows:
+        row['base_field_degree'] = field_degree_from_label(row['base_field_label'])
+    cur.execute("""
+        SELECT count(*) FROM functions_dim_1_nf
+        WHERE degree = %(degree)s AND is_polynomial = %(is_polynomial)s
+          AND automorphism_group_iso_type IS NULL
+    """, {'degree': degree, 'is_polynomial': is_polynomial})
+    return rows, cur.fetchone()[0]
+
+
+def get_automorphism_source_rows(conn):
+    """Every dimension-1 function with a nontrivial automorphism group of known
+    type, any degree or type - the source rows for the Extreme Examples page's
+    smallest-degree-per-group table. Ordered by function_id for deterministic ties."""
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute(f"""
+        SELECT {AUTOMORPHISM_COLUMNS}
+        FROM functions_dim_1_nf f
+        WHERE f.automorphism_group_iso_type IS NOT NULL AND f.automorphism_group_iso_type <> '1'
+        ORDER BY f.function_id
+    """)
+    rows = [dict(row) for row in cur.fetchall()]
+    for row in rows:
+        row['base_field_degree'] = field_degree_from_label(row['base_field_label'])
+    return rows
+
+
 def get_extreme_source_rows(conn, degree, is_polynomial):
     """
     (function, field) pairs of the given degree and type whose field is QQ

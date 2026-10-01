@@ -33,12 +33,21 @@ DATA_SOURCES_MD = os.path.join(REPO_ROOT, 'extreme_examples_data', 'data_sources
 
 CUSTOM_DOMAIN = 'dynabase.org'
 
+# The comments page embeds this Google Form (fields: who is submitting, contact
+# information, comment). Paste the form's "Send" link - the docs.google.com/forms/
+# .../viewform URL. None shows a "coming soon" note instead.
+COMMENTS_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdbonxno00EEOX-NNrLCMRt6i9o8DedRrbM39mQxInD77qEdg/viewform'
+
 DIMENSIONS = [1]
 DEGREES = list(range(2, 16))  # 2..15
 TYPES = [('polynomial', True), ('rational', False)]
 PROBLEMS = [('rational-preperiodic', 'Rational Preperiodic'),
             ('postcritically-finite', 'Postcritically Finite'),
-            ('small-height', 'Small Height Ratio')]
+            ('small-height', 'Small Height Ratio'),
+            ('automorphism-groups', 'Automorphism Groups')]
+# The status chart is by degree, which doesn't fit the automorphism group problem
+# (one question per group, not per degree), so it has no chart.
+STATUS_CHART_PROBLEMS = ['rational-preperiodic', 'postcritically-finite', 'small-height']
 TYPE_LABELS = {'polynomial': 'Polynomial', 'rational': 'Rational'}
 
 DEFAULT_DEGREE = 2
@@ -65,10 +74,39 @@ PROBLEM_STATUS = {
 }
 
 
+def build_automorphism_summary(rows):
+    """
+    The automorphism group table on the data summary page: one row per group type
+    with a map in the database (by order, then name), columns as in the status
+    charts (field category x type), each cell the smallest degree of a map with
+    exactly that group - linked to that degree's automorphism page - or 'open'.
+    Returns [(group html, order, [(degree, link) or None per column])].
+    """
+    field_degrees = {'QQ': 1, 'quadratic': 2}
+    smallest = {}  # (iso type, field degree, type name) -> smallest degree
+    orders = {}
+    for row in rows:
+        type_name = 'polynomial' if row['is_polynomial'] else 'rational'
+        key = (row['automorphism_group_iso_type'], row['base_field_degree'], type_name)
+        smallest[key] = min(smallest.get(key, row['degree']), row['degree'])
+        orders[row['automorphism_group_iso_type']] = row['automorphism_group_cardinality']
+    table = []
+    for iso_type in sorted(orders, key=lambda t: (orders[t], t)):
+        cells = []
+        for field, _ in STATUS_FIELDS:
+            for type_name, _ in TYPES:
+                d = smallest.get((iso_type, field_degrees[field], type_name))
+                cells.append((d, f'data/1/{d}/{type_name}/automorphism-groups.html') if d else None)
+        table.append((render.format_group(iso_type), orders[iso_type], cells))
+    return table
+
+
 def build_status_tables():
     """[(problem name, [(degree, [status per field x type])])] for the chart."""
     tables = []
     for problem, problem_name in PROBLEMS:
+        if problem not in STATUS_CHART_PROBLEMS:
+            continue
         status = PROBLEM_STATUS.get(problem, {})
         rows = [(degree, [status.get((field, type_name), {}).get(degree, 'open')
                           for field, _ in STATUS_FIELDS for type_name, _ in TYPES])
@@ -105,6 +143,17 @@ def root_prefix(rel_path):
     """
     depth = rel_path.count('/')
     return '../' * depth
+
+
+def comments_embed_url(form_url):
+    """The embeddable version of a Google Form link (its viewform URL with
+    embedded=true), or None if the link can't be embedded - e.g. a forms.gle
+    short link, which the comments page then just links to."""
+    if not form_url or 'docs.google.com/forms/' not in form_url or '/viewform' not in form_url:
+        return None
+    if 'embedded=true' in form_url:
+        return form_url
+    return form_url + ('&' if '?' in form_url else '?') + 'embedded=true'
 
 
 def report_excluded(dimension, degree, type_name, duplicates, no_graph):
@@ -188,6 +237,27 @@ def render_small_height_page(env, conn, dimension, degree, type_name, is_polynom
     )
 
 
+def render_automorphism_page(env, conn, dimension, degree, type_name, is_polynomial, root,
+                             citations_by_id, used_citation_ids, report=True):
+    rows, not_computed = db.get_automorphism_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
+    if report and not_computed:
+        print(f'  note (dimension {dimension}, degree {degree}, {type_name}): '
+              f'{not_computed} function(s) have no automorphism group type, so cannot appear on the automorphism page')
+    for row in rows:
+        used_citation_ids.update(row.get('citations') or [])
+    groups = render.group_automorphism_by_field_degree(dimension, rows, citations_by_id, root)
+    return env.get_template('automorphism_page.html').render(
+        title=f'Degree {degree} {TYPE_LABELS[type_name]} Automorphism Groups',
+        problem='automorphism-groups',
+        dimension=dimension,
+        degree=degree,
+        type_=type_name,
+        type_label=TYPE_LABELS[type_name],
+        groups=groups,
+        root=root,
+    )
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--section', default='postgresql_local',
@@ -208,7 +278,8 @@ def main():
             for type_name, is_polynomial in TYPES:
                 for problem, renderer in [('rational-preperiodic', render_data_page),
                                           ('postcritically-finite', render_pcf_page),
-                                          ('small-height', render_small_height_page)]:
+                                          ('small-height', render_small_height_page),
+                                          ('automorphism-groups', render_automorphism_page)]:
                     rel = f'data/{dimension}/{degree}/{type_name}/{problem}.html'
                     html = renderer(env, conn, dimension, degree, type_name,
                                     is_polynomial, root=root_prefix(rel),
@@ -300,6 +371,23 @@ def main():
             model_of=lambda winner: winner.get('smallest_height_model') or 'original'),
     }
 
+    # automorphism groups: one row per group type, the map of smallest degree (then
+    # smallest field) with exactly that automorphism group
+    automorphism_rows = []
+    for row in render.smallest_map_per_group(db.get_automorphism_source_rows(conn)):
+        used_citation_ids.update(row.get('citations') or [])
+        type_name = 'polynomial' if row['is_polynomial'] else 'rational'
+        automorphism_rows.append({
+            'group': render.format_group(row['automorphism_group_iso_type']),
+            'order': row['automorphism_group_cardinality'],
+            'degree': f'<a href="data/1/{row["degree"]}/{type_name}/automorphism-groups.html">{row["degree"]}</a>',
+            'type': TYPE_LABELS[type_name],
+            'function': render.format_function(row),
+            'field': render.format_field_link(row['base_field_label']),
+            'citations': render.format_citations(row.get('citations'), citations_by_id, ''),
+        })
+    extreme_sections['automorphisms'] = automorphism_rows
+
     write(os.path.join(SITE_DIR, 'extreme-examples.html'),
           env.get_template('extreme_examples.html').render(
               title='Summary of Extreme Examples', root='', sections=extreme_sections))
@@ -307,6 +395,10 @@ def main():
     # --- static-link pages (all top-level, so root='') ---
     write(os.path.join(SITE_DIR, 'about.html'),
           env.get_template('about.html').render(title='About', root=''))
+    write(os.path.join(SITE_DIR, 'comments.html'),
+          env.get_template('comments.html').render(
+              title='Comments', root='', form_url=COMMENTS_FORM_URL,
+              embed_url=comments_embed_url(COMMENTS_FORM_URL)))
     write(os.path.join(SITE_DIR, 'background.html'),
           env.get_template('background.html').render(title='Mathematical Background', root=''))
 
@@ -324,6 +416,7 @@ def main():
           env.get_template('data_summary.html').render(
               title='Summary of Included Data', root='',
               status_tables=build_status_tables(), status_fields=STATUS_FIELDS,
+              automorphism_summary=build_automorphism_summary(db.get_automorphism_source_rows(conn)),
               type_labels=[TYPE_LABELS[t] for t, _ in TYPES],
               content_html=content_html, bibliography_html=bibliography_html))
 

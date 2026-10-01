@@ -113,12 +113,21 @@ the primes dividing it are the primes where the model has <b>bad reduction</b>.<
 
 <p>By Northcott's theorem, a morphism of degree at least 2 has only finitely many preperiodic
 points over a given number field, because every preperiodic point has bounded height. Morton and
-Silverman conjectured much more: the number should be bounded <i>uniformly</i>, by a constant
-<i>C</i>(<i>d</i>, <i>D</i>, <i>N</i>) depending only on the degree <i>d</i> of the map, the degree
-<i>D</i> of the number field and the dimension <i>N</i>. The conjecture is strong. Applied to the
-degree 4 Latt&egrave;s maps coming from multiplication by 2 on elliptic curves, it already implies
-the uniform boundedness of torsion on elliptic curves (Mazur's theorem over &#x211A;, Merel's over
-number fields).</p>
+Silverman conjectured that much more is true: the number is bounded <i>uniformly</i>, independent of
+the particular map and field.</p>
+
+<div class="statement">
+<p><b>Uniform Boundedness Conjecture</b> (Morton&ndash;Silverman, 1994). For all integers
+<i>N</i> &ge; 1, <i>d</i> &ge; 2 and <i>D</i> &ge; 1 there is a constant
+<i>C</i>(<i>N</i>, <i>d</i>, <i>D</i>) such that for every number field <i>K</i> with
+[<i>K</i> : &#x211A;] &le; <i>D</i> and every morphism <i>f</i> : <b>P</b><sup><i>N</i></sup> &rarr;
+<b>P</b><sup><i>N</i></sup> of degree <i>d</i> defined over <i>K</i>, the number of preperiodic points
+of <i>f</i> in <b>P</b><sup><i>N</i></sup>(<i>K</i>) is at most <i>C</i>(<i>N</i>, <i>d</i>, <i>D</i>).</p>
+</div>
+
+<p>The conjecture is strong. Applied to the degree 4 Latt&egrave;s maps coming from multiplication
+by 2 on elliptic curves, it already implies the uniform boundedness of torsion on elliptic curves
+(Mazur's theorem over &#x211A;, Merel's over number fields).</p>
 
 <p>The conjecture is open even for quadratic polynomials over &#x211A;. Poonen showed that if no
 <i>z</i><sup>2</sup> + <i>c</i> has a rational cycle of length more than 3, then such a map has at
@@ -141,13 +150,25 @@ tail was longer than <i>d</i> + 2 or 2<i>d</i> + 2 respectively.</p>
 
 <p>The critical points of a map are the points where it fails to be locally one-to-one. A map is
 <b>postcritically finite</b> (PCF) if every critical point is preperiodic. The <b>critical portrait</b>
-is the directed graph formed by the critical points and everything in their forward orbits. PCF maps are rigid: apart from
-the Latt&egrave;s maps they are isolated points of moduli space, and over a number field there are
-only finitely many of each degree up to conjugacy (Ingram for polynomials; Benedetto, Ingram,
-Jones and Levy for rational maps). For small degrees the complete lists over &#x211A; are known:
-quadratic polynomials (only <i>z</i><sup>2</sup>, <i>z</i><sup>2</sup> &minus; 1 and
-<i>z</i><sup>2</sup> &minus; 2, up to conjugacy), cubic polynomials (Anderson, Manes and Tobin),
-quartic polynomials (Fraser) and quadratic rational maps (Lukas, Manes and Yap).</p>
+is the directed graph formed by the critical points and everything in their forward orbits. By
+Thurston's rigidity theorem, PCF maps other than the flexible Latt&egrave;s maps (which come in
+one-parameter families) are isolated points of moduli space, so they are defined over number fields.
+Their heights are also bounded, which gives finiteness:</p>
+
+<div class="statement">
+<p><b>Theorem</b> (Ingram, 2012, for polynomials; Benedetto, Ingram, Jones and Levy, 2014, for
+rational maps). For every <i>d</i> &ge; 2 and <i>B</i> &ge; 1, there are only finitely many
+conjugacy classes of PCF maps of degree <i>d</i>, other than flexible Latt&egrave;s maps, defined
+over number fields of degree at most <i>B</i>.</p>
+</div>
+
+<p>Both proofs show that PCF maps form a set of bounded height in moduli space, and Northcott's
+theorem then leaves only finitely many over fields of bounded degree. Ingram's bound is effective,
+so for polynomials the finite list can in principle be computed. For small degrees the complete
+lists over &#x211A; are known: quadratic polynomials (only <i>z</i><sup>2</sup>,
+<i>z</i><sup>2</sup> &minus; 1 and <i>z</i><sup>2</sup> &minus; 2, up to conjugacy; Ingram), cubic
+polynomials (Anderson, Manes and Tobin), quartic polynomials (Fraser) and quadratic rational maps
+(Lukas, Manes and Yap).</p>
 
 <h3>Small canonical heights</h3>
 
@@ -163,12 +184,22 @@ Northcott's theorem guarantees a wandering point with the smallest positive cano
 
 <p>How small can that be? Conjugating a map can make canonical heights as small as we like, so
 the height of a point has to be compared with the size of the map itself, measured by a height
-<i>h</i><sub><i>M</i></sub>(<i>f</i>) on moduli space. The dynamical analogue of Lang's conjecture
-for elliptic curves predicts that &#x0125;<sub><i>f</i></sub>(<i>P</i>) &ge; <i>c</i> &middot;
-<i>h</i><sub><i>M</i></sub>(<i>f</i>) for every wandering point <i>P</i>, with a constant
-<i>c</i> &gt; 0 depending only on the degree of the map and of the field. Looper proved bounds of
-this shape for polynomials, under good reduction hypotheses and, for all polynomials, assuming
-the <i>abcd</i>-conjecture; the constants are not explicit.</p>
+<i>h</i><sub><i>M</i></sub>(<i>f</i>) on the moduli space of degree <i>d</i> maps. Lang conjectured
+that on an elliptic curve the canonical height of a non-torsion point is bounded below in terms of
+the curve's minimal discriminant; the dynamical version replaces the discriminant with this height
+on moduli space.</p>
+
+<div class="statement">
+<p><b>Dynamical Lang Conjecture</b> (Silverman, <i>The Arithmetic of Dynamical Systems</i>,
+Conjecture 4.98). Let <i>K</i> be a number field and <i>d</i> &ge; 2. There is a constant
+<i>c</i> = <i>c</i>(<i>K</i>, <i>d</i>) &gt; 0 such that for every map <i>f</i> : <b>P</b><sup>1</sup>
+&rarr; <b>P</b><sup>1</sup> of degree <i>d</i> defined over <i>K</i> and every wandering point
+<i>P</i> &isin; <b>P</b><sup>1</sup>(<i>K</i>),
+&#x0125;<sub><i>f</i></sub>(<i>P</i>) &ge; <i>c</i> &middot; <i>h</i><sub><i>M</i></sub>(<i>f</i>).</p>
+</div>
+
+<p>Looper proved bounds of this shape for polynomials, under good reduction hypotheses and, for all
+polynomials, assuming the <i>abcd</i>-conjecture; the constants are not explicit.</p>
 
 <p>Dynabase records the <b>height ratio</b> &#x0125;<sub><i>f</i></sub>(<i>P</i>) /
 <i>h</i><sub><i>M</i></sub>(<i>f</i>), with <i>h</i><sub><i>M</i></sub>(<i>f</i>) the largest height
@@ -184,18 +215,41 @@ maps of degree <i>d</i>.</p>
 
 <h3>Automorphism groups</h3>
 
-<p>The automorphism group of a morphism <i>f</i> (the changes of coordinates that conjugate
-<i>f</i> to itself) is a finite subgroup of PGL<sub><i>N</i>+1</sub>. On the projective line over
-an algebraically closed field of characteristic 0, the finite subgroups are the cyclic and
-dihedral groups and the symmetry groups A<sub>4</sub>, S<sub>4</sub> and A<sub>5</sub> of the
-Platonic solids. De Faria and Hutz showed how to build maps with a prescribed automorphism group
-and that every finite subgroup is the automorphism group of infinitely many maps. What is less
-clear is how simple such a map can be. The problem is to find, for each possible group, maps of
-the smallest possible degree, defined over the smallest possible field, whose automorphism group
-is exactly that group and not a larger one. The field matters because a map defined over
-&#x211A; can have automorphisms that are only defined over an extension. Dynabase already records
-the size of the automorphism group of its maps when it can be computed; examples for this
-problem will be added later.</p>
+<p>The <b>automorphism group</b> Aut(<i>f</i>) of a map <i>f</i> : <b>P</b><sup><i>N</i></sup> &rarr;
+<b>P</b><sup><i>N</i></sup> consists of the changes of coordinates &alpha; &isin;
+PGL<sub><i>N</i>+1</sub> that conjugate <i>f</i> to itself, <i>f</i><sup>&alpha;</sup> = <i>f</i>.</p>
+
+<div class="statement">
+<p><b>Theorem</b> (Petsche, Szpiro and Tepper, 2009). If <i>f</i> : <b>P</b><sup><i>N</i></sup> &rarr;
+<b>P</b><sup><i>N</i></sup> is a morphism of degree <i>d</i> &ge; 2, then Aut(<i>f</i>) is a finite
+subgroup of PGL<sub><i>N</i>+1</sub>.</p>
+</div>
+
+<p>So the possible automorphism groups are among the finite subgroups of PGL<sub><i>N</i>+1</sub>,
+which over an algebraically closed field of characteristic 0 have been classified in the first few
+dimensions:</p>
+<ul>
+  <li><b>PGL<sub>2</sub></b> (the projective line): the cyclic and dihedral groups, and the symmetry
+      groups A<sub>4</sub>, S<sub>4</sub> and A<sub>5</sub> of the Platonic solids. This goes back to
+      Klein (1884); Silverman (1995) gives it in modern form, with explicit generators.</li>
+  <li><b>PGL<sub>3</sub></b> (the projective plane): Blichfeldt (1917), also in Miller, Blichfeldt and
+      Dickson (1916). Besides the groups coming from lower dimensions and from monomial matrices, there
+      are finitely many primitive groups, among them A<sub>5</sub>, A<sub>6</sub>,
+      PSL<sub>2</sub>(<b>F</b><sub>7</sub>) of order 168 and the Hessian group of order 216.</li>
+  <li><b>PGL<sub>4</sub></b> (projective 3-space): Blichfeldt (1905), and again in his 1917 book.</li>
+</ul>
+
+<p>De Faria and Hutz showed how to build maps with a prescribed automorphism group and that every
+finite subgroup is the automorphism group of infinitely many maps. What is less clear is how simple
+such a map can be. The problem is to find, for each possible group, maps of the smallest possible
+degree, defined over the smallest possible field, whose automorphism group is exactly that group
+and not a larger one. The field matters because a map defined over &#x211A; can have automorphisms
+that are only defined over an extension. De Faria and Hutz gave a map over &#x211A; for every
+group except the tetrahedral group A<sub>4</sub>, and stated that none exists over &#x211A;;
+Gontmacher, Hutz, Jorgenson, Srimani and Xu (2021) then found one, (<i>z</i><sup>3</sup> &minus; 3)
+/ (&minus;3<i>z</i><sup>2</sup>), so every finite subgroup of PGL<sub>2</sub> is the automorphism
+group of some map defined over &#x211A;. Dynabase records the automorphism group of its maps,
+computed over the algebraic closure, when it can be computed.</p>
 
 <h2 id="status">Status of the problems</h2>
 
@@ -214,6 +268,29 @@ each problem, degree and field:</p>
 <ul>
   <li>J. H. Silverman, <i>The Arithmetic of Dynamical Systems</i>, Graduate Texts in Mathematics
       241, Springer, 2007.</li>
+  <li>P. Morton and J. H. Silverman, Rational periodic points of rational functions,
+      <i>Internat. Math. Res. Notices</i> 1994, no. 2, 97&ndash;110.</li>
+  <li>P. Ingram, A finiteness result for post-critically finite polynomials,
+      <i>Int. Math. Res. Not. IMRN</i> 2012, no. 3, 524&ndash;543
+      (<a href="https://arxiv.org/abs/1010.3393">arXiv:1010.3393</a>).</li>
+  <li>R. L. Benedetto, P. Ingram, R. Jones and A. Levy, Attracting cycles in <i>p</i>-adic dynamics
+      and height bounds for postcritically finite maps, <i>Duke Math. J.</i> 163 (2014), no. 13,
+      2325&ndash;2356 (<a href="https://arxiv.org/abs/1201.1605">arXiv:1201.1605</a>).</li>
+  <li>C. Petsche, L. Szpiro and M. Tepper, Isotriviality is equivalent to potential good reduction
+      for endomorphisms of <b>P</b><sup><i>N</i></sup> over function fields, <i>J. Algebra</i> 322
+      (2009), no. 9, 3345&ndash;3365.</li>
+  <li>F. Klein, <i>Vorlesungen &uuml;ber das Ikosaeder und die Aufl&ouml;sung der Gleichungen vom
+      f&uuml;nften Grade</i>, Teubner, Leipzig, 1884.</li>
+  <li>J. H. Silverman, The field of definition for dynamical systems on <b>P</b><sup>1</sup>,
+      <i>Compositio Math.</i> 98 (1995), no. 3, 269&ndash;304.</li>
+  <li>H. F. Blichfeldt, The finite, discontinuous primitive groups of collineations in four variables,
+      <i>Math. Ann.</i> 60 (1905), 204&ndash;231.</li>
+  <li>G. A. Miller, H. F. Blichfeldt and L. E. Dickson, <i>Theory and Applications of Finite
+      Groups</i>, John Wiley &amp; Sons, New York, 1916.</li>
+  <li>H. F. Blichfeldt, <i>Finite Collineation Groups</i>, The University of Chicago Press, 1917.</li>
+  <li>J. A. de Faria and B. Hutz, Automorphism groups and invariant theory on
+      <b>P</b><sup><i>N</i></sup>, <i>J. Algebra Appl.</i> 17 (2018), 1850162
+      (<a href="https://arxiv.org/abs/1509.06670">arXiv:1509.06670</a>).</li>
   <li>B. Hutz, A genetic algorithm for generating extreme examples in arithmetic dynamics,
       <a href="https://arxiv.org/abs/2601.11482">arXiv:2601.11482</a>, 2026.</li>
   <li>The sources of the data are listed, with full citations, on the

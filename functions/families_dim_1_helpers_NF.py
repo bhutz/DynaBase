@@ -122,7 +122,7 @@ def get_sage_family_NF(id, my_cursor, log_file=sys.stdout):
     return DynamicalSystem(polys, domain=P)
 
 
-def add_family_NF(F, my_cursor, is_poly=None, num_crit=None, num_aut=None, name=None, log_file=sys.stdout, timeout=30):
+def add_family_NF(F, my_cursor, is_poly=None, num_crit=None, num_aut=None, aut_iso_type=None, name=None, log_file=sys.stdout, timeout=30):
     #look for lmfdb, cant find it, give error
     """
     Give a family of sage functions F, determine it's label and add it to the database.
@@ -139,7 +139,12 @@ def add_family_NF(F, my_cursor, is_poly=None, num_crit=None, num_aut=None, name=
     model_resultant varchar,
     is_polynomial boolean,
     num_critical_points integer,
-    automorphism_group_cardinality integer
+    automorphism_group_cardinality integer,
+    automorphism_group_iso_type varchar
+
+    is_poly, num_crit, num_aut and aut_iso_type are entered by hand: they are not
+    computed for a family. aut_iso_type uses the same names as for functions (GAP's
+    StructureDescription, e.g. 'C2', 'S3', 'D4', 'A4'; see automorphism_group_structure).
     """
     f = {}
     f['degree'] = int(F.degree())
@@ -204,9 +209,10 @@ def add_family_NF(F, my_cursor, is_poly=None, num_crit=None, num_aut=None, name=
     my_cursor.execute("""UPDATE families_dim_1_NF
         SET is_polynomial=%s,
             num_critical_points=%s,
-            automorphism_group_cardinality=%s
+            automorphism_group_cardinality=%s,
+            automorphism_group_iso_type=%s
         WHERE family_id=%s
-        """,[is_poly, num_crit, num_aut, F_id])
+        """,[is_poly, num_crit, num_aut, aut_iso_type, F_id])
 
     return F_id
 

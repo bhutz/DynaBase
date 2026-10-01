@@ -421,6 +421,58 @@ def group_small_height_by_field_degree(dimension, rows, citations_by_id, root):
     return groups
 
 
+def format_group(iso_type):
+    """GAP's StructureDescription as HTML: 'C2 x C2' -> C<sub>2</sub> &times; C<sub>2</sub>,
+    'A5' -> A<sub>5</sub>, '1' stays 1 (the trivial group)."""
+    if not iso_type:
+        return '&mdash;'
+    out = html.escape(iso_type).replace(' x ', ' &times; ')
+    return re.sub(r'([A-Za-z])(\d+)', r'\1<sub>\2</sub>', out)
+
+
+def build_automorphism_rows(dimension, rows, citations_by_id, root):
+    return [{
+        'label': format_label(dimension, row),
+        'function': format_function(row),
+        'field': format_field_link(row['base_field_label']),
+        'group': format_group(row['automorphism_group_iso_type']),
+        'order': row['automorphism_group_cardinality'],
+        'citations': format_citations(row.get('citations'), citations_by_id, root),
+    } for row in rows]
+
+
+def group_automorphism_by_field_degree(dimension, rows, citations_by_id, root):
+    """
+    Functions with a nontrivial automorphism group, one table per field degree
+    present, largest group first, then function_id.
+    """
+    by_degree = {}
+    for row in rows:
+        by_degree.setdefault(row['base_field_degree'], []).append(row)
+    groups = []
+    for d in sorted(by_degree):
+        rs = sorted(by_degree[d], key=lambda r: (-r['automorphism_group_cardinality'], r['function_id']))
+        heading = f'{field_degree_label(d)}: {len(rs)} map{"" if len(rs) == 1 else "s"}'
+        groups.append((heading, build_automorphism_rows(dimension, rs, citations_by_id, root)))
+    return groups
+
+
+def smallest_map_per_group(rows):
+    """
+    For each automorphism group type present, the map of smallest degree, then
+    smallest field degree, then lowest function_id - the Extreme Examples rows for
+    the automorphism group problem. Sorted by group order, then name.
+    """
+    best = {}
+    for row in rows:
+        key = row['automorphism_group_iso_type']
+        rank = (row['degree'], row['base_field_degree'], row['function_id'])
+        if key not in best or rank < best[key][0]:
+            best[key] = (rank, row)
+    return [row for _, row in sorted(best.values(),
+            key=lambda v: (v[1]['automorphism_group_cardinality'], v[1]['automorphism_group_iso_type']))]
+
+
 def format_bibliography(citation_rows):
     """
     citation_rows: list of citations-table dicts (label, authors, journal,

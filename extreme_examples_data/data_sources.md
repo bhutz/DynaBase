@@ -88,6 +88,18 @@ This file lists the data and data sources.
   
   - No complete classification of degree 5 (or higher) PCF polynomials over QQ was found
 
+- Maps with a given exact automorphism group, over QQ - one for each finite subgroup of PGL_2
+  
+  - Joao Alberto de Faria and Benjamin Hutz. Automorphism groups and invariant theory on PN. J. Algebra Appl., 17:1850162, 2018. (arXiv:1509.06670)
+    
+    - Figure 1 (Exact Automorphism Groups): the octahedral (S_4, degree 5) and icosahedral (A_5, degree 11) maps
+    
+    - The cyclic maps C_n: (x^(n+1) + xy^n : y^(n+1)) and dihedral maps D_2n: (y^(n-1) : x^(n-1)) are infinite families whose degree depends on n, so the first few members are included: C_n for n = 2 through 8 (degrees 3 through 9) and D_2n for n = 3 through 8 (degrees 2 through 7). The formula gives degree 1 for D_4, so D_4 is not included
+  
+  - Brandon Gontmacher, Benjamin Hutz, Grayson Jorgenson, Srinjoy Srimani, and Simon Xu. Automorphism loci for degree 3 and degree 4 endomorphisms of the projective line. New York J. Math., 27:1613--1702, 2021.
+    
+    - The tetrahedral map (z^3 - 3)/(-3z^2) (A_4, degree 3), defined over QQ. It replaces the map of de Faria-Hutz Figure 1, which is defined over QQ(sqrt(-3)): their Theorem 4.8 says no map over QQ has tetrahedral automorphism group, and this map shows otherwise
+
 # Personal Communications
 
 - Quadratic Rational Functions

@@ -25,6 +25,33 @@
 </table>
 {% endfor %}
 
+<h2>Automorphism Groups</h2>
+<p>Dimension 1. For each automorphism group with a map in the database, the smallest degree of a
+map whose automorphism group is exactly that group, or <i>open</i> if there is none yet. Groups
+are named as in GAP: D<sub><i>n</i></sub> is dihedral of order 2<i>n</i> (D<sub>3</sub> is written
+S<sub>3</sub>).</p>
+<table class="status-table">
+  <thead>
+    <tr>
+      <th rowspan="2">Group</th>
+      <th rowspan="2">Order</th>
+      {% for _, field_label in status_fields %}<th colspan="{{ type_labels | length }}">{{ field_label }}</th>{% endfor %}
+    </tr>
+    <tr>
+      {% for _ in status_fields %}{% for t in type_labels %}<th>{{ t }}</th>{% endfor %}{% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for group, order, cells in automorphism_summary %}
+    <tr>
+      <th>{{ group | safe }}</th>
+      <td>{{ order }}</td>
+      {% for cell in cells %}{% if cell %}<td><a href="{{ root }}{{ cell[1] }}">{{ cell[0] }}</a></td>{% else %}<td class="status status-open">open</td>{% endif %}{% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
 {{ content_html | safe }}
 
 <h1>Citations</h1>

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="prose">
+<h1>Comments</h1>
+<p>Corrections, new examples, references we have missed and suggestions for the site are all
+welcome. Please tell us who you are and how to reach you, so we can follow up.</p>
+</article>
+
+{% if embed_url %}
+<iframe class="comments-form" src="{{ embed_url }}" title="Comments form">Loading&hellip;</iframe>
+<p class="form-fallback">If the form does not appear, <a href="{{ form_url }}" target="_blank" rel="noopener">open it
+in a new tab</a>.</p>
+{% elif form_url %}
+<p><a class="form-button" href="{{ form_url }}" target="_blank" rel="noopener">Open the comments form</a></p>
+{% else %}
+<p class="stub-note">The comments form is coming soon.</p>
+{% endif %}
+{% endblock %}
