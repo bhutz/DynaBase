@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 
+{% macro sage_link(href) %}{% if href %} <a class="sage-export" href="{{ root }}{{ href }}" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a>{% endif %}{% endmacro %}
+
 {% macro extreme_tables(groups, value_header, point=False, pcf=False) %}
   {% if groups %}
-    {% for heading, rows in groups %}
-    <h4>{{ heading | safe }}</h4>
+    {% for heading, rows, export in groups %}
+    <h4>{{ heading | safe }}{{ sage_link(export) }}</h4>
     <table>
       <thead>
         <tr>
@@ -59,39 +61,40 @@ degree links to the full list for that degree. The
 </nav>
 
 <section class="data-table" id="rational-preperiodic">
-  <h2>Rational Preperiodic Points</h2>
+  <h2>Rational Preperiodic Points{{ sage_link(sections.rational_preperiodic_export) }}</h2>
 
-  <h3 class="subproblem" id="many-points">Many rational preperiodic points</h3>
-  {{ extreme_tables(sections.many_points, 'Preperiodic Points') }}
+  <h3 class="subproblem" id="many-points">Many rational preperiodic points{{ sage_link(sections.many_points.export) }}</h3>
+  {{ extreme_tables(sections.many_points.groups, 'Preperiodic Points') }}
 
-  <h3 class="subproblem" id="long-cycles">Long rational cycles</h3>
-  {{ extreme_tables(sections.long_cycles, 'Longest Cycle') }}
+  <h3 class="subproblem" id="long-cycles">Long rational cycles{{ sage_link(sections.long_cycles.export) }}</h3>
+  {{ extreme_tables(sections.long_cycles.groups, 'Longest Cycle') }}
 
-  <h3 class="subproblem" id="long-tails">Long rational tails</h3>
-  {{ extreme_tables(sections.long_tails, 'Longest Tail') }}
+  <h3 class="subproblem" id="long-tails">Long rational tails{{ sage_link(sections.long_tails.export) }}</h3>
+  {{ extreme_tables(sections.long_tails.groups, 'Longest Tail') }}
 </section>
 
 <section class="data-table" id="postcritically-finite">
-  <h2>Postcritically Finite Maps</h2>
+  <h2>Postcritically Finite Maps{{ sage_link(sections.pcf.export) }}</h2>
   <p>For each degree: whether the list is known to be complete, the number of conjugacy classes (over
-  <span class="qbar">&#x211A;</span>) in the database, and the sources of those maps.</p>
-  {{ extreme_tables(sections.pcf, None, pcf=True) }}
+  <span class="qbar">&#x211A;</span>) in the database, and the sources of those maps. Its Export to Sage
+  files contain all of the PCF maps counted in each row.</p>
+  {{ extreme_tables(sections.pcf.groups, None, pcf=True) }}
   <p class="table-footnote" id="pcf-rational-note">* Excludes polynomials, which are counted in the
   polynomial tables.</p>
 </section>
 
 <section class="data-table" id="small-height">
-  <h2>Small Canonical Heights</h2>
+  <h2>Small Canonical Heights{{ sage_link(sections.small_height.export) }}</h2>
   <p>For each degree, the map with a rational point of the smallest known height ratio.</p>
-  {{ extreme_tables(sections.small_height, 'Height Ratio', point=True) }}
+  {{ extreme_tables(sections.small_height.groups, 'Height Ratio', point=True) }}
 </section>
 
 <section class="data-table" id="automorphisms">
-  <h2>Automorphism Groups</h2>
+  <h2>Automorphism Groups{{ sage_link(sections.automorphisms.export) }}</h2>
   <p>For each automorphism group in the database, the map of smallest degree with exactly that
   group, and among those, the one over the smallest field. Groups are named as in GAP:
   D<sub><i>n</i></sub> is dihedral of order 2<i>n</i> (D<sub>3</sub> is written S<sub>3</sub>).</p>
-  {% if sections.automorphisms %}
+  {% if sections.automorphisms.rows %}
   <table>
     <thead>
       <tr>
@@ -105,7 +108,7 @@ degree links to the full list for that degree. The
       </tr>
     </thead>
     <tbody>
-      {% for row in sections.automorphisms %}
+      {% for row in sections.automorphisms.rows %}
       <tr>
         <td>{{ row.group | safe }}</td>
         <td>{{ row.order }}</td>

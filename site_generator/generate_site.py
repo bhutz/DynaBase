@@ -24,6 +24,7 @@ from jinja2 import Environment, FileSystemLoader
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import db
 import render
+import sage_export
 import mdlite
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -178,6 +179,37 @@ def report_excluded(dimension, degree, type_name, duplicates, no_graph):
               f'[function_id {row["function_id"]}]')
 
 
+FIELD_SLUGS = {1: 'QQ', 2: 'quadratic'}
+FIELD_TITLES = {1: 'over QQ', 2: 'over quadratic fields'}
+
+
+def export_page_tables(groups, dimension, degree, type_name, problem, root, citations_by_id, model_of=None,
+                       with_points=False):
+    """
+    Write the Export to Sage files of one data page: one per table (field degree)
+    and one for the whole page. Returns (page link or None, [(heading, formatted
+    rows, table link)]) for the template. Links are relative to the page (root).
+    """
+    base = f'data/{dimension}/{degree}/{type_name}/{problem}'
+    problem_name = dict(PROBLEMS)[problem]
+    title = f'dimension {dimension}, degree {degree}, {TYPE_LABELS[type_name].lower()} maps, {problem_name}'
+    out, all_rows = [], []
+    for heading, formatted, raw, d in groups:
+        rel = f'{base}-{FIELD_SLUGS.get(d, f"degree-{d}")}.sage'
+        sage_export.write_sage_file(os.path.join(SITE_DIR, rel),
+                                    f'{title}, {FIELD_TITLES.get(d, f"over fields of degree {d}")}',
+                                    raw, citations_by_id, dimension=dimension, model_of=model_of,
+                                    with_points=with_points)
+        out.append((heading, formatted, root + rel))
+        all_rows += raw
+    if not all_rows:
+        return None, out
+    rel = base + '.sage'
+    sage_export.write_sage_file(os.path.join(SITE_DIR, rel), title, all_rows, citations_by_id,
+                                dimension=dimension, model_of=model_of, with_points=with_points)
+    return root + rel, out
+
+
 def render_data_page(env, conn, dimension, degree, type_name, is_polynomial, root,
                       citations_by_id, used_citation_ids, report=True):
     rows = db.get_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
@@ -187,6 +219,8 @@ def render_data_page(env, conn, dimension, degree, type_name, is_polynomial, roo
     for row in rows:
         used_citation_ids.update(row.get('citations') or [])
     groups = render.group_by_field_degree(dimension, rows, citations_by_id, root)
+    page_export, groups = export_page_tables(
+        groups, dimension, degree, type_name, 'rational-preperiodic', root, citations_by_id)
     template = env.get_template('data_page.html')
     return template.render(
         title=f'Degree {degree} {TYPE_LABELS[type_name]} Rational Preperiodic',
@@ -196,6 +230,7 @@ def render_data_page(env, conn, dimension, degree, type_name, is_polynomial, roo
         type_=type_name,
         type_label=TYPE_LABELS[type_name],
         groups=groups,
+        page_export=page_export,
         root=root,
     )
 
@@ -209,6 +244,8 @@ def render_pcf_page(env, conn, dimension, degree, type_name, is_polynomial, root
     for row in rows:
         used_citation_ids.update(row.get('citations') or [])
     groups = render.group_pcf_by_field_degree(dimension, rows, citations_by_id, root)
+    page_export, groups = export_page_tables(
+        groups, dimension, degree, type_name, 'postcritically-finite', root, citations_by_id)
     return env.get_template('pcf_page.html').render(
         title=f'Degree {degree} {TYPE_LABELS[type_name]} Postcritically Finite',
         problem='postcritically-finite',
@@ -217,6 +254,7 @@ def render_pcf_page(env, conn, dimension, degree, type_name, is_polynomial, root
         type_=type_name,
         type_label=TYPE_LABELS[type_name],
         groups=groups,
+        page_export=page_export,
         root=root,
     )
 
@@ -230,6 +268,9 @@ def render_small_height_page(env, conn, dimension, degree, type_name, is_polynom
     for row in rows:
         used_citation_ids.update(row.get('citations') or [])
     groups = render.group_small_height_by_field_degree(dimension, rows, citations_by_id, root)
+    page_export, groups = export_page_tables(
+        groups, dimension, degree, type_name, 'small-height', root, citations_by_id,
+        model_of=lambda r: r.get('smallest_height_model') or 'original', with_points=True)
     return env.get_template('small_height_page.html').render(
         title=f'Degree {degree} {TYPE_LABELS[type_name]} Small Height Ratio',
         problem='small-height',
@@ -238,6 +279,7 @@ def render_small_height_page(env, conn, dimension, degree, type_name, is_polynom
         type_=type_name,
         type_label=TYPE_LABELS[type_name],
         groups=groups,
+        page_export=page_export,
         root=root,
     )
 
@@ -251,6 +293,8 @@ def render_automorphism_page(env, conn, dimension, degree, type_name, is_polynom
     for row in rows:
         used_citation_ids.update(row.get('citations') or [])
     groups = render.group_automorphism_by_field_degree(dimension, rows, citations_by_id, root)
+    page_export, groups = export_page_tables(
+        groups, dimension, degree, type_name, 'automorphism-groups', root, citations_by_id)
     return env.get_template('automorphism_page.html').render(
         title=f'Degree {degree} {TYPE_LABELS[type_name]} Automorphism Groups',
         problem='automorphism-groups',
@@ -259,6 +303,7 @@ def render_automorphism_page(env, conn, dimension, degree, type_name, is_polynom
         type_=type_name,
         type_label=TYPE_LABELS[type_name],
         groups=groups,
+        page_export=page_export,
         root=root,
     )
 
@@ -318,13 +363,25 @@ def main():
                          for d, t, p in combos}
     status_fields = {1: 'QQ', 2: 'quadratic'}  # base_field_degree -> PROBLEM_STATUS field
 
-    def build_extreme_groups(source_rows, finder, problem, model_of=None, extra=None):
+    def write_extreme_export(name, title, rows, model_of=None, with_points=False):
+        """an Export to Sage file of the Extreme Examples page; returns its link"""
+        rel = f'sage/extreme-examples/{name}.sage'
+        sage_export.write_sage_file(os.path.join(SITE_DIR, rel), f'Summary of Extreme Examples, {title}',
+                                    rows, citations_by_id, model_of=model_of, with_points=with_points)
+        return rel
+
+    def build_extreme_groups(source_rows, finder, problem, name, title, model_of=None, extra=None,
+                             export_all=False, with_points=False):
         """source_rows: (degree, type_name) -> rows; finder(rows) -> (winner, value).
-        model_of(winner): the model to display; extra(row, rows, status, is_polynomial): more cells."""
-        groups = []
+        model_of(winner): the model to display; extra(row, rows, status, is_polynomial): more cells.
+        Writes the Export to Sage files (name: the file name stem, title: for the file header) -
+        one per table and one for the section - with each row's winner, or with all its
+        candidates if export_all (PCF, whose rows show counts, not one map).
+        Returns {'groups': [(heading, rows, table link)], 'export': section link, 'rows': raw rows}."""
+        groups, section_rows = [], []
         for base_field_degree in (1, 2):
             for type_name, is_polynomial in TYPES:
-                rows_out = []
+                rows_out, export_rows = [], []
                 for degree in DEGREES:
                     candidates = [r for r in source_rows[(degree, type_name)]
                                   if r['base_field_degree'] == base_field_degree]
@@ -341,9 +398,17 @@ def main():
                             (status_fields[base_field_degree], type_name), {}).get(degree, 'open')
                         row.update(extra(winner, candidates, status, is_polynomial))
                     rows_out.append(row)
+                    export_rows += candidates if export_all else [winner]
                 if rows_out:
-                    groups.append((render.extreme_heading(is_polynomial, base_field_degree), rows_out))
-        return groups
+                    field = FIELD_SLUGS.get(base_field_degree, f'degree-{base_field_degree}')
+                    field_title = FIELD_TITLES.get(base_field_degree, f'over fields of degree {base_field_degree}')
+                    link = write_extreme_export(f'{name}-{type_name}-{field}',
+                                                f'{title}, {TYPE_LABELS[type_name].lower()} maps {field_title}',
+                                                export_rows, model_of, with_points)
+                    groups.append((render.extreme_heading(is_polynomial, base_field_degree), rows_out, link))
+                    section_rows += export_rows
+        export = write_extreme_export(name, title, section_rows, model_of, with_points) if section_rows else None
+        return {'groups': groups, 'export': export, 'rows': section_rows}
 
     def any_pcf(rows):
         # the PCF rows show counts, not one map: any row will do as the "winner"
@@ -366,20 +431,37 @@ def main():
         return best, (render.format_ratio(best['smallest_height_ratio']) if best is not None else None)
 
     extreme_sections = {
-        'many_points': build_extreme_groups(preperiodic_rows, render.find_most_points_row, 'rational-preperiodic'),
-        'long_cycles': build_extreme_groups(preperiodic_rows, render.find_longest_cycle_row, 'rational-preperiodic'),
-        'long_tails': build_extreme_groups(preperiodic_rows, render.find_longest_tail_row, 'rational-preperiodic'),
-        'pcf': build_extreme_groups(pcf_rows, any_pcf, 'postcritically-finite', extra=pcf_extra),
+        'many_points': build_extreme_groups(preperiodic_rows, render.find_most_points_row, 'rational-preperiodic',
+                                            'many-points', 'many rational preperiodic points'),
+        'long_cycles': build_extreme_groups(preperiodic_rows, render.find_longest_cycle_row, 'rational-preperiodic',
+                                            'long-cycles', 'long rational cycles'),
+        'long_tails': build_extreme_groups(preperiodic_rows, render.find_longest_tail_row, 'rational-preperiodic',
+                                           'long-tails', 'long rational tails'),
+        'pcf': build_extreme_groups(pcf_rows, any_pcf, 'postcritically-finite', 'postcritically-finite',
+                                    'postcritically finite maps (all of them, for each row)',
+                                    extra=pcf_extra, export_all=True),
         'small_height': build_extreme_groups(
-            small_height_rows, smallest_ratio, 'small-height',
+            small_height_rows, smallest_ratio, 'small-height', 'small-height', 'small canonical heights',
             # heights stored before the smallest_height_model column all used the original model
-            model_of=lambda winner: winner.get('smallest_height_model') or 'original'),
+            model_of=lambda winner: winner.get('smallest_height_model') or 'original', with_points=True),
     }
+    # the rational preperiodic section: its three subsections' maps, each (map, field) once
+    seen, preperiodic_export = set(), []
+    for sub in ('many_points', 'long_cycles', 'long_tails'):
+        for row in extreme_sections[sub]['rows']:
+            key = (row['function_id'], row['base_field_label'])
+            if key not in seen:
+                seen.add(key)
+                preperiodic_export.append(row)
+    extreme_sections['rational_preperiodic_export'] = (
+        write_extreme_export('rational-preperiodic', 'rational preperiodic points', preperiodic_export)
+        if preperiodic_export else None)
 
     # automorphism groups: one row per group type, the map of smallest degree (then
     # smallest field) with exactly that automorphism group
     automorphism_rows = []
-    for row in render.smallest_map_per_group(db.get_automorphism_source_rows(conn)):
+    automorphism_winners = render.smallest_map_per_group(db.get_automorphism_source_rows(conn))
+    for row in automorphism_winners:
         used_citation_ids.update(row.get('citations') or [])
         type_name = 'polynomial' if row['is_polynomial'] else 'rational'
         automorphism_rows.append({
@@ -391,7 +473,10 @@ def main():
             'field': render.format_field_link(row['base_field_label']),
             'citations': render.format_citations(row.get('citations'), citations_by_id, ''),
         })
-    extreme_sections['automorphisms'] = automorphism_rows
+    extreme_sections['automorphisms'] = {
+        'rows': automorphism_rows,
+        'export': (write_extreme_export('automorphism-groups', 'automorphism groups (smallest degree for each group)',
+                                        automorphism_winners) if automorphism_winners else None)}
 
     write(os.path.join(SITE_DIR, 'extreme-examples.html'),
           env.get_template('extreme_examples.html').render(

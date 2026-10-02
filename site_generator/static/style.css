@@ -162,6 +162,20 @@ section[id], h3[id] { scroll-margin-top: 1rem; }
 h3.subproblem { font-size: 1.05rem; color: #1a1a1a; margin-top: 1.75rem; }
 h4 { font-size: 0.9rem; color: #444; margin: 1.25rem 0 0.25rem; }
 
+a.sage-export {
+  font-size: 0.75rem;
+  font-weight: normal;
+  margin-left: 0.6rem;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--link);
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+a.sage-export:hover { background: #eef1f6; }
+
 a.footnote-ref { text-decoration: none; margin-left: 0.1rem; }
 p.table-footnote { font-size: 0.85rem; color: #555; margin-top: 0.5rem; scroll-margin-top: 1rem; }
 p.table-footnote:target { background: #fff6e0; }

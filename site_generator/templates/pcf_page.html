@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Dimension {{ dimension }}, Degree {{ degree }}, {{ type_label }}: Postcritically Finite Maps</h1>
+<h1>Dimension {{ dimension }}, Degree {{ degree }}, {{ type_label }}: Postcritically Finite Maps{% if page_export %} <a class="sage-export" href="{{ page_export }}" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a>{% endif %}</h1>
 <p class="intro">A map is postcritically finite (PCF) if every critical point has a finite forward
 orbit. Its critical portrait is the graph of the critical points and their forward orbits.
 Critical points are counted over the algebraic closure, including &infin; for polynomials.</p>
@@ -10,9 +10,9 @@ this degree are listed on the <a href="{{ root }}data/{{ dimension }}/{{ degree 
 {% endif %}
 
 {% if groups %}
-  {% for heading, rows in groups %}
+  {% for heading, rows, export in groups %}
   <section class="data-table">
-    <h2>{{ heading | safe }}</h2>
+    <h2>{{ heading | safe }} <a class="sage-export" href="{{ export }}" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a></h2>
     <table>
       <thead>
         <tr>

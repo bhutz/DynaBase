@@ -234,6 +234,9 @@ def get_extreme_source_rows(conn, degree, is_polynomial):
         SELECT
             f.function_id,
             r.base_field_label,
+            f.sigma_one,
+            f.sigma_two,
+            f.ordinal,
             f.citations,
             f.display_model,
             (f.original_model).coeffs AS original_coeffs,

@@ -289,9 +289,11 @@ def filter_distinct_graphs(rows):
 
 def group_by_field_degree(dimension, rows, citations_by_id, root):
     """
-    Group already-sorted (by base_field_degree first) rows into a list
-    of (heading, [row, ...]) tuples, one per distinct base_field_degree
-    present - so a table only appears for field-degrees that actually have data.
+    Group already-sorted (by base_field_degree first) rows into a list of
+    (heading, formatted rows, raw rows, field degree) tuples, one per distinct
+    base_field_degree present - so a table only appears for field-degrees that
+    actually have data. The raw rows are for the table's Export to Sage file; the
+    other group_* functions return the same tuples.
     Expects rows already passed through filter_distinct_graphs, so the row
     count of each table is its number of distinct graph structures.
     """
@@ -306,7 +308,7 @@ def group_by_field_degree(dimension, rows, citations_by_id, root):
             groups.append((field_degree_label(d), current_rows))
         current_rows.append(row)
     return [(f'{heading}: {len(rs)} distinct graph structure{"" if len(rs) == 1 else "s"}',
-             build_table_rows(dimension, rs, citations_by_id, root))
+             build_table_rows(dimension, rs, citations_by_id, root), rs, rs[0]['base_field_degree'])
             for heading, rs in groups]
 
 
@@ -373,7 +375,7 @@ def group_pcf_by_field_degree(dimension, rows, citations_by_id, root):
                    f' over {QBAR}')
         if len(rs) != classes:
             heading += f' ({len(rs)} maps, counting rational twists separately)'
-        groups.append((heading, build_pcf_rows(dimension, rs, citations_by_id, root)))
+        groups.append((heading, build_pcf_rows(dimension, rs, citations_by_id, root), rs, d))
     return groups
 
 
@@ -417,7 +419,7 @@ def group_small_height_by_field_degree(dimension, rows, citations_by_id, root):
     for d in sorted(by_degree):
         rs = sorted(by_degree[d], key=lambda r: (r['smallest_height_ratio'], r['function_id']))
         heading = f'{field_degree_label(d)}: {len(rs)} map{"" if len(rs) == 1 else "s"}'
-        groups.append((heading, build_small_height_rows(dimension, rs, citations_by_id, root)))
+        groups.append((heading, build_small_height_rows(dimension, rs, citations_by_id, root), rs, d))
     return groups
 
 
@@ -453,7 +455,7 @@ def group_automorphism_by_field_degree(dimension, rows, citations_by_id, root):
     for d in sorted(by_degree):
         rs = sorted(by_degree[d], key=lambda r: (-r['automorphism_group_cardinality'], r['function_id']))
         heading = f'{field_degree_label(d)}: {len(rs)} map{"" if len(rs) == 1 else "s"}'
-        groups.append((heading, build_automorphism_rows(dimension, rs, citations_by_id, root)))
+        groups.append((heading, build_automorphism_rows(dimension, rs, citations_by_id, root), rs, d))
     return groups
 
 
