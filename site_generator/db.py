@@ -102,6 +102,7 @@ def get_pcf_functions_dim_1(conn, degree, is_polynomial):
             f.cp_cardinality,
             f.cp_field_of_defn,
             f.rational_twists,
+            g.graph_id                  AS portrait_graph_id,
             g.cardinality               AS portrait_cardinality,
             g.periodic_cycles           AS portrait_cycles,
             g.preperiodic_components    AS portrait_components
@@ -242,6 +243,7 @@ def get_extreme_source_rows(conn, degree, is_polynomial):
             (f.original_model).coeffs AS original_coeffs,
             (f.reduced_model).coeffs  AS reduced_coeffs,
             (f.monic_centered).coeffs AS monic_coeffs,
+            r.graph_id,
             g.cardinality,
             g.periodic_cycles,
             g.max_tail
@@ -256,6 +258,22 @@ def get_extreme_source_rows(conn, degree, is_polynomial):
     for row in rows:
         row['base_field_degree'] = field_degree_from_label(row['base_field_label'])
     return [row for row in rows if row['base_field_degree'] in (1, 2)]
+
+
+def get_site_graphs(conn):
+    """{graph_id: edges} for every graph the site can show, for the graph images:
+    graphs of rational preperiodic points (any graph_id in rational_preperiodic_dim_1_NF)
+    and critical portraits of PCF maps (critical_portrait_graph_id, a varchar). A graph
+    can be both (type 3) and then has one image."""
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("""
+        SELECT graph_id, edges FROM graphs_dim_1_nf
+        WHERE graph_id IN (SELECT DISTINCT graph_id FROM rational_preperiodic_dim_1_nf)
+           OR graph_id::varchar IN (SELECT critical_portrait_graph_id FROM functions_dim_1_nf
+                                    WHERE is_pcf AND critical_portrait_graph_id IS NOT NULL)
+        ORDER BY graph_id
+    """)
+    return {row['graph_id']: row['edges'] for row in cur.fetchall()}
 
 
 def get_citations_by_id(conn):

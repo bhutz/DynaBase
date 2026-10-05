@@ -2,7 +2,7 @@
 
 {% macro sage_link(href) %}{% if href %} <a class="sage-export" href="{{ root }}{{ href }}" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a>{% endif %}{% endmacro %}
 
-{% macro extreme_tables(groups, value_header, point=False, pcf=False) %}
+{% macro extreme_tables(groups, value_header, point=False, pcf=False, graph=False) %}
   {% if groups %}
     {% for heading, rows, export in groups %}
     <h4>{{ heading | safe }}{{ sage_link(export) }}</h4>
@@ -15,6 +15,7 @@
           <th>Field of Definition</th>
           {% if point %}<th>Point</th>{% endif %}
           <th>{{ value_header }}</th>{% endif %}
+          {% if graph %}<th>Graph</th>{% endif %}
           <th>Citations</th>
         </tr>
       </thead>
@@ -27,6 +28,7 @@
           <td>{{ row.field | safe }}</td>
           {% if point %}<td class="fn">{{ row.point | safe }}</td>{% endif %}
           <td>{{ row.value | safe }}</td>{% endif %}
+          {% if graph %}<td>{{ row.graph | safe }}</td>{% endif %}
           <td>{{ row.citations | safe }}</td>
         </tr>
         {% endfor %}
@@ -64,13 +66,13 @@ degree links to the full list for that degree. The
   <h2>Rational Preperiodic Points{{ sage_link(sections.rational_preperiodic_export) }}</h2>
 
   <h3 class="subproblem" id="many-points">Many rational preperiodic points{{ sage_link(sections.many_points.export) }}</h3>
-  {{ extreme_tables(sections.many_points.groups, 'Preperiodic Points') }}
+  {{ extreme_tables(sections.many_points.groups, 'Preperiodic Points', graph=True) }}
 
   <h3 class="subproblem" id="long-cycles">Long rational cycles{{ sage_link(sections.long_cycles.export) }}</h3>
-  {{ extreme_tables(sections.long_cycles.groups, 'Longest Cycle') }}
+  {{ extreme_tables(sections.long_cycles.groups, 'Longest Cycle', graph=True) }}
 
   <h3 class="subproblem" id="long-tails">Long rational tails{{ sage_link(sections.long_tails.export) }}</h3>
-  {{ extreme_tables(sections.long_tails.groups, 'Longest Tail') }}
+  {{ extreme_tables(sections.long_tails.groups, 'Longest Tail', graph=True) }}
 </section>
 
 <section class="data-table" id="postcritically-finite">

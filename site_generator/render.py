@@ -7,6 +7,10 @@ import html
 import re
 
 from labels import is_lmfdb_label
+from graph_images import graph_link
+
+# graph_ids with an image in docs/graphs/ - set by generate_site before rendering
+GRAPH_IMAGES = set()
 
 
 def choose_coeffs(row, model=None):
@@ -202,6 +206,7 @@ def build_extreme_row(degree, row, value, citations_by_id, root, link=None, mode
         'field': format_field_link(row['base_field_label']),
         'value': value,
         'point': html.escape(row.get('smallest_height_point') or '') or '&mdash;',
+        'graph': graph_link(row.get('graph_id'), root, GRAPH_IMAGES),
         'citations': format_citations(row.get('citations'), citations_by_id, root),
     }
 
@@ -245,6 +250,7 @@ def build_table_rows(dimension, rows, citations_by_id, root):
             'periodic_cycles': format_int_list(row['periodic_cycles']),
             'preperiodic_components': format_int_list(row['preperiodic_components']),
             'max_tail': row['max_tail'] if row['max_tail'] is not None else '&mdash;',
+            'graph': graph_link(row.get('graph_id'), root, GRAPH_IMAGES),
             'citations': format_citations(row.get('citations'), citations_by_id, root),
         })
     return out
@@ -352,6 +358,8 @@ def build_pcf_rows(dimension, rows, citations_by_id, root):
             'portrait_cardinality': dash(row['portrait_cardinality']),
             'portrait_cycles': format_int_list(row['portrait_cycles']),
             'portrait_components': format_int_list(row['portrait_components']),
+            'portrait_graph': graph_link(row.get('portrait_graph_id'), root, GRAPH_IMAGES,
+                                         title='Open the critical portrait'),
             'citations': format_citations(row.get('citations'), citations_by_id, root),
         })
     return out

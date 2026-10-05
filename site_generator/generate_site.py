@@ -25,6 +25,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import db
 import render
 import sage_export
+import graph_images
 import mdlite
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -318,6 +319,11 @@ def main():
     conn = db.connect(section=args.section)
     env = make_env()
     type_by_name = dict(TYPES)  # 'polynomial' -> True, 'rational' -> False
+
+    # images of the graph structures (rational preperiodic graphs and critical portraits),
+    # linked from the tables
+    render.GRAPH_IMAGES = graph_images.write_graph_images(SITE_DIR, db.get_site_graphs(conn))
+    print('wrote', len(render.GRAPH_IMAGES), 'graph images')
 
     citations_by_id = db.get_citations_by_id(conn)
     used_citation_ids = set()

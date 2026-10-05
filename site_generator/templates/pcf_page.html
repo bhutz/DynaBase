@@ -24,6 +24,7 @@ this degree are listed on the <a href="{{ root }}data/{{ dimension }}/{{ degree 
           <th>Portrait Size</th>
           <th>Portrait Cycles</th>
           <th>Portrait Components</th>
+          <th>Portrait</th>
           <th>Citations</th>
         </tr>
       </thead>
@@ -38,6 +39,7 @@ this degree are listed on the <a href="{{ root }}data/{{ dimension }}/{{ degree 
           <td>{{ row.portrait_cardinality }}</td>
           <td>{{ row.portrait_cycles | safe }}</td>
           <td>{{ row.portrait_components | safe }}</td>
+          <td>{{ row.portrait_graph | safe }}</td>
           <td>{{ row.citations | safe }}</td>
         </tr>
         {% endfor %}
