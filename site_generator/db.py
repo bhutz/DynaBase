@@ -174,7 +174,8 @@ AUTOMORPHISM_COLUMNS = """
             (f.reduced_model).coeffs    AS reduced_coeffs,
             (f.monic_centered).coeffs   AS monic_coeffs,
             f.automorphism_group_cardinality,
-            f.automorphism_group_iso_type"""
+            f.automorphism_group_iso_type,
+            (f.original_model).height   AS height"""
 
 
 def get_automorphism_functions_dim_1(conn, degree, is_polynomial):
@@ -274,6 +275,36 @@ def get_site_graphs(conn):
         ORDER BY graph_id
     """)
     return {row['graph_id']: row['edges'] for row in cur.fetchall()}
+
+
+def get_map_counts(conn):
+    """{(degree, is_polynomial, field degree): number of distinct dimension-1 maps (one
+    per conjugacy class, i.e. per functions_dim_1_NF row)} for the Summary of Included
+    Data page."""
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("""SELECT degree, is_polynomial, base_field_label, count(*) AS n
+                   FROM functions_dim_1_nf GROUP BY 1, 2, 3""")
+    counts = {}
+    for row in cur.fetchall():
+        key = (row['degree'], row['is_polynomial'], field_degree_from_label(row['base_field_label']))
+        counts[key] = counts.get(key, 0) + row['n']
+    return counts
+
+
+def get_group_counts(conn):
+    """{(degree, is_polynomial, field degree): number of distinct nontrivial automorphism
+    groups among the dimension-1 maps of that degree, type and field}, for the
+    automorphism status chart. Maps with is_polynomial unknown are left out."""
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("""SELECT DISTINCT degree, is_polynomial, base_field_label, automorphism_group_iso_type
+                   FROM functions_dim_1_nf
+                   WHERE is_polynomial IS NOT NULL AND automorphism_group_iso_type IS NOT NULL
+                     AND automorphism_group_iso_type <> '1'""")
+    groups = {}
+    for row in cur.fetchall():
+        key = (row['degree'], row['is_polynomial'], field_degree_from_label(row['base_field_label']))
+        groups.setdefault(key, set()).add(row['automorphism_group_iso_type'])
+    return {key: len(g) for key, g in groups.items()}
 
 
 def get_citations_by_id(conn):

@@ -56,7 +56,10 @@ bibliography.append(['dFH2018', ['Joao Alberto de Faria', 'Benjamin Hutz'], 'J. 
 bibliography.append(['FMV2015', ['Xander Faber', 'Michelle Manes', 'Bianca Viray'], 'J. Algebra', 2015,\
     'Xander Faber, Michelle Manes, and Bianca Viray. Computing conjugating sets and automorphism groups of rational functions. J. Algebra, 423:1161--1190, 2015.',\
     'MR3283753'])
-bibliography.append(['Fraser2024', ['Benjamin Fraser'], 'PhD thesis, York University', 2024,\
+bibliography.append(['FN1997', ['Masayo Fujimura', 'Kiyoko Nishizawa'], 'Proceedings of ISSAC 1997', 1997,\
+    'Masayo Fujimura and Kiyoko Nishizawa. Moduli spaces and symmetry loci of polynomial maps. In Proceedings of the 1997 International Symposium on Symbolic and Algebraic Computation (Kihei, HI), pages 342--348. ACM, New York, 1997.',\
+    'MR1810003'])
+bibliography.append(['Fraser2024',['Benjamin Fraser'], 'PhD thesis, York University', 2024,\
     'Benjamin Fraser. On PCF polynomials. PhD thesis, York University, Toronto, 2024.',\
     None])
 bibliography.append(['GHJSX2021', ['Brandon Gontmacher', 'Benjamin Hutz', 'Grayson Jorgenson', 'Srinjoy Srimani', 'Simon Xu'], 'New York J. Math.', 2021,\
@@ -92,6 +95,9 @@ bibliography.append(['Manes2008', ['Michelle Manes'], 'Proc. Lond. Math. Soc. (3
 bibliography.append(['Miasnikov2017', ['Nikita Miasnikov', 'Brian Stout', 'Phillip Williams'], 'Acta Arith.', 2017,\
     'Nikita Miasnikov, Brian Stout, and Phillip Williams. Automorphism loci for the moduli space of rational maps. Acta Arith., 180:267--296, 2017.',\
     'MR3709645'])
+bibliography.append(['Milnor1993', ['John Milnor'], 'Experiment. Math.', 1993,\
+    'John Milnor. Geometry and dynamics of quadratic rational maps. With an appendix by the author and Lei Tan. Experiment. Math., 2(1):37--83, 1993.',\
+    'MR1246482'])
 bibliography.append(['Poonen1998', ['Bjorn Poonen'], 'Math. Z.', 1998,\
     'Bjorn Poonen. The classificiation of rational preperiodic points of quadratic polynomials over Q: a refined conjecture. Math. Z., 228(1):11--29, 1998.',\
     'MR1617987'])

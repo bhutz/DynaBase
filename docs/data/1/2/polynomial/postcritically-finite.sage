@@ -14,7 +14,7 @@ P.<x,y> = ProjectiveSpace(K, 1)
 dynabase_systems.append([DynamicalSystem([x^2 - 2*y^2, y^2], domain=P), '1.a6935bbd.880302df.1'])
 # Doyle2014, Ingram2012, Lukas2014, Poonen1998
 dynabase_systems.append([DynamicalSystem([x^2 - y^2, y^2], domain=P), '1.b5876aa4.6951d87f.1'])
-# Doyle2014, Ingram2012, Lukas2014, Poonen1998
+# Doyle2014, Ingram2012, Lukas2014, Poonen1998, FN1997
 dynabase_systems.append([DynamicalSystem([x^2, y^2], domain=P), '1.a68cf1ff.024ac6d7.1'])
 
 K.<a> = NumberField(t^2 + 1)  # 2.0.4.1

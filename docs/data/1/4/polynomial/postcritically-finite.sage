@@ -39,7 +39,7 @@ dynabase_systems.append([DynamicalSystem([x^4 - y^4, y^4], domain=P), '1.770c262
 dynabase_systems.append([DynamicalSystem([x^4, 4*x*y^3 + 3*y^4], domain=P), '1.d445c2f7.72c00a36.1'])
 # Fraser2024
 dynabase_systems.append([DynamicalSystem([3*x^4 - 4*x^3*y + y^4, y^4], domain=P), '1.a48ef78e.703b5deb.1'])
-# Fraser2024
+# Fraser2024, GHJSX2021, FN1997
 dynabase_systems.append([DynamicalSystem([x^4, y^4], domain=P), '1.024ac6d7.76c4de71.1'])
 
 print("Dynabase: 16 dynamical systems in dynabase_systems")

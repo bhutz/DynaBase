@@ -141,7 +141,7 @@ dynabase_systems.append([DynamicalSystem([x^2 - y^2, y^2], domain=P), '1.b5876aa
 
 K.<a> = NumberField(t^2 - t + 1)  # 2.0.3.1
 P.<x,y> = ProjectiveSpace(K, 1)
-# Doyle2014, Ingram2012, Lukas2014, Poonen1998
+# Doyle2014, Ingram2012, Lukas2014, Poonen1998, FN1997
 dynabase_systems.append([DynamicalSystem([x^2, y^2], domain=P), '1.a68cf1ff.024ac6d7.1'])
 
 K.<a> = NumberField(t^2 - 3)  # 2.2.12.1
@@ -176,7 +176,7 @@ dynabase_systems.append([DynamicalSystem([x^2 - y^2, y^2], domain=P), '1.b5876aa
 
 K.<a> = NumberField(t^2 + 1)  # 2.0.4.1
 P.<x,y> = ProjectiveSpace(K, 1)
-# Doyle2014, Ingram2012, Lukas2014, Poonen1998
+# Doyle2014, Ingram2012, Lukas2014, Poonen1998, FN1997
 dynabase_systems.append([DynamicalSystem([x^2, y^2], domain=P), '1.a68cf1ff.024ac6d7.1'])
 
 K.<a> = NumberField(t^2 - t - 3)  # 2.2.13.1
@@ -203,7 +203,7 @@ dynabase_systems.append([DynamicalSystem([x^2 - y^2, y^2], domain=P), '1.b5876aa
 
 K.<a> = NumberField(t^2 - t - 1)  # 2.2.5.1
 P.<x,y> = ProjectiveSpace(K, 1)
-# Doyle2014, Ingram2012, Lukas2014, Poonen1998
+# Doyle2014, Ingram2012, Lukas2014, Poonen1998, FN1997
 dynabase_systems.append([DynamicalSystem([x^2, y^2], domain=P), '1.a68cf1ff.024ac6d7.1'])
 # Doyle2014, Poonen1998
 dynabase_systems.append([DynamicalSystem([x^2 + y^2, y^2], domain=P), '1.1a2a6bbf.1ed2bf82.1'])

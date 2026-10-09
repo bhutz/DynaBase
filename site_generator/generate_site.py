@@ -53,7 +53,10 @@ PROBLEMS = [('rational-preperiodic', 'Rational Preperiodic'),
             ('automorphism-groups', 'Automorphism Groups')]
 # The status chart is by degree, which doesn't fit the automorphism group problem
 # (one question per group, not per degree), so it has no chart.
-STATUS_CHART_PROBLEMS = ['rational-preperiodic', 'postcritically-finite', 'small-height']
+STATUS_CHART_PROBLEMS = ['rational-preperiodic', 'postcritically-finite', 'small-height', 'automorphism-groups']
+# charts whose cells also give a count from the database (degree, type, field): for
+# automorphism groups, the number of distinct nontrivial groups among the maps
+COUNTED_STATUS_PROBLEMS = ['automorphism-groups']
 TYPE_LABELS = {'polynomial': 'Polynomial', 'rational': 'Rational'}
 
 DEFAULT_DEGREE = 2
@@ -64,14 +67,17 @@ DEFAULT_TYPE = 'polynomial'
 # degree; anything not listed is 'open'.
 STATUS_FIELDS = [('QQ', '&#x211A;'), ('quadratic', '[K:&#x211A;] = 2')]
 PROBLEM_STATUS = {
-    'rational-preperiodic': {
-        ('QQ', 'polynomial'): {2: 'conjectural', **{d: 'experimental' for d in range(3, 14)}},
-        ('QQ', 'rational'): {2: 'experimental'},
-        ('quadratic', 'polynomial'): {2: 'experimental'},
-    },
     'postcritically-finite': {
         ('QQ', 'polynomial'): {2: 'proven', 3: 'proven', 4: 'proven'},
         ('QQ', 'rational'): {2: 'proven'},
+    },
+    # polynomials' automorphism groups are classified (FN1997), and the database has an
+    # example of every possible group in each degree up to 10 (the automorphisms data file)
+    'automorphism-groups': {
+        ('QQ', 'polynomial'): {d: 'proven' if d <= 10 else 'uncomputed' for d in range(2, 16)},
+        # the possible groups are known in degree 2 (C_2, S_3) and, from GHJSX2021's complete
+        # loci, in degrees 3 and 4; the database has an example of each
+        ('QQ', 'rational'): {2: 'proven', 3: 'proven', 4: 'proven'},
     },
     'small-height': {  # Hutz2026's genetic algorithm data
         ('QQ', 'polynomial'): {d: 'experimental' for d in range(2, 13)},
@@ -80,13 +86,36 @@ PROBLEM_STATUS = {
 }
 
 
+def polynomial_min_degree(iso_type):
+    """
+    The smallest degree of a polynomial with exactly this automorphism group, or None
+    if no polynomial has it. A polynomial conjugate to z^d has the dihedral group of
+    order 2(d-1); any other has a cyclic group C_m with m dividing d-1, e.g. z^(m+1) + z
+    (Fujimura-Nishizawa; see the Background page). GAP names: dihedral of order 2n is
+    C2 (n = 1), C2 x C2 (n = 2), S3 (n = 3), Dn.
+    """
+    if iso_type == 'C2':
+        return 2                     # z^2
+    if iso_type == 'C2 x C2':
+        return 3                     # z^3
+    if iso_type == 'S3':
+        return 4                     # z^4
+    kind, n = iso_type[:1], iso_type[1:]
+    if n.isdigit() and kind in 'CD':
+        return int(n) + 1            # C_m: z^(m+1) + z; D_n: z^(n+1)
+    return None                      # e.g. A4, S4, A5
+
+
 def build_automorphism_summary(rows):
     """
     The automorphism group table on the data summary page: one row per group type
     with a map in the database (by order, then name), columns as in the status
-    charts (field category x type), each cell the smallest degree of a map with
+    charts (field category x type). A cell is the smallest degree of a map with
     exactly that group - linked to that degree's automorphism page - or 'open'.
-    Returns [(group html, order, [(degree, link) or None per column])].
+    The polynomial column over QQ is known completely (polynomial_min_degree): the
+    classification's degree, or 'none' if no polynomial has the group (plain, like the
+    other columns - Ben, 2026-10-08).
+    Returns [(group html, order, [{'text', 'link', 'cls'} per column])].
     """
     field_degrees = {'QQ': 1, 'quadratic': 2}
     smallest = {}  # (iso type, field degree, type name) -> smallest degree
@@ -102,22 +131,121 @@ def build_automorphism_summary(rows):
         for field, _ in STATUS_FIELDS:
             for type_name, _ in TYPES:
                 d = smallest.get((iso_type, field_degrees[field], type_name))
-                cells.append((d, f'data/1/{d}/{type_name}/automorphism-groups.html') if d else None)
+                link = f'data/1/{d}/{type_name}/automorphism-groups.html' if d else None
+                if field == 'QQ' and type_name == 'polynomial':
+                    known = polynomial_min_degree(iso_type)
+                    if known is None:
+                        cells.append({'text': 'none', 'link': None, 'cls': ''})
+                    else:
+                        cells.append({'text': str(known), 'link': link if d == known else None, 'cls': ''})
+                elif d:
+                    cells.append({'text': str(d), 'link': link, 'cls': ''})
+                else:
+                    cells.append({'text': 'open', 'link': None, 'cls': 'status status-open'})
         table.append((render.format_group(iso_type), orders[iso_type], cells))
     return table
 
 
-def build_status_tables():
-    """[(problem name, [(degree, [status per field x type])])] for the chart."""
+# The sources of the 'proven' and 'conjectural' cells of the status charts: problem ->
+# (field, type) -> degree -> citation labels (for a chart with subproblems, all its rows).
+# Shown under the rating, linked to the bibliography.
+CITED_STATUSES = ('proven', 'conjectural')
+STATUS_CITATIONS = {
+    'rational-preperiodic': {
+        ('QQ', 'polynomial'): {2: ['Poonen1998']},
+    },
+    'postcritically-finite': {
+        ('QQ', 'polynomial'): {2: ['Ingram2012'], 3: ['AMT2020', 'Ingram2012'], 4: ['Fraser2024']},
+        ('QQ', 'rational'): {2: ['Lukas2014']},
+    },
+    'automorphism-groups': {
+        ('QQ', 'polynomial'): {d: ['FN1997'] for d in range(2, 16)},
+        ('QQ', 'rational'): {2: ['Milnor1993'], 3: ['GHJSX2021'], 4: ['GHJSX2021']},
+    },
+}
+# the source of the polynomial column of the automorphism table by group
+POLYNOMIAL_AUTOMORPHISM_CITATION = 'FN1997'
+
+
+def status_citation_labels():
+    """every label cited by the status page, so the bibliography includes them"""
+    labels = {POLYNOMIAL_AUTOMORPHISM_CITATION}
+    for by_cell in STATUS_CITATIONS.values():
+        for by_degree in by_cell.values():
+            for cites in by_degree.values():
+                labels.update(cites)
+    return labels
+
+
+# Problems whose chart has a row for each subproblem in each degree (Ben, 2026-10-08):
+# problem -> [(subproblem label, its status as in PROBLEM_STATUS)]. Rational preperiodic
+# points (Ben, 2026-10-08): quadratic polynomials over QQ are conjectural (Poonen), the
+# other rated cells (quadratic rational maps over QQ, quadratic polynomials over quadratic
+# fields, polynomials of degree 3-13 over QQ) experimental, the same for all three
+# subproblems.
+_RATIONAL_PREPERIODIC = {
+    ('QQ', 'polynomial'): {2: 'conjectural', **{d: 'experimental' for d in range(3, 14)}},
+    ('QQ', 'rational'): {2: 'experimental'},
+    ('quadratic', 'polynomial'): {2: 'experimental'},
+}
+SUBPROBLEM_STATUS = {
+    'rational-preperiodic': [
+        ('Many points', _RATIONAL_PREPERIODIC),
+        ('Long cycles', _RATIONAL_PREPERIODIC),
+        ('Long tails', _RATIONAL_PREPERIODIC),
+    ],
+}
+
+
+def build_map_count_table(counts):
+    """
+    The table of distinct maps in the database on the Summary of Included Data page:
+    [(degree, [count per field x type], row total)], plus the column totals and the
+    grand total. counts: db.get_map_counts. Only degrees with a map are listed.
+    """
+    field_degrees = {'QQ': 1, 'quadratic': 2}
+    keys = [(field_degrees[field], is_poly) for field, _ in STATUS_FIELDS for _, is_poly in TYPES]
+    degrees = sorted({d for d, _, _ in counts})
+    rows = []
+    for d in degrees:
+        cells = [counts.get((d, is_poly, fd), 0) for fd, is_poly in keys]
+        rows.append((d, cells, sum(v for (dd, _, _), v in counts.items() if dd == d)))
+    column_totals = [sum(counts.get((d, is_poly, fd), 0) for d in degrees) for fd, is_poly in keys]
+    return rows, column_totals, sum(counts.values())
+
+
+def build_status_tables(counts, citations_by_label, root=''):
+    """
+    [(problem name, has subproblems, [(degree, [(subproblem label or None,
+    [(status, count or None, citations html) per field x type])])])] for the charts: one
+    row per degree, or one per subproblem in each degree (SUBPROBLEM_STATUS). counts:
+    db.get_group_counts (distinct nontrivial automorphism groups); only
+    COUNTED_STATUS_PROBLEMS show it. The citations (STATUS_CITATIONS) are given for
+    proven and conjectural cells (CITED_STATUSES).
+    """
+    field_degrees = {'QQ': 1, 'quadratic': 2}
     tables = []
     for problem, problem_name in PROBLEMS:
         if problem not in STATUS_CHART_PROBLEMS:
             continue
-        status = PROBLEM_STATUS.get(problem, {})
-        rows = [(degree, [status.get((field, type_name), {}).get(degree, 'open')
-                          for field, _ in STATUS_FIELDS for type_name, _ in TYPES])
+        subproblems = SUBPROBLEM_STATUS.get(problem, [(None, PROBLEM_STATUS.get(problem, {}))])
+        counted = problem in COUNTED_STATUS_PROBLEMS
+        cited = STATUS_CITATIONS.get(problem, {})
+
+        def cell(status, field, type_name, is_poly, degree):
+            rating = status.get((field, type_name), {}).get(degree, 'open')
+            count = counts.get((degree, is_poly, field_degrees[field]), 0) if counted else None
+            labels = cited.get((field, type_name), {}).get(degree, []) if rating in CITED_STATUSES else []
+            cites = render.format_citations([citations_by_label[l]['id'] for l in labels if l in citations_by_label],
+                                            {citations_by_label[l]['id']: citations_by_label[l] for l in labels
+                                             if l in citations_by_label}, root) if labels else ''
+            return rating, count, cites
+
+        rows = [(degree, [(label, [cell(status, field, type_name, is_poly, degree)
+                                   for field, _ in STATUS_FIELDS for type_name, is_poly in TYPES])
+                          for label, status in subproblems])
                 for degree in DEGREES]
-        tables.append((problem_name, rows))
+        tables.append((problem_name, problem in SUBPROBLEM_STATUS, rows))
     return tables
 
 
@@ -465,8 +593,9 @@ def main():
 
     # automorphism groups: one row per group type, the map of smallest degree (then
     # smallest field) with exactly that automorphism group
+    automorphism_source = db.get_automorphism_source_rows(conn)
     automorphism_rows = []
-    automorphism_winners = render.smallest_map_per_group(db.get_automorphism_source_rows(conn))
+    automorphism_winners = render.smallest_map_per_group(automorphism_source)
     for row in automorphism_winners:
         used_citation_ids.update(row.get('citations') or [])
         type_name = 'polynomial' if row['is_polynomial'] else 'rational'
@@ -479,6 +608,20 @@ def main():
             'field': render.format_field_link(row['base_field_label']),
             'citations': render.format_citations(row.get('citations'), citations_by_id, ''),
         })
+    # the groups realized in each degree: rows by degree, a cell per field category and
+    # type, each group linked to that degree's automorphism page of that type
+    by_degree = render.groups_by_degree(automorphism_source)
+    groups_table = []
+    for degree in sorted(by_degree):
+        cells = []
+        for fd in (1, 2):
+            for type_name, _ in TYPES:
+                entries = by_degree[degree].get((fd, type_name), [])
+                link = f'data/1/{degree}/{type_name}/automorphism-groups.html'
+                cells.append(', '.join(f'<a href="{link}">{render.format_group(iso)}</a>' for iso in entries)
+                             or '&mdash;')
+        groups_table.append((degree, cells))
+    extreme_sections['automorphism_groups_by_degree'] = groups_table
     extreme_sections['automorphisms'] = {
         'rows': automorphism_rows,
         'export': (write_extreme_export('automorphism-groups', 'automorphism groups (smallest degree for each group)',
@@ -503,18 +646,31 @@ def main():
     # Bibliography = citations actually attached to a function on some page
     # just generated above, not the whole citations table - keeps this in
     # sync with what's really on the site rather than what's merely planned.
+    # the status page cites the sources of its proven cells: include them too
+    used_citation_ids.update(c['id'] for c in citations_by_id.values() if c['label'] in status_citation_labels())
     bib_rows = sorted(
         (citations_by_id[cid] for cid in used_citation_ids if cid in citations_by_id),
         key=lambda c: c['label']
     )
     bibliography_html = render.format_bibliography(bib_rows)
+    map_rows, map_column_totals, map_total = build_map_count_table(db.get_map_counts(conn))
     write(os.path.join(SITE_DIR, 'data-summary.html'),
           env.get_template('data_summary.html').render(
               title='Summary of Included Data', root='',
-              status_tables=build_status_tables(), status_fields=STATUS_FIELDS,
-              automorphism_summary=build_automorphism_summary(db.get_automorphism_source_rows(conn)),
-              type_labels=[TYPE_LABELS[t] for t, _ in TYPES],
+              status_fields=STATUS_FIELDS, type_labels=[TYPE_LABELS[t] for t, _ in TYPES],
+              map_rows=map_rows, map_column_totals=map_column_totals, map_total=map_total,
               content_html=content_html, bibliography_html=bibliography_html))
+    write(os.path.join(SITE_DIR, 'status.html'),
+          env.get_template('status.html').render(
+              title='Status of Problems', root='',
+              status_tables=build_status_tables(db.get_group_counts(conn),
+                                                {c['label']: c for c in citations_by_id.values()}),
+              polynomial_automorphism_citation=render.format_citations(
+                  [c['id'] for c in citations_by_id.values() if c['label'] == POLYNOMIAL_AUTOMORPHISM_CITATION],
+                  citations_by_id, ''),
+              status_fields=STATUS_FIELDS,
+              automorphism_summary=build_automorphism_summary(db.get_automorphism_source_rows(conn)),
+              type_labels=[TYPE_LABELS[t] for t, _ in TYPES]))
 
     # --- assets ---
     os.makedirs(os.path.join(SITE_DIR, 'assets'), exist_ok=True)

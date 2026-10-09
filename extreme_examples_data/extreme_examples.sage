@@ -35,3 +35,7 @@ load("extreme_examples_data/add_functions_small_height_dim_1.py")
 
 load("connect.py")
 load("extreme_examples_data/add_functions_automorphisms_dim_1.py")
+
+# backfill automorphism group types for functions stored before that column (only null types)
+load("connect.py")
+load("extreme_examples_data/backfill_automorphism_types.py")

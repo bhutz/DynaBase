@@ -13,8 +13,8 @@ P.<x,y> = ProjectiveSpace(K, 1)
 dynabase_systems.append([DynamicalSystem([x^2 + 5*x*y - 6*y^2, x^2 + 3*x*y + 2*y^2], domain=P), '1.51af6b72.2a948ef0.1'])
 # Hutz2026
 dynabase_systems.append([DynamicalSystem([130*x^2*y - 55*x*y^2 - 60*y^3, -36*x^3 - 50*x^2*y + 176*x*y^2 - 60*y^3], domain=P), '1.bb44cfba.16d54f50.1'])
-# Hutz2026
-dynabase_systems.append([DynamicalSystem([148*x^4 + 384*x^3*y - 447*x^2*y^2 - 261*x*y^3 + 20*y^4, -52*x^4 - 134*x^3*y + 38*x^2*y^2 - 184*x*y^3 + 20*y^4], domain=P), '1.b31b924e.d130ecb7.1'])
+# GHJSX2021
+dynabase_systems.append([DynamicalSystem([3*x^4 - 9*x^2*y^2 + 48*y^4, 7*x^3*y - 28*x*y^3], domain=P), '1.500a8360.2e13b69c.1'])
 # dFH2018
 dynabase_systems.append([DynamicalSystem([y^5, x^5], domain=P), '1.56d48bcf.d8e415c3.1'])
 # dFH2018

@@ -31,9 +31,11 @@ dynabase_systems.append([DynamicalSystem([52*x^5 + 60*x^4*y - 305*x^3*y^2 - 45*x
 dynabase_systems.append([DynamicalSystem([x^5 - 10*x^4*y - 5*x^3*y^2 + 100*x^2*y^3 + 34*x*y^4 - 120*y^5, -60*y^5], domain=P), '1.94385621.861dda79.1'])
 # Hutz2026
 dynabase_systems.append([DynamicalSystem([181*x^5 - 3340*x^4*y + 19775*x^3*y^2 - 34460*x^2*y^3 - 22476*x*y^4 + 5040*y^5, -5040*y^5], domain=P), '1.da478ea6.b84e5437.1'])
-# dFH2018
+# FN1997
+dynabase_systems.append([DynamicalSystem([x^5, y^5], domain=P), '1.6f752b35.d8e415c3.1'])
+# dFH2018, FN1997
 dynabase_systems.append([DynamicalSystem([x^5 + x*y^4, y^5], domain=P), '1.9583af2a.e586d7b9.1'])
 # Hutz2026
 dynabase_systems.append([DynamicalSystem([4*x^5 - 25*x^3*y^2 + 26*x*y^4 + 5*y^5, -10*y^5], domain=P), '1.96a4ba66.02556abd.1'])
 
-print("Dynabase: 13 dynamical systems in dynabase_systems")
+print("Dynabase: 14 dynamical systems in dynabase_systems")

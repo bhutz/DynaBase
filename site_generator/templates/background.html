@@ -251,9 +251,32 @@ Gontmacher, Hutz, Jorgenson, Srimani and Xu (2021) then found one, (<i>z</i><sup
 group of some map defined over &#x211A;. Dynabase records the automorphism group of its maps,
 computed over the algebraic closure, when it can be computed.</p>
 
+<p id="polynomial-automorphisms">For <b>polynomials</b> the answer is complete (see Fujimura and Nishizawa
+on the symmetry loci of polynomial maps). Let <i>f</i> be a polynomial of degree <i>d</i> &ge; 2.</p>
+<ul>
+  <li>If <i>f</i> is conjugate to <i>z</i><sup><i>d</i></sup>, then Aut(<i>f</i>) is the dihedral group
+      of order 2(<i>d</i> &minus; 1): the rotations <i>z</i> &#8614; &zeta;<i>z</i> with
+      &zeta;<sup><i>d</i>&minus;1</sup> = 1, and <i>z</i> &#8614; 1/<i>z</i>, which swaps the two totally
+      ramified fixed points 0 and &infin;.</li>
+  <li>Otherwise &infin; is its only totally ramified fixed point, so every automorphism fixes &infin; and
+      is affine. Writing <i>f</i> in monic centered form, an automorphism must also fix 0, so it is
+      <i>z</i> &#8614; &zeta;<i>z</i>, and this commutes with <i>f</i> exactly when
+      &zeta;<sup><i>e</i>&minus;1</sup> = 1 for every exponent <i>e</i> appearing in <i>f</i>. So
+      Aut(<i>f</i>) is cyclic of an order <i>m</i> dividing <i>d</i> &minus; 1, and <i>f</i> has an
+      automorphism of order <i>m</i> exactly when its monic centered form is
+      <i>z</i>&middot;<i>g</i>(<i>z</i><sup><i>m</i></sup>).</li>
+</ul>
+<p>So in degree <i>d</i> the possible automorphism groups of a polynomial are the trivial group, the cyclic
+group C<sub><i>m</i></sub> for each divisor <i>m</i> &gt; 1 of <i>d</i> &minus; 1 (for example
+<i>z</i><sup><i>d</i></sup> + <i>z</i><sup><i>m</i>+1</sup>, or <i>z</i><sup><i>d</i></sup> + <i>z</i> when
+<i>m</i> = <i>d</i> &minus; 1), and the dihedral group of order 2(<i>d</i> &minus; 1), for
+<i>z</i><sup><i>d</i></sup> alone. All of these are defined over &#x211A;, and the tetrahedral,
+octahedral and icosahedral groups never occur. Dynabase has an example of every one of these groups in
+each degree up to 10.</p>
+
 <h2 id="status">Status of the problems</h2>
 
-<p>The chart on the <a href="{{ root }}data-summary.html">Summary of Included Data</a> page rates
+<p>The charts on the <a href="{{ root }}status.html">Status of Problems</a> page rate
 each problem, degree and field:</p>
 <ul>
   <li><b>proven</b>: the complete answer is a theorem, so the data is a complete list;</li>
@@ -261,8 +284,12 @@ each problem, degree and field:</p>
       extensive searches;</li>
   <li><b>experimental</b>: the examples come from computer searches, with no conjectured complete
       answer;</li>
+  <li><b>uncomputed</b>: the complete answer is a theorem, but the database does not have its
+      examples for that degree yet;</li>
   <li><b>open</b>: little or no systematic data is available yet.</li>
 </ul>
+<p>The automorphism groups chart also gives, in each cell, the number of distinct nontrivial
+automorphism groups among the maps of that degree, type and field in the database.</p>
 
 <h2>Further reading</h2>
 <ul>
@@ -288,6 +315,9 @@ each problem, degree and field:</p>
   <li>G. A. Miller, H. F. Blichfeldt and L. E. Dickson, <i>Theory and Applications of Finite
       Groups</i>, John Wiley &amp; Sons, New York, 1916.</li>
   <li>H. F. Blichfeldt, <i>Finite Collineation Groups</i>, The University of Chicago Press, 1917.</li>
+  <li>M. Fujimura and K. Nishizawa, Moduli spaces and symmetry loci of polynomial maps, in
+      <i>Proceedings of the 1997 International Symposium on Symbolic and Algebraic Computation</i>,
+      ACM, 1997, 342&ndash;348.</li>
   <li>J. A. de Faria and B. Hutz, Automorphism groups and invariant theory on
       <b>P</b><sup><i>N</i></sup>, <i>J. Algebra Appl.</i> 17 (2018), 1850162
       (<a href="https://arxiv.org/abs/1509.06670">arXiv:1509.06670</a>).</li>

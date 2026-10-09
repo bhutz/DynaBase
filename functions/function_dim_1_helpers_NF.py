@@ -24,6 +24,7 @@ from cypari2.handle_error import PariError
 from sage.categories.function_fields import FunctionFields
 from sage.dynamics.arithmetic_dynamics.generic_ds import DynamicalSystem
 from sage.functions.log import exp
+from sage.arith.misc import gcd
 from sage.matrix.constructor import matrix
 from sage.matrix.matrix_space import MatrixSpace
 from sage.misc.verbose import set_verbose
@@ -579,6 +580,50 @@ def add_critical_portrait(function_id, my_cursor, model_name='original', log_fil
     return False
 
 
+def dihedral_group_name(n):
+    """GAP's StructureDescription name of the dihedral group of order 2n"""
+    return {1: 'C2', 2: 'C2 x C2', 3: 'S3'}.get(n, 'D' + str(n))
+
+
+def polynomial_automorphism_group(F):
+    """
+    The automorphism group (size, GAP type name) of F, without computing it, when F
+    is a polynomial written as one: (f(x, y) : c*y^d), so infinity is a totally
+    ramified fixed point. Otherwise None. Characteristic 0.
+
+    Polynomials' automorphism groups are completely known (Fujimura-Nishizawa,
+    FN1997). Translate z so f has no z^(d-1) term (over F's own field); scaling z
+    does not change which coefficients are nonzero. If only z^d is left, F is
+    conjugate to z^d and its group is dihedral of order 2(d-1) (rotations by
+    (d-1)-th roots of unity and z -> 1/z). Otherwise infinity is the only totally
+    ramified fixed point, every automorphism is z -> zeta*z, and zeta commutes with
+    f exactly when zeta^(e-1) = 1 for every exponent e of f: the group is cyclic
+    of order g = gcd(e - 1).
+
+    Instant, where the QQbar computation can take many minutes even for z^9 + z^3,
+    and times out for the large degree polynomials.
+    """
+    if F.domain().dimension_relative() != 1:
+        return None
+    d = F.degree()
+    f0, f1 = list(F)
+    x, y = f1.parent().gens()
+    if f1.monomials() != [y**d] or f0.monomial_coefficient(x**d) == 0:
+        return None
+    K = F.base_ring()
+    if K.characteristic() != 0:
+        return None
+    z = PolynomialRing(K, 'z').gen()
+    f = f0(z, 1) * (1 / f1.monomial_coefficient(y**d))  # the polynomial f0(z, 1) / c
+    b = f[d - 1] / (d * f[d])
+    g = f(z - b) + b  # conjugate by the translation z -> z - b: no z^(d-1) term
+    exponents = [e for e in range(d + 1) if g[e] != 0]
+    if exponents == [d]:
+        return 2 * (d - 1), dihedral_group_name(d - 1)
+    m = gcd([e - 1 for e in exponents])
+    return int(abs(m)), ('1' if abs(m) == 1 else 'C' + str(abs(m)))
+
+
 def add_automorphism_group_NF(function_id, my_cursor, model_name='original', log_file=sys.stdout, timeout=30):
     """
     Find the automorphism group over QQbar: its size and its isomorphism type.
@@ -588,6 +633,9 @@ def add_automorphism_group_NF(function_id, my_cursor, model_name='original', log
     other than QQ or ZZ (here QQbar) automorphism_group ignores it, and its
     which_group returns a string for cyclic and dihedral groups but a list for
     A_4, S_4 and A_5.
+
+    A polynomial written as one, (f(x, y) : c*y^d), skips that computation:
+    polynomial_automorphism_group reads its group off its exponents (FN1997).
 
     'automorphism_group_cardinality', 'automorphism_group_iso_type'
     """
@@ -603,7 +651,13 @@ def add_automorphism_group_NF(function_id, my_cursor, model_name='original', log
                 Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
             G = Fbar.automorphism_group()
             return len(G), automorphism_group_structure(G)
-        n, iso_type = run_in_child(compute, timeout=timeout, log_file=log_file)
+        # a polynomial written as one: the group is known from its exponents, instantly
+        known = polynomial_automorphism_group(F)
+        if known is not None:
+            n, iso_type = known
+            log_file.write('aut group of polynomial from its exponents for:' + str(function_id) + '\n')
+        else:
+            n, iso_type = run_in_child(compute, timeout=timeout, log_file=log_file)
         query['automorphism_group_cardinality'] = int(n)
         query['automorphism_group_iso_type'] = iso_type
         my_cursor.execute("""UPDATE functions_dim_1_NF

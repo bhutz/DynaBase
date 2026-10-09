@@ -125,6 +125,13 @@ table.status-table td { min-width: 7rem; }
 .status-conjectural  { background: #dde8f7; color: #1b3f73; }
 .status-experimental { background: #fff1d1; color: #7a5200; }
 .status-open         { background: #f4f4f4; color: #888; }
+.status-uncomputed   { background: #ece8f6; color: #4b3d7a; }
+span.map-count { display: block; font-size: 0.75rem; opacity: 0.8; }
+span.status-cites { display: block; font-size: 0.7rem; }
+span.status-cites a { color: inherit; }
+table.with-subproblems th.subproblem-label { font-weight: normal; font-size: 0.8rem; text-align: left; white-space: nowrap; }
+table.with-subproblems td { padding-top: 0.15rem; padding-bottom: 0.15rem; font-size: 0.8rem; }
+table.with-subproblems tr.degree-start > * { border-top: 2px solid #8a93a6; }
 
 .prose { max-width: 46rem; line-height: 1.55; }
 .prose h2 { margin-top: 2.25rem; }

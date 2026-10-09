@@ -37,9 +37,11 @@ dynabase_systems.append([DynamicalSystem([5*x^6 - x^5*y - 125*x^4*y^2 + 5*x^3*y^
 dynabase_systems.append([DynamicalSystem([397*x^6 + 12822*x^5*y + 103285*x^4*y^2 - 259470*x^3*y^3 - 3933002*x^2*y^4 + 1913808*x*y^5 + 2162160*y^6, 1081080*y^6], domain=P), '1.1dbf5dff.1958fc3c.1'])
 # Hutz2026
 dynabase_systems.append([DynamicalSystem([23*x^6 - 61*x^5*y - 740*x^4*y^2 + 1255*x^3*y^3 + 6057*x^2*y^4 - 3414*x*y^5 - 7560*y^6, 2520*y^6], domain=P), '1.7a21bd00.fd515d2c.1'])
-# dFH2018
+# FN1997
+dynabase_systems.append([DynamicalSystem([x^6, y^6], domain=P), '1.d60c7e5d.aa38682f.1'])
+# dFH2018, FN1997
 dynabase_systems.append([DynamicalSystem([x^6 + x*y^5, y^6], domain=P), '1.ab5c2018.5ec8e92f.1'])
 # Hutz2026
 dynabase_systems.append([DynamicalSystem([4*x^6 - 55*x^5*y + 170*x^4*y^2 + 95*x^3*y^3 + 666*x^2*y^4 - 2560*x*y^5 - 1680*y^6, 1680*y^6], domain=P), '1.c8900699.e39a2a24.1'])
 
-print("Dynabase: 16 dynamical systems in dynabase_systems")
+print("Dynabase: 17 dynamical systems in dynabase_systems")

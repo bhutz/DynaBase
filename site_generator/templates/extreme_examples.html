@@ -58,7 +58,11 @@ degree links to the full list for that degree. The
     </li>
     <li><a href="#postcritically-finite">Postcritically finite maps</a></li>
     <li><a href="#small-height">Small canonical heights</a></li>
-    <li><a href="#automorphisms">Automorphism groups</a></li>
+    <li><a href="#automorphisms">Automorphism groups</a>
+      <ul>
+        <li><a href="#automorphisms-by-degree">By degree</a></li>
+      </ul>
+    </li>
   </ul>
 </nav>
 
@@ -119,6 +123,29 @@ degree links to the full list for that degree. The
         <td class="fn">{{ row.function | safe }}</td>
         <td>{{ row.field | safe }}</td>
         <td>{{ row.citations | safe }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No data yet.</p>
+  {% endif %}
+
+  <h3 class="subproblem" id="automorphisms-by-degree">Automorphism groups by degree</h3>
+  <p>The nontrivial automorphism groups of the maps in the database, for each degree, polynomials
+  and rational maps, over &#x211A; and over quadratic fields. A polynomial is counted only under
+  Polynomial. Each group links to that degree's automorphism group page.</p>
+  {% if sections.automorphism_groups_by_degree %}
+  <table class="status-table">
+    <thead>
+      <tr><th rowspan="2">Degree</th><th colspan="2">&#x211A;</th><th colspan="2">Quadratic fields</th></tr>
+      <tr><th>Polynomial</th><th>Rational</th><th>Polynomial</th><th>Rational</th></tr>
+    </thead>
+    <tbody>
+      {% for degree, cells in sections.automorphism_groups_by_degree %}
+      <tr>
+        <th>{{ degree }}</th>
+        {% for cell in cells %}<td>{{ cell | safe }}</td>{% endfor %}
       </tr>
       {% endfor %}
     </tbody>

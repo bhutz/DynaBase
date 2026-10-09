@@ -454,15 +454,24 @@ def build_automorphism_rows(dimension, rows, citations_by_id, root):
 def group_automorphism_by_field_degree(dimension, rows, citations_by_id, root):
     """
     Functions with a nontrivial automorphism group, one table per field degree
-    present, largest group first, then function_id.
+    present, with one map per automorphism group (Ben, 2026-10-08): the one of
+    smallest height (original model), ties to the lowest function_id. Largest group
+    first.
     """
     by_degree = {}
     for row in rows:
         by_degree.setdefault(row['base_field_degree'], []).append(row)
     groups = []
     for d in sorted(by_degree):
-        rs = sorted(by_degree[d], key=lambda r: (-r['automorphism_group_cardinality'], r['function_id']))
-        heading = f'{field_degree_label(d)}: {len(rs)} map{"" if len(rs) == 1 else "s"}'
+        best = {}
+        for r in by_degree[d]:
+            key = r['automorphism_group_iso_type']
+            rank = (r['height'] if r['height'] is not None else float('inf'), r['function_id'])
+            if key not in best or rank < best[key][0]:
+                best[key] = (rank, r)
+        rs = sorted((r for _, r in best.values()),
+                    key=lambda r: (-r['automorphism_group_cardinality'], r['automorphism_group_iso_type']))
+        heading = f'{field_degree_label(d)}: {len(rs)} automorphism group{"" if len(rs) == 1 else "s"}'
         groups.append((heading, build_automorphism_rows(dimension, rs, citations_by_id, root), rs, d))
     return groups
 
@@ -481,6 +490,26 @@ def smallest_map_per_group(rows):
             best[key] = (rank, row)
     return [row for _, row in sorted(best.values(),
             key=lambda v: (v[1]['automorphism_group_cardinality'], v[1]['automorphism_group_iso_type']))]
+
+
+def groups_by_degree(rows, field_degrees=(1, 2)):
+    """
+    The automorphism groups realized in each degree, for the Extreme Examples page:
+    {degree: {(field degree, type name): [iso type, ...]}} with the groups (each once,
+    by order then name) of the maps of that degree, field degree and type
+    ('polynomial' or 'rational').
+    """
+    out = {}
+    for row in rows:
+        fd = row['base_field_degree']
+        if fd not in field_degrees:
+            continue
+        type_name = 'polynomial' if row['is_polynomial'] else 'rational'
+        cell = out.setdefault(row['degree'], {}).setdefault((fd, type_name), {})
+        cell[row['automorphism_group_iso_type']] = row['automorphism_group_cardinality']
+    return {d: {key: [iso for iso, order in sorted(cell.items(), key=lambda kv: (kv[1], kv[0]))]
+                for key, cell in cells.items()}
+            for d, cells in out.items()}
 
 
 def format_bibliography(citation_rows):

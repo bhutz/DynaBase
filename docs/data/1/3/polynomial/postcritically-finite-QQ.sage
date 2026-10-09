@@ -43,7 +43,7 @@ dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - y^3, y^3], domain=P)
 dynabase_systems.append([DynamicalSystem([x^3 - 3/2*x*y^2, y^3], domain=P), '1.354addff.61cd033e.2'])
 # Ingram2012
 dynabase_systems.append([DynamicalSystem([x^3 + 3/2*x*y^2, y^3], domain=P), '1.ad8ccd97.61cd033e.2'])
-# AMT2020, Ingram2012
+# AMT2020, Ingram2012, FN1997
 dynabase_systems.append([DynamicalSystem([x^3, y^3], domain=P), '1.5fe37194.3d72adff.1'])
 
 print("Dynabase: 18 dynamical systems in dynabase_systems")

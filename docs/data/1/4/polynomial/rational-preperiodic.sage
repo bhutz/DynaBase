@@ -27,7 +27,7 @@ dynabase_systems.append([DynamicalSystem([11*x^4 + 30*x^3*y - 95*x^2*y^2 - 150*x
 dynabase_systems.append([DynamicalSystem([7*x^4 + 6*x^3*y - 67*x^2*y^2 - 186*x*y^3 + 120*y^4, 120*y^4], domain=P), '1.3387dead.7b560bfc.1'])
 # Fraser2024
 dynabase_systems.append([DynamicalSystem([x^4 - 4*x^2*y^2 + 2*y^4, y^4], domain=P), '1.880302df.903704ba.1'])
-# Fraser2024
+# Fraser2024, GHJSX2021, FN1997
 dynabase_systems.append([DynamicalSystem([x^4, y^4], domain=P), '1.024ac6d7.76c4de71.1'])
 # Fraser2024
 dynabase_systems.append([DynamicalSystem([x^4 - y^4, y^4], domain=P), '1.770c2622.7cef54b3.1'])
@@ -37,9 +37,11 @@ dynabase_systems.append([DynamicalSystem([2*x^4 - y^4, -y^4], domain=P), '1.5457
 dynabase_systems.append([DynamicalSystem([x^4 - 4*x^2*y^2, 2*y^4], domain=P), '1.e029f05a.0d52105e.2'])
 # Fraser2024
 dynabase_systems.append([DynamicalSystem([x^4 + 4*x*y^3, 3*y^4], domain=P), '1.8e57877c.24b4743f.1'])
-# dFH2018
+# dFH2018, GHJSX2021, FN1997
 dynabase_systems.append([DynamicalSystem([x^4 + x*y^3, y^4], domain=P), '1.a2324809.3fbf9eac.1'])
+# GHJSX2021
+dynabase_systems.append([DynamicalSystem([x^4 + 1/2*x*y^3, y^4], domain=P), '1.d20ab877.52739882.1'])
 # Hutz2026
 dynabase_systems.append([DynamicalSystem([9*x^4 - 112*x^3*y + 291*x^2*y^2 + 172*x*y^3 + 120*y^4, 120*y^4], domain=P), '1.f2147436.53db7cc0.1'])
 
-print("Dynabase: 16 dynamical systems in dynabase_systems")
+print("Dynabase: 17 dynamical systems in dynabase_systems")

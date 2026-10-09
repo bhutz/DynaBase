@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Status of Problems</h1>
+<p>What each rating means is explained on the <a href="{{ root }}background.html#status">Mathematical Background</a> page.</p>
+{% for problem_name, has_sub, rows in status_tables %}
+<h2>{{ problem_name }}</h2>
+<table class="status-table{% if has_sub %} with-subproblems{% endif %}">
+  <thead>
+    <tr>
+      <th rowspan="2">Degree</th>
+      {% if has_sub %}<th rowspan="2">Problem</th>{% endif %}
+      {% for _, field_label in status_fields %}<th colspan="{{ type_labels | length }}">{{ field_label }}</th>{% endfor %}
+    </tr>
+    <tr>
+      {% for _ in status_fields %}{% for t in type_labels %}<th>{{ t }}</th>{% endfor %}{% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for degree, subrows in rows %}
+    {% for label, statuses in subrows %}
+    <tr{% if loop.first and has_sub %} class="degree-start"{% endif %}>
+      {% if loop.first %}<th rowspan="{{ subrows | length }}">{{ degree }}</th>{% endif %}
+      {% if has_sub %}<th class="subproblem-label">{{ label }}</th>{% endif %}
+      {% for s, count, cites in statuses %}<td class="status status-{{ s }}">{{ s }}{% if count is not none %}<span class="map-count">{{ count }} group{{ '' if count == 1 else 's' }}</span>{% endif %}{% if cites %}<span class="status-cites">{{ cites | safe }}</span>{% endif %}</td>{% endfor %}
+    </tr>
+    {% endfor %}
+    {% endfor %}
+  </tbody>
+</table>
+{% endfor %}
+
+<h2>Automorphism Groups: Smallest Degree of Each Group</h2>
+<p>Dimension 1. For each automorphism group with a map in the database, the smallest degree of a
+map whose automorphism group is exactly that group, or <i>open</i> if there is none yet. For
+polynomials over &#x211A; the automorphism groups are completely classified
+({{ polynomial_automorphism_citation | safe }}; see
+<a href="{{ root }}background.html#polynomial-automorphisms">Mathematical Background</a>),
+so that column gives the smallest possible degree, or <i>none</i> if no polynomial has that group. Groups
+are named as in GAP: D<sub><i>n</i></sub> is dihedral of order 2<i>n</i> (D<sub>3</sub> is written
+S<sub>3</sub>).</p>
+<table class="status-table">
+  <thead>
+    <tr>
+      <th rowspan="2">Group</th>
+      <th rowspan="2">Order</th>
+      {% for _, field_label in status_fields %}<th colspan="{{ type_labels | length }}">{{ field_label }}</th>{% endfor %}
+    </tr>
+    <tr>
+      {% for _ in status_fields %}{% for t in type_labels %}<th>{{ t }}</th>{% endfor %}{% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for group, order, cells in automorphism_summary %}
+    <tr>
+      <th>{{ group | safe }}</th>
+      <td>{{ order }}</td>
+      {% for cell in cells %}<td class="{{ cell.cls }}">{% if cell.link %}<a href="{{ root }}{{ cell.link }}">{{ cell.text }}</a>{% else %}{{ cell.text }}{% endif %}</td>{% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

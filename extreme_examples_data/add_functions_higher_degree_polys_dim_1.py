@@ -443,6 +443,49 @@ for F in func_list:
     my_session.commit()
 
 
+###########################################
+#Gontmacher-Hutz-Jorgenson-Srimani-Xu, arXiv:2007.15483 / GHJSX2021, Sections 6 and 7:
+#rational preperiodic graph structures over QQ of the maps with a nontrivial
+#automorphism group in degrees 3 and 4. For the families with one parameter the
+#paper classifies the structures by a parametrization of the parameter; for the
+#others it gives a census table labeled by parameter values. Only the structures
+#not already in the database (over QQ, same degree, polynomial or not) are added,
+#each once: checked in Sage on 2026-10-08 against the database graphs, isomorphism
+#classes as unlabeled directed graphs. For a parametrized structure the parameter
+#of smallest height found is used (t ranging over p/q with |p|, |q| <= 4, plus a
+#grid with |p|, |q| <= 6); for a table structure, the paper's parameters. G_1 of the
+#C_3 family (a point on the elliptic curve y^2 - y = x^3 - 1) is a = 343/342 (t = 1/7).
+#Each comment gives the family, the parameter(s) and the number of rational
+#preperiodic points.
+cites = ['GHJSX2021']
+P = ProjectiveSpace(QQ,1,'x,y')
+x,y = P.gens()
+
+def ghjsx_3_C3(a): return DynamicalSystem([x**3 + a*y**3, a*x**2*y])
+def ghjsx_3_D2f(a): return DynamicalSystem([a*x**2*y + y**3, x**3 + a*x*y**2])
+def ghjsx_3_D2g(a): return DynamicalSystem([a*x**2*y - y**3, x**3 - a*x*y**2])
+def ghjsx_3_C2f(a, b): return DynamicalSystem([x**3 + a*x*y**2, b*x**2*y + y**3])
+def ghjsx_3_C2g(a, b): return DynamicalSystem([a*x**2*y + y**3, x**3 + b*x*y**2])
+def ghjsx_4_C4(k): return DynamicalSystem([x**4 + y**4, k*x**3*y])
+def ghjsx_4_D3(k): return DynamicalSystem([x**4 + k*x*y**3, k*x**3*y + y**4])
+def ghjsx_4_C3(k1, k2): return DynamicalSystem([x**4 + k1*x*y**3, k2*x**3*y + y**4])
+def ghjsx_4_C2(k1, k2, k3): return DynamicalSystem([x**4 + k1*x**2*y**2 + y**4, k2*x**3*y + k3*x*y**3])
+
+func_list = []
+
+# degree 4, (z^4 + k1 z)/(k2 z^3 + 1)
+func_list.append(ghjsx_4_C3(QQ(0), QQ(1)/2))  # (0, 1/2): 2 points
+
+for F in func_list:
+    found, F_id = model_in_database_NF(F, my_cursor)
+    if found:
+        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
+    else: #not in database
+        label = add_function_all_NF(F, my_cursor,\
+                citations=cites, log_file=log_file)
+    my_session.commit()
+
+
 my_session.commit()
 
 log_file.close()

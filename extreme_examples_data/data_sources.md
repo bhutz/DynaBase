@@ -99,6 +99,18 @@ This file lists the data and data sources.
   - Brandon Gontmacher, Benjamin Hutz, Grayson Jorgenson, Srinjoy Srimani, and Simon Xu. Automorphism loci for degree 3 and degree 4 endomorphisms of the projective line. New York J. Math., 27:1613--1702, 2021.
     
     - The tetrahedral map (z^3 - 3)/(-3z^2) (A_4, degree 3), defined over QQ. It replaces the map of de Faria-Hutz Figure 1, which is defined over QQ(sqrt(-3)): their Theorem 4.8 says no map over QQ has tetrahedral automorphism group, and this map shows otherwise
+    
+    - One map for every automorphism locus in degrees 3 and 4: the single conjugacy classes 1/z^3 (D_4), (z^3 - 3)/(-3z^2) (A_4) and 1/z^4 (D_5), and for each family the member of smallest height whose automorphism group is exactly the family's group - degree 3: (z^3 + 1)/z^2 (C_3), (2z^2 + 1)/(z^3 + 2z) and (2z^2 - 1)/(z^3 - 2z) (C_2 x C_2), z^3/(z^2 + 1) and 1/(z^3 + z) (C_2); degree 4: (z^4 + 1)/z^3 (C_4), z^4 (S_3), z^4/(z^3 + 1) (C_3), (z^4 + 1)/z (C_2)
+    
+    - Rational preperiodic graph structures over QQ of these families (Sections 6 and 7: classifications for the one-parameter families, census tables for the others): the 106 structures not already in the database, one map each (46 for degree 3 rational maps, 59 for degree 4 rational maps, 1 for a degree 4 polynomial)
+  
+  - Masayo Fujimura and Kiyoko Nishizawa. Moduli spaces and symmetry loci of polynomial maps. In Proceedings of ISSAC 1997, pages 342--348. ACM, 1997.
+    
+    - Polynomials: a polynomial of degree d conjugate to z^d has the dihedral group of order 2(d-1) as automorphism group, and any other has a cyclic group C_m with m dividing d-1. One example of every possible group for each degree d up to 10, all coefficients 1: z^d (dihedral), z^d + z (C_(d-1)), z^d + z^(m+1) (C_m for the other divisors m > 1 of d-1)
+  
+  - John Milnor. Geometry and dynamics of quadratic rational maps. Experiment. Math., 2(1):37--83, 1993.
+    
+    - The automorphism groups of quadratic rational maps (the symmetry locus: C_2, and S_3 at one point). The degree 2 rational map with automorphism group exactly C_2: z + 1/z, the smallest height example (S_3 is the de Faria-Hutz map 1/z^2)
 
 # Personal Communications
 

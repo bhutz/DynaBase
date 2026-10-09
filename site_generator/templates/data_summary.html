@@ -1,56 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Status of Problems</h1>
-<p>What each rating means is explained on the <a href="{{ root }}background.html#status">Mathematical Background</a> page.</p>
-{% for problem_name, rows in status_tables %}
-<h2>{{ problem_name }}</h2>
-<table class="status-table">
+<h1>Summary of Included Data</h1>
+<p>The database has <b>{{ map_total }}</b> distinct maps (one per conjugacy class). By degree, type and
+field of definition:</p>
+<table class="status-table map-counts">
   <thead>
     <tr>
       <th rowspan="2">Degree</th>
       {% for _, field_label in status_fields %}<th colspan="{{ type_labels | length }}">{{ field_label }}</th>{% endfor %}
+      <th rowspan="2">Total</th>
     </tr>
     <tr>
       {% for _ in status_fields %}{% for t in type_labels %}<th>{{ t }}</th>{% endfor %}{% endfor %}
     </tr>
   </thead>
   <tbody>
-    {% for degree, statuses in rows %}
-    <tr>
-      <th>{{ degree }}</th>
-      {% for s in statuses %}<td class="status status-{{ s }}">{{ s }}</td>{% endfor %}
-    </tr>
+    {% for degree, cells, total in map_rows %}
+    <tr><th>{{ degree }}</th>{% for n in cells %}<td>{{ n if n else '&mdash;' | safe }}</td>{% endfor %}<th>{{ total }}</th></tr>
     {% endfor %}
+    <tr class="totals"><th>Total</th>{% for n in map_column_totals %}<th>{{ n }}</th>{% endfor %}<th>{{ map_total }}</th></tr>
   </tbody>
 </table>
-{% endfor %}
-
-<h2>Automorphism Groups</h2>
-<p>Dimension 1. For each automorphism group with a map in the database, the smallest degree of a
-map whose automorphism group is exactly that group, or <i>open</i> if there is none yet. Groups
-are named as in GAP: D<sub><i>n</i></sub> is dihedral of order 2<i>n</i> (D<sub>3</sub> is written
-S<sub>3</sub>).</p>
-<table class="status-table">
-  <thead>
-    <tr>
-      <th rowspan="2">Group</th>
-      <th rowspan="2">Order</th>
-      {% for _, field_label in status_fields %}<th colspan="{{ type_labels | length }}">{{ field_label }}</th>{% endfor %}
-    </tr>
-    <tr>
-      {% for _ in status_fields %}{% for t in type_labels %}<th>{{ t }}</th>{% endfor %}{% endfor %}
-    </tr>
-  </thead>
-  <tbody>
-    {% for group, order, cells in automorphism_summary %}
-    <tr>
-      <th>{{ group | safe }}</th>
-      <td>{{ order }}</td>
-      {% for cell in cells %}{% if cell %}<td><a href="{{ root }}{{ cell[1] }}">{{ cell[0] }}</a></td>{% else %}<td class="status status-open">open</td>{% endif %}{% endfor %}
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<p>How much is known about each problem is on the <a href="{{ root }}status.html">Status of Problems</a> page.</p>
 
 {{ content_html | safe }}
 
