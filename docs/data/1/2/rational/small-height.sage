@@ -10,7 +10,7 @@ dynabase_systems = []
 
 K = QQ
 P.<x,y> = ProjectiveSpace(K, 1)
-# Hutz2026; height ratio 0.00046574
+# BCHKW2014, Hutz2026; height ratio 0.00046574
 dynabase_systems.append([DynamicalSystem([592*x^2 - 3424*x*y + 1024*y^2, 173*x^2 - 536*x*y - 1024*y^2], domain=P), '1.3b026e07.265dfbb0.1', P(0, 1)])
 # Hutz2026; height ratio 0.001183
 dynabase_systems.append([DynamicalSystem([285*x^2 + 2085*x*y + 990*y^2, -79*x^2 - 351*x*y + 990*y^2], domain=P), '1.0a9b4372.2927b5eb.1', P(0, 1)])

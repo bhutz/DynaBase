@@ -10,16 +10,16 @@ dynabase_systems = []
 
 K = QQ
 P.<x,y> = ProjectiveSpace(K, 1)
-# Hutz2026; height ratio 0.0066042
+# BCHKW2014, Hutz2026; height ratio 0.0066042
 dynabase_systems.append([DynamicalSystem([x^2 - 7*x*y - 12*y^2, 6*y^2], domain=P), '1.98c91caa.4cf50642.1', P(0, 1)])
-# Hutz2026; height ratio 9.2099e-05
+# Benedetto2009, Hutz2026; height ratio 9.2099e-05
 dynabase_systems.append([DynamicalSystem([2*x^3 + 21*x^2*y + 25*x*y^2 - 12*y^3, -12*y^3], domain=P), '1.4f511a5c.f031a661.1', P(0, 1)])
 # Hutz2026; height ratio 2.9015e-06
 dynabase_systems.append([DynamicalSystem([9*x^4 - 112*x^3*y + 291*x^2*y^2 + 172*x*y^3 + 120*y^4, 120*y^4], domain=P), '1.f2147436.53db7cc0.1', P(0, 1)])
 # Hutz2026; height ratio 9.1519e-09
 dynabase_systems.append([DynamicalSystem([x^5 + 20*x^4*y + 135*x^3*y^2 + 340*x^2*y^3 + 184*x*y^4 + 40*y^5, -40*y^5], domain=P), '1.96a4ba66.02556abd.1', P(0, 1)])
-# Hutz2026; height ratio 2.056e-09
-dynabase_systems.append([DynamicalSystem([4*x^6 + 137*x^5*y + 1810*x^4*y^2 + 11295*x^3*y^3 + 32386*x^2*y^4 + 34528*x*y^5 - 1680*y^6, 1680*y^6], domain=P), '1.c8900699.e39a2a24.1', P(0, 1)])
+# Hutz2026; height ratio 1.8372e-09
+dynabase_systems.append([DynamicalSystem([29*x^6 + 639*x^5*y + 4925*x^4*y^2 + 15345*x^3*y^3 + 12686*x^2*y^4 - 23544*x*y^5 - 5040*y^6, -5040*y^6], domain=P), '1.3ae91201.688c90c9.1', P(0, 1)])
 # Hutz2026; height ratio 1.0564e-10
 dynabase_systems.append([DynamicalSystem([215*x^7 - 7601*x^6*y + 100973*x^5*y^2 - 610445*x^4*y^3 + 1535960*x^3*y^4 - 546194*x^2*y^5 - 2468748*x*y^6 + 166320*y^7, -166320*y^7], domain=P), '1.f4bd3027.b70022ba.1', P(0, 1)])
 # Hutz2026; height ratio 8.771e-13

@@ -23,7 +23,9 @@ log_file = open(path_to_log, 'a', 1)
 #arXiv:2601.11482 / Hutz2026, Appendix (Extended Data Set), Small Height Ratio
 #tables: the 3 smallest ratios for each degree and type (polynomials of degree
 #2-12, rational maps of degree 2-5; the degree 2 rational table has only 2 maps
-#and the degree 13 table is empty). The ratio is hhat(0)/h_M(f), with h_M the
+#and the degree 13 table is empty), plus the degree 6 polynomial record from the
+#paper's Section 5 summary table, which the appendix doesn't list (every other
+#record in that table is the appendix's best). The ratio is hhat(0)/h_M(f), with h_M the
 #largest height of the first sigma invariants. Each map is determined by the
 #orbit of 0 the paper lists for it: f sends each orbit point to the next (d+2
 #points for a degree d polynomial, 2d+2 for a degree d rational map), recovered
@@ -101,6 +103,9 @@ small_height.append(('rational', [0, 1, -14, 22, 14, -20, 7, -11, -2, 16, 25, -1
 small_height.append(('rational', [0, -1, -91, -15, 1, 17, 6, -19, 23, -5, 2, -6], 3.7574e-10))
 
 # degree 6 polynomial
+# the degree 6 record, from the paper's summary table (Section 5); it is not in the
+# appendix, whose best is the next one. Checked in Sage: ratio 1.8372e-09 at 0.
+small_height.append(('poly', [0, 1, -1, -4, -7, -3, -6, -9], 1.8372e-09))
 small_height.append(('poly', [0, -1, -8, -9, -7, -10, -2, -4], 2.056e-09))
 small_height.append(('poly', [0, 1, -1, -4, -9, -2, -7, -3], 2.1833e-09))
 small_height.append(('poly', [0, 1, -4, -2, -5, -3, -1, -7], 2.3064e-09))
@@ -136,18 +141,30 @@ small_height.append(('poly', [0, 1, -2, -11, -8, -1, 12, 7, 3, -18, 8, 5, 2, -15
 small_height.append(('poly', [0, -1, -10, 3, -3, -8, -2, 2, -5, 9, 1, -6, 8, 16], 1.5221e-18))
 small_height.append(('poly', [0, -1, -10, 3, 7, 4, -3, -12, -15, -2, 1, 9, -4, 20], 1.7538e-18))
 
+#The paper's summary table (Section 5, Small Height Ratio) compares each degree's best
+#ratio with the best previously known: for degree 2 and 3 polynomials and degree 2
+#rational maps the record matches it, so those three maps are credited to the earlier
+#searches too - BCHKW2014 (quadratic polynomials and rational maps, its Benedetto8) and
+#Benedetto2009 (cubic polynomials, its Benedetto4).
+earlier_cites = {
+    ('poly', (0, -2, 1, -3)): ['BCHKW2014'],                    # 0.006604
+    ('poly', (0, 1, -3, -4, -8)): ['Benedetto2009'],            # 0.000092099
+    ('rational', (0, -1, -16, 4, 8, 2)): ['BCHKW2014'],         # 0.0004657
+}
+
 for map_type, orbit, ratio in small_height:
     if map_type == 'poly':
         F = orbit_poly_system(orbit)
     else:
         F = orbit_rational_system(orbit)
+    map_cites = cites + earlier_cites.get((map_type, tuple(orbit)), [])
     found, F_id = model_in_database_NF(F, my_cursor)
     if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
+        add_citations_NF(F_id, map_cites, my_cursor, log_file=log_file)
     else: #not in database
         #the paper's point is 0
         F_id = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file, smallest_height_point=[0,1])
+                citations=map_cites, log_file=log_file, smallest_height_point=[0,1])
     my_session.commit()
 
 

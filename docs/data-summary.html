@@ -98,7 +98,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
 <main>
 
 <h1>Summary of Included Data</h1>
-<p>The database has <b>544</b> distinct maps (one per conjugacy class). By degree, type and
+<p>The database has <b>545</b> distinct maps (one per conjugacy class). By degree, type and
 field of definition:</p>
 <table class="status-table map-counts">
   <thead>
@@ -121,7 +121,7 @@ field of definition:</p>
     
     <tr><th>5</th><td>18</td><td>5</td><td>&mdash;</td><td>&mdash;</td><th>23</th></tr>
     
-    <tr><th>6</th><td>26</td><td>1</td><td>&mdash;</td><td>&mdash;</td><th>27</th></tr>
+    <tr><th>6</th><td>27</td><td>1</td><td>&mdash;</td><td>&mdash;</td><th>28</th></tr>
     
     <tr><th>7</th><td>22</td><td>1</td><td>&mdash;</td><td>&mdash;</td><th>23</th></tr>
     
@@ -141,7 +141,7 @@ field of definition:</p>
     
     <tr><th>15</th><td>1</td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><th>1</th></tr>
     
-    <tr class="totals"><th>Total</th><th>327</th><th>198</th><th>19</th><th>0</th><th>544</th></tr>
+    <tr class="totals"><th>Total</th><th>328</th><th>198</th><th>19</th><th>0</th><th>545</th></tr>
   </tbody>
 </table>
 <p>How much is known about each problem is on the <a href="status.html">Status of Problems</a> page.</p>
@@ -214,7 +214,9 @@ field of definition:</p>
 </li>
 <li>Each map is recovered by interpolation from the orbit the paper lists for it (164 distinct maps: 125 polynomials, 39 rational functions)
 </li>
-<li>Small Height Ratio tables: the 3 smallest ratios for each degree (polynomials of degree 2 through 12, rational functions of degree 2 through 5; 2 maps for quadratic rational functions, and the degree 13 table is empty), 44 maps. The stored smallest height is the ratio of the point 0, the start of the paper's orbit
+<li>Small Height Ratio tables: the 3 smallest ratios for each degree (polynomials of degree 2 through 12, rational functions of degree 2 through 5; 2 maps for quadratic rational functions, and the degree 13 table is empty), 44 maps. The stored smallest height is the ratio of the point 0, the start of the paper's orbit. The records for degree 2 and 3 polynomials and degree 2 rational maps match the best previously known (the paper's summary table) and are also credited to those searches: Benedetto, Chen, Hyde, Kovacheva and White (2014) for degree 2, Benedetto et al. (2009) for cubic polynomials
+</li>
+<li>Plus the degree 6 polynomial record of the paper's Section 5 summary table, orbit [0, 1, -1, -4, -7, -3, -6, -9] (ratio 1.8372 * 10^-9), which the appendix doesn't list; every other record in that table is the appendix's best
 </li>
 <li>Two misprints in the Small Height Ratio tables are corrected: for degree 2 polynomials the orbit [0, 1, -1, 2] (ratio 0.01102) should be [0, 1, -2, 6], the orbit of the map printed with it; for degree 11 the ratio 7.8701 * 10^17 should be 7.8701 * 10^-17
 </li></ul>

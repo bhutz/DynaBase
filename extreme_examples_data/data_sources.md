@@ -56,7 +56,9 @@ This file lists the data and data sources.
       
       - Each map is recovered by interpolation from the orbit the paper lists for it (164 distinct maps: 125 polynomials, 39 rational functions)
       
-      - Small Height Ratio tables: the 3 smallest ratios for each degree (polynomials of degree 2 through 12, rational functions of degree 2 through 5; 2 maps for quadratic rational functions, and the degree 13 table is empty), 44 maps. The stored smallest height is the ratio of the point 0, the start of the paper's orbit
+      - Small Height Ratio tables: the 3 smallest ratios for each degree (polynomials of degree 2 through 12, rational functions of degree 2 through 5; 2 maps for quadratic rational functions, and the degree 13 table is empty), 44 maps. The stored smallest height is the ratio of the point 0, the start of the paper's orbit. The records for degree 2 and 3 polynomials and degree 2 rational maps match the best previously known (the paper's summary table) and are also credited to those searches: Benedetto, Chen, Hyde, Kovacheva and White (2014) for degree 2, Benedetto et al. (2009) for cubic polynomials
+      
+      - Plus the degree 6 polynomial record of the paper's Section 5 summary table, orbit [0, 1, -1, -4, -7, -3, -6, -9] (ratio 1.8372 * 10^-9), which the appendix doesn't list; every other record in that table is the appendix's best
       
       - Two misprints in the Small Height Ratio tables are corrected: for degree 2 polynomials the orbit [0, 1, -1, 2] (ratio 0.01102) should be [0, 1, -2, 6], the orbit of the map printed with it; for degree 11 the ratio 7.8701 * 10^17 should be 7.8701 * 10^-17
 

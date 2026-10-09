@@ -61,7 +61,7 @@ dynabase_systems.append([DynamicalSystem([x^2 - 2*y^2, -x^2], domain=P), '1.170a
 dynabase_systems.append([DynamicalSystem([2*x^2 - 2*y^2, -x^2 + 2*x*y - 2*y^2], domain=P), '1.89eb0e1e.d90eecb7.1'])
 # Lukas2014
 dynabase_systems.append([DynamicalSystem([2*x^2 + 2*x*y, -x^2 - y^2], domain=P), '1.095ed92d.7e1406dd.1'])
-# Hutz2026
+# BCHKW2014, Hutz2026
 dynabase_systems.append([DynamicalSystem([7*x^2 - x*y - 6*y^2, -x^2 + 9*x*y + 6*y^2], domain=P), '1.3b026e07.265dfbb0.1'])
 
 print("Dynabase: 27 dynamical systems in dynabase_systems")
