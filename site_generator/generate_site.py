@@ -214,14 +214,16 @@ def build_map_count_table(counts):
     return rows, column_totals, sum(counts.values())
 
 
-def build_status_tables(counts, citations_by_label, root=''):
+def build_status_tables(counts, citations_by_label, best_map_citations=None, root=''):
     """
     [(problem name, has subproblems, [(degree, [(subproblem label or None,
     [(status, count or None, citations html) per field x type])])])] for the charts: one
     row per degree, or one per subproblem in each degree (SUBPROBLEM_STATUS). counts:
     db.get_group_counts (distinct nontrivial automorphism groups); only
-    COUNTED_STATUS_PROBLEMS show it. The citations (STATUS_CITATIONS) are given for
-    proven and conjectural cells (CITED_STATUSES).
+    COUNTED_STATUS_PROBLEMS show it. Proven and conjectural cells (CITED_STATUSES) cite
+    STATUS_CITATIONS; experimental cells cite the best map in the database for that
+    problem (best_map_citations: (problem, subproblem label, field, type, degree) ->
+    citation ids; see best_map_citations in main).
     """
     field_degrees = {'QQ': 1, 'quadratic': 2}
     tables = []
@@ -232,16 +234,21 @@ def build_status_tables(counts, citations_by_label, root=''):
         counted = problem in COUNTED_STATUS_PROBLEMS
         cited = STATUS_CITATIONS.get(problem, {})
 
-        def cell(status, field, type_name, is_poly, degree):
+        def cell(status, label, field, type_name, is_poly, degree):
             rating = status.get((field, type_name), {}).get(degree, 'open')
             count = counts.get((degree, is_poly, field_degrees[field]), 0) if counted else None
-            labels = cited.get((field, type_name), {}).get(degree, []) if rating in CITED_STATUSES else []
-            cites = render.format_citations([citations_by_label[l]['id'] for l in labels if l in citations_by_label],
-                                            {citations_by_label[l]['id']: citations_by_label[l] for l in labels
-                                             if l in citations_by_label}, root) if labels else ''
+            if rating in CITED_STATUSES:
+                labels = cited.get((field, type_name), {}).get(degree, [])
+                ids = [citations_by_label[l]['id'] for l in labels if l in citations_by_label]
+            elif rating == 'experimental':
+                ids = (best_map_citations or {}).get((problem, label, field, type_name, degree), [])
+            else:
+                ids = []
+            by_id = {c['id']: c for c in citations_by_label.values()}
+            cites = render.format_citations(ids, by_id, root) if ids else ''
             return rating, count, cites
 
-        rows = [(degree, [(label, [cell(status, field, type_name, is_poly, degree)
+        rows = [(degree, [(label, [cell(status, label, field, type_name, is_poly, degree)
                                    for field, _ in STATUS_FIELDS for type_name, is_poly in TYPES])
                           for label, status in subproblems])
                 for degree in DEGREES]
@@ -646,6 +653,23 @@ def main():
     # Bibliography = citations actually attached to a function on some page
     # just generated above, not the whole citations table - keeps this in
     # sync with what's really on the site rather than what's merely planned.
+    # Experimental cells of the status charts cite the best map in the database for their
+    # problem - the same record holder as the Extreme Examples page (ties to the first
+    # loaded): most points / longest cycle / longest tail for rational preperiodic points,
+    # smallest height ratio for small heights.
+    best_map_citations = {}
+    finders = [('rational-preperiodic', 'Many points', preperiodic_rows, render.find_most_points_row),
+               ('rational-preperiodic', 'Long cycles', preperiodic_rows, render.find_longest_cycle_row),
+               ('rational-preperiodic', 'Long tails', preperiodic_rows, render.find_longest_tail_row),
+               ('small-height', None, small_height_rows, smallest_ratio)]
+    for problem, label, source, finder in finders:
+        for field, field_degree in (('QQ', 1), ('quadratic', 2)):
+            for (degree, type_name), rows in source.items():
+                winner, value = finder([r for r in rows if r['base_field_degree'] == field_degree])
+                if winner is not None and value != 0 and winner.get('citations'):
+                    best_map_citations[(problem, label, field, type_name, degree)] = winner['citations']
+                    used_citation_ids.update(winner['citations'])
+
     # the status page cites the sources of its proven cells: include them too
     used_citation_ids.update(c['id'] for c in citations_by_id.values() if c['label'] in status_citation_labels())
     bib_rows = sorted(
@@ -664,7 +688,8 @@ def main():
           env.get_template('status.html').render(
               title='Status of Problems', root='',
               status_tables=build_status_tables(db.get_group_counts(conn),
-                                                {c['label']: c for c in citations_by_id.values()}),
+                                                {c['label']: c for c in citations_by_id.values()},
+                                                best_map_citations),
               polynomial_automorphism_citation=render.format_citations(
                   [c['id'] for c in citations_by_id.values() if c['label'] == POLYNOMIAL_AUTOMORPHISM_CITATION],
                   citations_by_id, ''),
