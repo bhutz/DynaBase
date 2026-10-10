@@ -23,9 +23,8 @@ log_file = open(path_to_log, 'a', 1)
 #arXiv:2601.11482 / Hutz2026, Appendix (Extended Data Set), Small Height Ratio
 #tables: the 3 smallest ratios for each degree and type (polynomials of degree
 #2-12, rational maps of degree 2-5; the degree 2 rational table has only 2 maps
-#and the degree 13 table is empty), plus the degree 6 polynomial record from the
-#paper's Section 5 summary table, which the appendix doesn't list (every other
-#record in that table is the appendix's best). The ratio is hhat(0)/h_M(f), with h_M the
+#and the degree 13 table is empty), plus a 4th degree 6 polynomial (see there).
+#Each record in the paper's Section 5 summary table is its appendix table's best. The ratio is hhat(0)/h_M(f), with h_M the
 #largest height of the first sigma invariants. Each map is determined by the
 #orbit of 0 the paper lists for it: f sends each orbit point to the next (d+2
 #points for a degree d polynomial, 2d+2 for a degree d rational map), recovered
@@ -103,12 +102,11 @@ small_height.append(('rational', [0, 1, -14, 22, 14, -20, 7, -11, -2, 16, 25, -1
 small_height.append(('rational', [0, -1, -91, -15, 1, 17, 6, -19, 23, -5, 2, -6], 3.7574e-10))
 
 # degree 6 polynomial
-# the degree 6 record, from the paper's summary table (Section 5); it is not in the
-# appendix, whose best is the next one. Checked in Sage: ratio 1.8372e-09 at 0.
+# the degree 6 record (also in the paper's Section 5 summary table). Checked in Sage:
+# ratio 1.8372e-09 at 0. This degree has 4 maps: the first 4 rows of the appendix table.
 small_height.append(('poly', [0, 1, -1, -4, -7, -3, -6, -9], 1.8372e-09))
 small_height.append(('poly', [0, -1, -8, -9, -7, -10, -2, -4], 2.056e-09))
 small_height.append(('poly', [0, 1, -1, -4, -9, -2, -7, -3], 2.1833e-09))
-small_height.append(('poly', [0, 1, -4, -2, -5, -3, -1, -7], 2.3064e-09))
 
 # degree 7 polynomial
 small_height.append(('poly', [0, -1, 1, 11, 2, 10, 8, 9, 3], 1.0564e-10))
