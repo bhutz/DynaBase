@@ -29,6 +29,9 @@ def connect(section='postgresql_local'):
 
 def get_functions_dim_1(conn, degree, is_polynomial):
     """
+    is_polynomial None means both types, here and in the other per-page queries
+    (the "All maps" pages), including functions whose is_polynomial is null.
+
     All dimension-1 (function, field) pairs of the given degree and
     polynomial/rational type: one row per rational_preperiodic_dim_1_NF row,
     i.e. per field the function's rational preperiodic points were computed
@@ -67,7 +70,7 @@ def get_functions_dim_1(conn, degree, is_polynomial):
         FROM functions_dim_1_nf f
         LEFT JOIN rational_preperiodic_dim_1_nf r ON r.function_id = f.function_id
         LEFT JOIN graphs_dim_1_nf g ON g.graph_id = r.graph_id
-        WHERE f.degree = %(degree)s AND f.is_polynomial = %(is_polynomial)s
+        WHERE f.degree = %(degree)s AND (%(is_polynomial)s::boolean IS NULL OR f.is_polynomial = %(is_polynomial)s)
         ORDER BY r.id NULLS LAST, f.function_id
     """, {'degree': degree, 'is_polynomial': is_polynomial})
     rows = [dict(row) for row in cur.fetchall()]
@@ -108,15 +111,15 @@ def get_pcf_functions_dim_1(conn, degree, is_polynomial):
             g.preperiodic_components    AS portrait_components
         FROM functions_dim_1_nf f
         LEFT JOIN graphs_dim_1_nf g ON g.graph_id::varchar = f.critical_portrait_graph_id
-        WHERE f.degree = %(degree)s AND f.is_polynomial = %(is_polynomial)s AND f.is_pcf
+        WHERE f.degree = %(degree)s AND (%(is_polynomial)s::boolean IS NULL OR f.is_polynomial = %(is_polynomial)s) AND f.is_pcf
         ORDER BY f.function_id
     """, {'degree': degree, 'is_polynomial': is_polynomial})
     rows = [dict(row) for row in cur.fetchall()]
     for row in rows:
         row['base_field_degree'] = field_degree_from_label(row['base_field_label'])
     cur.execute("""
-        SELECT count(*) FROM functions_dim_1_nf
-        WHERE degree = %(degree)s AND is_polynomial = %(is_polynomial)s AND is_pcf IS NULL
+        SELECT count(*) FROM functions_dim_1_nf f
+        WHERE f.degree = %(degree)s AND (%(is_polynomial)s::boolean IS NULL OR f.is_polynomial = %(is_polynomial)s) AND is_pcf IS NULL
     """, {'degree': degree, 'is_polynomial': is_polynomial})
     return rows, cur.fetchone()[0]
 
@@ -146,7 +149,7 @@ def get_small_height_functions_dim_1(conn, degree, is_polynomial):
             (f.reduced_model).coeffs    AS reduced_coeffs,
             (f.monic_centered).coeffs   AS monic_coeffs
         FROM functions_dim_1_nf f
-        WHERE f.degree = %(degree)s AND f.is_polynomial = %(is_polynomial)s
+        WHERE f.degree = %(degree)s AND (%(is_polynomial)s::boolean IS NULL OR f.is_polynomial = %(is_polynomial)s)
           AND f.smallest_height_ratio IS NOT NULL
         ORDER BY f.smallest_height_ratio, f.function_id
     """, {'degree': degree, 'is_polynomial': is_polynomial})
@@ -154,8 +157,8 @@ def get_small_height_functions_dim_1(conn, degree, is_polynomial):
     for row in rows:
         row['base_field_degree'] = field_degree_from_label(row['base_field_label'])
     cur.execute("""
-        SELECT count(*) FROM functions_dim_1_nf
-        WHERE degree = %(degree)s AND is_polynomial = %(is_polynomial)s AND smallest_height_ratio IS NULL
+        SELECT count(*) FROM functions_dim_1_nf f
+        WHERE f.degree = %(degree)s AND (%(is_polynomial)s::boolean IS NULL OR f.is_polynomial = %(is_polynomial)s) AND smallest_height_ratio IS NULL
     """, {'degree': degree, 'is_polynomial': is_polynomial})
     return rows, cur.fetchone()[0]
 
@@ -190,7 +193,7 @@ def get_automorphism_functions_dim_1(conn, degree, is_polynomial):
     cur.execute(f"""
         SELECT {AUTOMORPHISM_COLUMNS}
         FROM functions_dim_1_nf f
-        WHERE f.degree = %(degree)s AND f.is_polynomial = %(is_polynomial)s
+        WHERE f.degree = %(degree)s AND (%(is_polynomial)s::boolean IS NULL OR f.is_polynomial = %(is_polynomial)s)
           AND f.automorphism_group_iso_type IS NOT NULL AND f.automorphism_group_iso_type <> '1'
         ORDER BY f.function_id
     """, {'degree': degree, 'is_polynomial': is_polynomial})
@@ -198,8 +201,8 @@ def get_automorphism_functions_dim_1(conn, degree, is_polynomial):
     for row in rows:
         row['base_field_degree'] = field_degree_from_label(row['base_field_label'])
     cur.execute("""
-        SELECT count(*) FROM functions_dim_1_nf
-        WHERE degree = %(degree)s AND is_polynomial = %(is_polynomial)s
+        SELECT count(*) FROM functions_dim_1_nf f
+        WHERE f.degree = %(degree)s AND (%(is_polynomial)s::boolean IS NULL OR f.is_polynomial = %(is_polynomial)s)
           AND automorphism_group_iso_type IS NULL
     """, {'degree': degree, 'is_polynomial': is_polynomial})
     return rows, cur.fetchone()[0]
@@ -252,7 +255,7 @@ def get_extreme_source_rows(conn, degree, is_polynomial):
         JOIN rational_preperiodic_dim_1_nf r ON r.function_id = f.function_id
         LEFT JOIN graphs_dim_1_nf g ON g.graph_id = r.graph_id
         WHERE f.degree = %(degree)s
-          AND f.is_polynomial = %(is_polynomial)s
+          AND (%(is_polynomial)s::boolean IS NULL OR f.is_polynomial = %(is_polynomial)s)
         ORDER BY f.function_id, r.base_field_label
     """, {'degree': degree, 'is_polynomial': is_polynomial})
     rows = [dict(row) for row in cur.fetchall()]
@@ -305,6 +308,14 @@ def get_group_counts(conn):
         key = (row['degree'], row['is_polynomial'], field_degree_from_label(row['base_field_label']))
         groups.setdefault(key, set()).add(row['automorphism_group_iso_type'])
     return {key: len(g) for key, g in groups.items()}
+
+
+def get_max_field_degree(conn):
+    """the largest degree of a field any map or preperiodic row is over (1 if none)"""
+    cur = conn.cursor()
+    cur.execute("""SELECT base_field_label FROM functions_dim_1_nf
+                   UNION SELECT base_field_label FROM rational_preperiodic_dim_1_nf""")
+    return max([field_degree_from_label(label) for (label,) in cur.fetchall() if label] + [1])
 
 
 def get_citations_by_id(conn):

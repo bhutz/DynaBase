@@ -1,4 +1,4 @@
-# Dynabase (https://dynabase.org): Summary of Extreme Examples, small canonical heights, rational maps over QQ
+# Dynabase (https://dynabase.org): Summary of Extreme Examples, small canonical heights, non-polynomial maps over QQ
 #
 # Load in Sage with load("<this file>"). It defines dynabase_systems, a list of
 # [map, label, point] triples in table order: the map as a DynamicalSystem over the

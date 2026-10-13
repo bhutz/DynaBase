@@ -1,3 +1,4 @@
+from fields.field_helpers_NF import normalize_field_NF
 from functions.function_dim_1_helpers_NF import model_in_database_NF
 from functions.function_dim_1_helpers_NF import add_function_all_NF
 from functions.function_dim_1_helpers_NF import add_citations_NF
@@ -19,7 +20,7 @@ log_file = open(path_to_log, 'a', 1)
 ###########################################
 #polynomials of degree 4 through 15, one table per degree
 #Doyle-Hyde Examples
-#arXiv:2201.11707 / DH2025
+#arXiv:2201.11707 / DoHy2025
 #Table 2: f(z) = N(z)/D with f([m]) in [n] for [k] = {1,...,k}, degrees 4-9
 #(the d=2 and d=3 rows are in the quadratic/cubic files).
 #Table 4: degrees 10-15, given only by the interpolating values
@@ -28,7 +29,7 @@ log_file = open(path_to_log, 'a', 1)
 #already realized by an earlier entry in the same table - same degree,
 #polynomial/rational, and base field degree - are commented out and
 #marked DUPLICATE, so each table holds one function per graph structure.
-cites = ['DH2025']
+cites = ['DoHy2025']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
 
@@ -481,6 +482,69 @@ for F in func_list:
     if found:
         add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
     else: #not in database
+        label = add_function_all_NF(F, my_cursor,\
+                citations=cites, log_file=log_file)
+    my_session.commit()
+
+
+my_session.commit()
+
+###########################################
+#Doyle-Hindes Examples
+#arXiv:2510.14067 / DoHi2025, Table 1 (Theorem 1.1 and its corollary): the 12 nonempty
+#skeletons of PrePer(x^d + c, K) for algebraic integers c and large d. One map x^d + c
+#for each, found 2026-10-12 from the conditions in the proofs (arXiv:2408.14657,
+#Section 4: c built from roots of unity; (1)a from c = y - y^d): smallest field, then
+#smallest d. The 12 are split by degree over the quadratic, cubic and higher degree
+#polynomial files; the full list is in the higher degree file.
+#All 12 (zeta_n a primitive n-th root of unity, the generator v of the field below):
+#  (1)a    x^3 - 6                     QQ          (cubic file)
+#  (2)b    x^2 - 1                     QQ          (quadratic file)
+#  (1,1)   x^2 + 1                     Q(zeta_3)   (quadratic file)
+#  (2)a    x^4 + 1                     Q(zeta_3)
+#  (1)c    x^6 + zeta_3^2              Q(zeta_3)
+#  (2,2)   x^7 + zeta_12^3 - zeta_12   Q(zeta_12)
+#  (2,1,1) x^11 - zeta_12^3            Q(zeta_12)
+#  (1)d    x^6 + zeta_3                Q(zeta_9)
+#  (3)     x^7 + zeta_9^5 + zeta_9^2   Q(zeta_9)
+#  (1)b    x^4 - zeta_16^4 - 1         Q(zeta_16)
+#  (1)e    x^6 + zeta_3                Q(zeta_36)
+#  (2)c    x^6 - 1                     Q(zeta_36)
+#The first five were verified with Sage's full preperiodic computation. The last seven (fields
+#of degree 4 to 12) were found by searching only 0 and roots of unity, and their skeletons are
+#the ones the paper's conditions give for large d, but they are NOT verified: Sage's
+#rational_preperiodic_graph did not finish in 30 minutes for any of them, with the default
+#settings or with the prime_bound / lifting_prime settings add_rational_preperiodic_points_NF
+#uses for these field degrees (and possible_periods only works over QQ). So when loaded they
+#time out in the preperiodic step and have no rational preperiodic rows. Their preperiodic
+#points need to be computed another way (e.g. bounding the periods by reduction modulo primes
+#of K, then factoring the dynatomic and preimage polynomials over K) and stored, checking that
+#there are no points of positive height for these small d; then the data is complete.
+cites = ['DoHi2025']
+R = PolynomialRing(QQ, 't')
+t = R.gen()
+func_list = []
+for poly, d, c_of in [(t**2 + t + 1, 4, lambda v: QQ(1)),  # (2)a, Q(zeta_3)
+                      (t**2 + t + 1, 6, lambda v: -v - 1),  # (1)c, zeta_3^2
+                      (t**4 - t**2 + 1, 7, lambda v: v**3 - v),  # (2,2), Q(zeta_12)
+                      (t**4 - t**2 + 1, 11, lambda v: -v**3),  # (2,1,1)
+                      (t**6 + t**3 + 1, 6, lambda v: v**3),  # (1)d, Q(zeta_9)
+                      (t**6 + t**3 + 1, 7, lambda v: v**5 + v**2),  # (3)
+                      (t**8 + 1, 4, lambda v: -v**4 - 1),  # (1)b, Q(zeta_16)
+                      (t**12 - t**6 + 1, 6, lambda v: v**6 - 1),  # (1)e, Q(zeta_36)
+                      (t**12 - t**6 + 1, 6, lambda v: QQ(-1))]:  # (2)c
+    K0 = NumberField(poly, 'v')
+    c0 = c_of(K0.gen())
+    K, phi = normalize_field_NF(K0)
+    P = ProjectiveSpace(K, 1, 'x,y')
+    x, y = P.gens()
+    func_list.append(DynamicalSystem([x**d + phi(c0)*y**d, y**d]))
+
+for F in func_list:
+    found, F_id = model_in_database_NF(F, my_cursor)
+    if found:
+        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
+    else: #not in database (or not over this field)
         label = add_function_all_NF(F, my_cursor,\
                 citations=cites, log_file=log_file)
     my_session.commit()

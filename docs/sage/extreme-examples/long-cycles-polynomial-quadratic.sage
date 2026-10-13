@@ -10,7 +10,14 @@ dynabase_systems = []
 
 K.<a> = NumberField(t^2 - t - 8)  # 2.2.33.1
 P.<x,y> = ProjectiveSpace(K, 1)
-# Doyle2014
+# Stoll2008, Hutz2013, Doyle2014, Doyle2018
 dynabase_systems.append([DynamicalSystem([x^2 - 71/48*y^2, y^2], domain=P), '1.e2965d3f.1dd287fe.1'])
 
-print("Dynabase: 1 dynamical system in dynabase_systems")
+K.<a> = NumberField(t^2 - t + 1)  # 2.0.3.1
+P.<x,y> = ProjectiveSpace(K, 1)
+# DoHi2025
+dynabase_systems.append([DynamicalSystem([x^4 + y^4, y^4], domain=P), '1.72e71605.c7592b35.1'])
+# DoHi2025
+dynabase_systems.append([DynamicalSystem([x^6 + ((a - 1))*y^6, y^6], domain=P), '1.98d006bc.2368dbfa.1'])
+
+print("Dynabase: 3 dynamical systems in dynabase_systems")

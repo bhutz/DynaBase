@@ -9,27 +9,27 @@ dynabase_systems = []
 
 K = QQ
 P.<x,y> = ProjectiveSpace(K, 1)
-# Doyle2014, Ingram2012, Lukas2014, Poonen1998
+# Poonen1998, Ingram2012, Doyle2014, Lukas2014, CV2017, Doyle2018, Doyle2020, DoHi2025
 dynabase_systems.append([DynamicalSystem([x^2 - y^2, y^2], domain=P), '1.b5876aa4.6951d87f.1'])
-# Doyle2014, Ingram2012, Lukas2014, Poonen1998, FN1997
+# Morton1992, FN1997, Poonen1998, Manes2008, Ingram2012, Doyle2014, Lukas2014, Doyle2018, Doyle2020
 dynabase_systems.append([DynamicalSystem([x^2, y^2], domain=P), '1.a68cf1ff.024ac6d7.1'])
-# Doyle2014, Ingram2012, Lukas2014, Poonen1998
+# WR1994, Poonen1998, Ingram2012, Doyle2014, Lukas2014, Doyle2018, Doyle2020
 dynabase_systems.append([DynamicalSystem([x^2 - 2*y^2, y^2], domain=P), '1.a6935bbd.880302df.1'])
-# AMT2020, Benedetto2009
+# Benedetto2009, AMT2020
 dynabase_systems.append([DynamicalSystem([x^3 - y^3, -y^3], domain=P), '1.7e36c441.20e2ac14.1'])
-# AMT2020, Benedetto2009
+# Benedetto2009, AMT2020
 dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2 + 2*y^3, 2*y^3], domain=P), '1.5ac401c2.34c3c88c.1'])
-# AMT2020, Benedetto2009
+# Benedetto2009, AMT2020
 dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2 - 2*y^3, -2*y^3], domain=P), '1.5b621046.0e8d94e9.1'])
-# AMT2020, Benedetto2009
+# Benedetto2009, AMT2020
 dynabase_systems.append([DynamicalSystem([3*x^3 - 9*x*y^2 + 2*y^3, 4*y^3], domain=P), '1.6502de33.969c7b25.1'])
-# AMT2020, Benedetto2009, Ingram2012
+# Benedetto2009, Ingram2012, AMT2020
 dynabase_systems.append([DynamicalSystem([x^3 - 3/4*x*y^2 + 3/4*y^3, y^3], domain=P), '1.9fcfd25c.91fd0195.1'])
-# AMT2020, Benedetto2009
+# Benedetto2009, AMT2020
 dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*y^3, -4*y^3], domain=P), '1.194ce1a9.8660b31e.1'])
-# AMT2020, Benedetto2009
+# Benedetto2009, AMT2020
 dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2, -y^3], domain=P), '1.e8bb745c.fe98c06c.1'])
-# AMT2020, Ingram2012, FN1997
+# FN1997, Ingram2012, AMT2020
 dynabase_systems.append([DynamicalSystem([x^3, y^3], domain=P), '1.5fe37194.3d72adff.1'])
 # AMT2020
 dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y, 3*x*y^2 + y^3], domain=P), '1.ad8ccd97.61cd033e.1'])
@@ -39,7 +39,7 @@ dynabase_systems.append([DynamicalSystem([2*x^3 - 3*x^2*y + 2*y^3, -2*y^3], doma
 dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - y^3, y^3], domain=P), '1.354addff.61cd033e.1'])
 # AMT2020
 dynabase_systems.append([DynamicalSystem([3*x^3, -2*x^3 + 6*x^2*y + 3*x*y^2 - 4*y^3], domain=P), '1.b40fd63f.4b09c087.1'])
-# AMT2020, Ingram2012
+# Ingram2012, AMT2020
 dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2, y^3], domain=P), '1.4b199b71.fe98c06c.1'])
 # AMT2020
 dynabase_systems.append([DynamicalSystem([2*x^3 - 3*x*y^2 - 2*y^3, -2*y^3], domain=P), '1.31ca8b83.56a37501.1'])
@@ -51,7 +51,7 @@ dynabase_systems.append([DynamicalSystem([x^3 - 3/2*x*y^2, y^3], domain=P), '1.3
 dynabase_systems.append([DynamicalSystem([x^3 + 3/2*x*y^2, y^3], domain=P), '1.ad8ccd97.61cd033e.2'])
 # Ingram2012
 dynabase_systems.append([DynamicalSystem([x^3 + 3*x*y^2, y^3], domain=P), '1.e8bb745c.fe98c06c.2'])
-# Fraser2024, GHJSX2021, FN1997
+# FN1997, GHJSX2021, Fraser2024
 dynabase_systems.append([DynamicalSystem([x^4, y^4], domain=P), '1.024ac6d7.76c4de71.1'])
 # Fraser2024
 dynabase_systems.append([DynamicalSystem([x^4 - y^4, y^4], domain=P), '1.770c2622.7cef54b3.1'])

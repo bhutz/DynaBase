@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Dimension {{ dimension }}, Degree {{ degree }}, {{ type_label }}: Automorphism Groups{% if page_export %} <a class="sage-export" href="{{ page_export }}" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a>{% endif %}</h1>
+<h1>Automorphism Groups</h1>
+<p class="subject">{{ subject | safe }}</p>
 <p class="intro">The automorphism group of a map is the group of changes of coordinates (elements
 of PGL<sub>2</sub>) that conjugate the map to itself, computed over the algebraic closure. Each
 nontrivial automorphism group is listed once, with the map of smallest height that has it. Groups are named as in GAP: C<sub><i>n</i></sub>

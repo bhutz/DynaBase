@@ -1,12 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Dimension {{ dimension }}, Degree {{ degree }}, {{ type_label }}: Postcritically Finite Maps{% if page_export %} <a class="sage-export" href="{{ page_export }}" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a>{% endif %}</h1>
+<h1>Postcritically Finite Maps</h1>
+<p class="subject">{{ subject | safe }}</p>
 <p class="intro">A map is postcritically finite (PCF) if every critical point has a finite forward
 orbit. Its critical portrait is the graph of the critical points and their forward orbits.
 Critical points are counted over the algebraic closure, including &infin; for polynomials.</p>
-{% if type_ == 'rational' %}
-<p class="intro">Polynomials are rational maps too, but they are left out here: the PCF polynomials of
-this degree are listed on the <a href="{{ root }}data/{{ dimension }}/{{ degree }}/polynomial/postcritically-finite.html">polynomial page</a>.</p>
+{% if type_ == 'nonpoly' %}
+<p class="intro">Polynomials are left out here: the PCF polynomials of this degree are on the
+<a href="{{ root }}data/{{ dimension }}/{{ degree }}/poly/{{ field_degree }}/pcf.html">Polynomial page</a>,
+and both kinds together on the <a href="{{ root }}data/{{ dimension }}/{{ degree }}/all/{{ field_degree }}/pcf.html">All maps page</a>.</p>
 {% endif %}
 
 {% if groups %}

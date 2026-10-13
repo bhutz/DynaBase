@@ -430,19 +430,19 @@ my_session.commit()
 
 ###########################################
 #Doyle-Hyde Examples
-#arXiv:2201.11707 / DH2025, Table 2 row d=3: f([m]) in [n] for [k] = {1,...,k}
+#arXiv:2201.11707 / DoHy2025, Table 2 row d=3: f([m]) in [n] for [k] = {1,...,k}
 #Entries whose rational preperiodic graph (over the entry's own field) is
 #already realized by an earlier entry in the same table - same degree,
 #polynomial/rational, and base field degree - are commented out and
 #marked DUPLICATE, so each table holds one function per graph structure.
-cites = ['DH2025']
+cites = ['DoHy2025']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
 
 func_list = []
 
 # conjugate to II18 (one of Benedetto et al.'s record cubics, as the paper notes):
-# adds no new function, only attaches the DH2025 citation to the existing one
+# adds no new function, only attaches the DoHy2025 citation to the existing one
 # d=3, m=11, n=11: f(z) = (z^3 - 18z^2 + 89z - 66)/6
 func_list.append(DynamicalSystem([x**3 - 18*x**2*y + 89*x*y**2 - 66*y**3, 6*y**3]))
 
@@ -606,6 +606,35 @@ for F in func_list:
     if found:
         add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
     else: #not in database
+        label = add_function_all_NF(F, my_cursor,\
+                citations=cites, log_file=log_file)
+    my_session.commit()
+
+
+my_session.commit()
+
+###########################################
+#Doyle-Hindes Examples
+#arXiv:2510.14067 / DoHi2025, Table 1 (Theorem 1.1 and its corollary): the 12 nonempty
+#skeletons of PrePer(x^d + c, K) for algebraic integers c and large d. One map x^d + c
+#for each, found 2026-10-12 from the conditions in the proofs (arXiv:2408.14657,
+#Section 4: c built from roots of unity; (1)a from c = y - y^d): smallest field, then
+#smallest d. The 12 are split by degree over the quadratic, cubic and higher degree
+#polynomial files; the full list is in the higher degree file.
+#Here (verified with the full preperiodic computation): (1)a x^3 - 6 over QQ, c = y - y^3
+#with y = 2; its only finite QQ-rational preperiodic point is the fixed point 2 (for d = 2,
+#y = 2 gives x^2 - 2, which has more).
+cites = ['DoHi2025']
+func_list = []
+P = ProjectiveSpace(QQ, 1, 'x,y')
+x, y = P.gens()
+func_list.append(DynamicalSystem([x**3 - 6*y**3, y**3]))  # (1)a
+
+for F in func_list:
+    found, F_id = model_in_database_NF(F, my_cursor)
+    if found:
+        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
+    else: #not in database (or not over this field)
         label = add_function_all_NF(F, my_cursor,\
                 citations=cites, log_file=log_file)
     my_session.commit()

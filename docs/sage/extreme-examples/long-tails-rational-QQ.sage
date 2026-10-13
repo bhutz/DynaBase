@@ -1,4 +1,4 @@
-# Dynabase (https://dynabase.org): Summary of Extreme Examples, long rational tails, rational maps over QQ
+# Dynabase (https://dynabase.org): Summary of Extreme Examples, long rational tails, non-polynomial maps over QQ
 #
 # Load in Sage with load("<this file>"). It defines dynabase_systems, a list of
 # [map, label] pairs in table order: the map as a DynamicalSystem over the field of

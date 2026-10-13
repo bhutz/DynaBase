@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Degree 2 Polynomial Rational Preperiodic &mdash; DynaBase</title>
+<title>Dimension 1, degree 2 polynomials over &#x211A;: Rational Preperiodic &mdash; DynaBase</title>
 <link rel="stylesheet" href="assets/style.css">
 
 <script data-goatcounter="https://dynabase.goatcounter.com/count"
@@ -24,85 +24,57 @@
 
 <hr class="header-rule">
 
-<form class="selectors" id="selectors">
-  <label>Dimension
-    <select id="sel-dimension">
-      <option value="1" selected>1</option>
-    </select>
-  </label>
-  <label>Degree
-    <select id="sel-degree">
-      
-      <option value="2" selected>2</option>
-      
-      <option value="3" >3</option>
-      
-      <option value="4" >4</option>
-      
-      <option value="5" >5</option>
-      
-      <option value="6" >6</option>
-      
-      <option value="7" >7</option>
-      
-      <option value="8" >8</option>
-      
-      <option value="9" >9</option>
-      
-      <option value="10" >10</option>
-      
-      <option value="11" >11</option>
-      
-      <option value="12" >12</option>
-      
-      <option value="13" >13</option>
-      
-      <option value="14" >14</option>
-      
-      <option value="15" >15</option>
-      
-    </select>
-  </label>
-  <label>Type
-    <select id="sel-type">
-      <option value="polynomial" selected>polynomial</option>
-      <option value="rational" >rational</option>
-    </select>
-  </label>
-  <label>Problem
-    <select id="sel-problem">
-      
-      <option value="rational-preperiodic" selected>Rational Preperiodic</option>
-      
-      <option value="postcritically-finite" >Postcritically Finite</option>
-      
-      <option value="small-height" >Small Height Ratio</option>
-      
-      <option value="automorphism-groups" >Automorphism Groups</option>
-      
-    </select>
-  </label>
-  <button type="submit">View</button>
+
+<nav class="problem-tabs" id="problem-tabs" aria-label="Problem">
+  
+  <button type="button" data-problem="preper" aria-pressed="true">Rational Preperiodic</button>
+  
+  <button type="button" data-problem="pcf" aria-pressed="false">Postcritically Finite</button>
+  
+  <button type="button" data-problem="height" aria-pressed="false">Small Height Ratio</button>
+  
+  <button type="button" data-problem="aut" aria-pressed="false">Automorphism Groups</button>
+  
+</nav>
+<form class="selectors" id="selectors" data-root="" data-degree="2" data-type="poly"
+      data-kq="1" data-field="" data-problem="preper">
+  <div class="selector-row">
+    <label><span class="selector-label">Dimension</span>
+      <select id="sel-dimension"><option value="1" selected>1</option></select>
+    </label>
+    <label><span class="selector-label">Degree</span>
+      <select id="sel-degree">
+        <option value="2" selected>2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option>
+      </select>
+    </label>
+  </div>
+  <div class="selector-row">
+    <span class="selector-label">Type</span>
+    <span class="segmented" id="sel-type"><button type="button" data-type="poly" aria-pressed="true">Polynomial</button><button type="button" data-type="nonpoly" aria-pressed="false">Non-polynomial</button><button type="button" data-type="all" aria-pressed="false">All maps</button></span>
+  </div>
+  <div class="selector-row">
+    <label><span class="selector-label kq">[K:&#x211A;]</span>
+      <select id="sel-kq">
+        <option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+      </select>
+    </label>
+    <label><span class="selector-label">Field</span>
+      <select id="sel-field" disabled><option value="">&#x211A;</option></select>
+    </label>
+  </div>
 </form>
-<script>
-document.getElementById('selectors').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var dim = document.getElementById('sel-dimension').value;
-  var deg = document.getElementById('sel-degree').value;
-  var typ = document.getElementById('sel-type').value;
-  var prob = document.getElementById('sel-problem').value;
-  window.location.href = 'data/' + dim + '/' + deg + '/' + typ + '/' + prob + '.html';
-});
-</script>
+<script src="assets/nav-data.js"></script>
+<script src="assets/nav.js"></script>
 
 <main>
 
-<h1>Dimension 1, Degree 2, Polynomial: Rational Preperiodic Points <a class="sage-export" href="data/1/2/polynomial/rational-preperiodic.sage" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a></h1>
+<h1>Rational Preperiodic Points</h1>
+<p class="subject">Dimension 1, degree 2 polynomials over &#x211A;</p>
 
 
   
   <section class="data-table">
-    <h2>Functions over &#x211A;: 12 distinct graph structures <a class="sage-export" href="data/1/2/polynomial/rational-preperiodic-QQ.sage" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a></h2>
+    <h2>Functions over &#x211A;: 12 distinct graph structures <a class="sage-export" href="data/1/2/poly/1/preper.sage" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a></h2>
     <table>
       <thead>
         <tr>
@@ -128,7 +100,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
           <td>4, 2, 2, 1</td>
           <td>1</td>
           <td><a href="graphs/12.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+          <td><a href="data-summary.html#cite-WR1994">WR1994</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Doyle2018">Doyle2018</a>, <a href="data-summary.html#cite-Doyle2020">Doyle2020</a></td>
         </tr>
         
         <tr>
@@ -140,7 +112,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
           <td>8, 1</td>
           <td>2</td>
           <td><a href="graphs/14.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-DH2025">DH2025</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Hutz2026">Hutz2026</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+          <td><a href="data-summary.html#cite-WR1994">WR1994</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-Hutz2013">Hutz2013</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Doyle2018">Doyle2018</a>, <a href="data-summary.html#cite-Doyle2020">Doyle2020</a>, <a href="data-summary.html#cite-DoHy2025">DoHy2025</a>, <a href="data-summary.html#cite-Hutz2026">Hutz2026</a></td>
         </tr>
         
         <tr>
@@ -152,7 +124,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
           <td>4, 2, 1</td>
           <td>2</td>
           <td><a href="graphs/10.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+          <td><a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Doyle2018">Doyle2018</a>, <a href="data-summary.html#cite-Doyle2020">Doyle2020</a></td>
         </tr>
         
         <tr>
@@ -164,7 +136,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
           <td>6, 1</td>
           <td>2</td>
           <td><a href="graphs/11.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+          <td><a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Doyle2018">Doyle2018</a>, <a href="data-summary.html#cite-Doyle2020">Doyle2020</a></td>
         </tr>
         
         <tr>
@@ -176,7 +148,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
           <td>6, 1</td>
           <td>1</td>
           <td><a href="graphs/13.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+          <td><a href="data-summary.html#cite-WR1994">WR1994</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Doyle2018">Doyle2018</a>, <a href="data-summary.html#cite-Doyle2020">Doyle2020</a></td>
         </tr>
         
         <tr>
@@ -188,7 +160,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
           <td>3, 2, 1</td>
           <td>2</td>
           <td><a href="graphs/8.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+          <td><a href="data-summary.html#cite-WR1994">WR1994</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Doyle2018">Doyle2018</a>, <a href="data-summary.html#cite-Doyle2020">Doyle2020</a></td>
         </tr>
         
         <tr>
@@ -200,7 +172,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
           <td>2, 2, 1</td>
           <td>1</td>
           <td><a href="graphs/15.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+          <td><a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Doyle2018">Doyle2018</a></td>
         </tr>
         
         <tr>
@@ -224,7 +196,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
           <td>3, 1</td>
           <td>1</td>
           <td><a href="graphs/3.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+          <td><a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-CV2017">CV2017</a>, <a href="data-summary.html#cite-Doyle2018">Doyle2018</a>, <a href="data-summary.html#cite-Doyle2020">Doyle2020</a>, <a href="data-summary.html#cite-DoHi2025">DoHi2025</a></td>
         </tr>
         
         <tr>
@@ -236,7 +208,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
           <td>2, 1, 1</td>
           <td>1</td>
           <td><a href="graphs/6.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-FN1997">FN1997</a></td>
+          <td><a href="data-summary.html#cite-Morton1992">Morton1992</a>, <a href="data-summary.html#cite-FN1997">FN1997</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-Manes2008">Manes2008</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Doyle2018">Doyle2018</a>, <a href="data-summary.html#cite-Doyle2020">Doyle2020</a></td>
         </tr>
         
         <tr>
@@ -248,7 +220,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
           <td>2, 1</td>
           <td>1</td>
           <td><a href="graphs/4.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+          <td><a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Doyle2018">Doyle2018</a>, <a href="data-summary.html#cite-Doyle2020">Doyle2020</a></td>
         </tr>
         
         <tr>
@@ -260,545 +232,7 @@ document.getElementById('selectors').addEventListener('submit', function (e) {
           <td>1</td>
           <td>0</td>
           <td><a href="graphs/1.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-      </tbody>
-    </table>
-  </section>
-  
-  <section class="data-table">
-    <h2>Functions over quadratic fields: 43 distinct graph structures <a class="sage-export" href="data/1/2/polynomial/rational-preperiodic-quadratic.sage" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a></h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Label</th>
-          <th>Function</th>
-          <th>Field of Definition</th>
-          <th>Cardinality</th>
-          <th>Periodic Cycles</th>
-          <th>Preperiodic Components</th>
-          <th>Longest Tail</th>
-          <th>Graph</th>
-          <th>Citations</th>
-        </tr>
-      </thead>
-      <tbody>
-        
-        <tr>
-          <td>1.5b15356e.43983826.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 21/16&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.17.1">2.2.17.1</a></td>
-          <td>15</td>
-          <td>2, 1, 1, 1</td>
-          <td>10, 2, 2, 1</td>
-          <td>3</td>
-          <td><a href="graphs/46.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.7009e2bc.27fbdf16.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 29/16&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.17.1">2.2.17.1</a></td>
-          <td>15</td>
-          <td>3, 2, 1</td>
-          <td>10, 4, 1</td>
-          <td>3</td>
-          <td><a href="graphs/48.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-DH2025">DH2025</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Hutz2026">Hutz2026</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.7009e2bc.27fbdf16.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 29/16&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.33.1">2.2.33.1</a></td>
-          <td>15</td>
-          <td>3, 1, 1, 1</td>
-          <td>10, 2, 2, 1</td>
-          <td>2</td>
-          <td><a href="graphs/47.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-DH2025">DH2025</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Hutz2026">Hutz2026</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.e5f33c31.5bededd8.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 301/144&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.73.1">2.2.73.1</a></td>
-          <td>13</td>
-          <td>3, 1</td>
-          <td>12, 1</td>
-          <td>3</td>
-          <td><a href="graphs/42.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.0488c20d.302f679d.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 15/8&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.8.1">2.2.8.1</a></td>
-          <td>13</td>
-          <td>2, 1</td>
-          <td>12, 1</td>
-          <td>3</td>
-          <td><a href="graphs/39.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.24c682c5.dd0783cf.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 13/16&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.17.1">2.2.17.1</a></td>
-          <td>13</td>
-          <td>2, 1, 1, 1</td>
-          <td>8, 2, 2, 1</td>
-          <td>2</td>
-          <td><a href="graphs/40.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Hutz2026">Hutz2026</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.73d85ba8.9eb32d83.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 45/16&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.33.1">2.2.33.1</a></td>
-          <td>13</td>
-          <td>1, 2, 1, 1</td>
-          <td>6, 4, 2, 1</td>
-          <td>3</td>
-          <td><a href="graphs/41.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.059fb1f3.24824224.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 95/48&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.105.1">2.2.105.1</a></td>
-          <td>13</td>
-          <td>4, 1</td>
-          <td>12, 1</td>
-          <td>2</td>
-          <td><a href="graphs/43.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.b6d3146a.3d1df7b5.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 31/48&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.0.15.1">2.0.15.1</a></td>
-          <td>13</td>
-          <td>4, 2, 1</td>
-          <td>8, 4, 1</td>
-          <td>1</td>
-          <td><a href="graphs/44.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.e2965d3f.1dd287fe.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 71/48&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.33.1">2.2.33.1</a></td>
-          <td>13</td>
-          <td>6, 1</td>
-          <td>12, 1</td>
-          <td>1</td>
-          <td><a href="graphs/45.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.de450653.9e174cad.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 10/9&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.13.1">2.2.13.1</a></td>
-          <td>11</td>
-          <td>2, 1, 1, 1</td>
-          <td>4, 4, 2, 1</td>
-          <td>2</td>
-          <td><a href="graphs/34.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.e5f33c31.5bededd8.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 301/144&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.193.1">2.2.193.1</a></td>
-          <td>11</td>
-          <td>3, 2, 1</td>
-          <td>6, 4, 1</td>
-          <td>1</td>
-          <td><a href="graphs/38.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.e5f33c31.5bededd8.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 301/144&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.337.1">2.2.337.1</a></td>
-          <td>11</td>
-          <td>3, 1, 1, 1</td>
-          <td>6, 2, 2, 1</td>
-          <td>1</td>
-          <td><a href="graphs/37.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.7009e2bc.27fbdf16.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 29/16&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.41.1">2.2.41.1</a></td>
-          <td>11</td>
-          <td>3, 1</td>
-          <td>10, 1</td>
-          <td>3</td>
-          <td><a href="graphs/35.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-DH2025">DH2025</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Hutz2026">Hutz2026</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.7009e2bc.27fbdf16.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 29/16&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.57.1">2.2.57.1</a></td>
-          <td>11</td>
-          <td>3, 1</td>
-          <td>10, 1</td>
-          <td>2</td>
-          <td><a href="graphs/36.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-DH2025">DH2025</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Hutz2026">Hutz2026</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.7c61fa3f.6fc59844.1</td>
-          <td class="fn">(x<sup>2</sup> + 3/16&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.0.7.1">2.0.7.1</a></td>
-          <td>11</td>
-          <td>1, 1, 1</td>
-          <td>8, 2, 1</td>
-          <td>3</td>
-          <td><a href="graphs/30.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.67b1e39b.485999fa.1</td>
-          <td class="fn">(x<sup>2</sup> + (-1/2*a - 13/16)&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.17.1">2.2.17.1</a></td>
-          <td>11</td>
-          <td>1, 1, 1</td>
-          <td>8, 2, 1</td>
-          <td>4</td>
-          <td><a href="graphs/31.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.99beb1a1.365246dc.1</td>
-          <td class="fn">(x<sup>2</sup> + (1/9*a - 205/144)&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.73.1">2.2.73.1</a></td>
-          <td>11</td>
-          <td>2, 1</td>
-          <td>10, 1</td>
-          <td>4</td>
-          <td><a href="graphs/32.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.1ae932e0.c99dfb89.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 273/64&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.17.1">2.2.17.1</a></td>
-          <td>11</td>
-          <td>2, 1, 1, 1</td>
-          <td>6, 2, 2, 1</td>
-          <td>2</td>
-          <td><a href="graphs/33.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.a6935bbd.880302df.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 2y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.5.1">2.2.5.1</a></td>
-          <td>10</td>
-          <td>2, 1, 1, 1</td>
-          <td>4, 3, 2, 1</td>
-          <td>2</td>
-          <td><a href="graphs/29.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.05f9cf28.88243c92.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 13/9&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.40.1">2.2.40.1</a></td>
-          <td>9</td>
-          <td>2, 1</td>
-          <td>8, 1</td>
-          <td>2</td>
-          <td><a href="graphs/26.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.7009e2bc.27fbdf16.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 29/16&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.5.1">2.2.5.1</a></td>
-          <td>9</td>
-          <td>3, 1</td>
-          <td>8, 1</td>
-          <td>2</td>
-          <td><a href="graphs/14.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-DH2025">DH2025</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Hutz2026">Hutz2026</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.0030b10b.d2337b68.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 289/144&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.13.1">2.2.13.1</a></td>
-          <td>9</td>
-          <td>1, 1, 1</td>
-          <td>4, 4, 1</td>
-          <td>2</td>
-          <td><a href="graphs/24.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.4c8eac65.66631cbf.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 40/9&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.13.1">2.2.13.1</a></td>
-          <td>9</td>
-          <td>1, 1, 1</td>
-          <td>6, 2, 1</td>
-          <td>3</td>
-          <td><a href="graphs/25.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.08dcdb1a.ab8de2eb.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 37/9&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.13.1">2.2.13.1</a></td>
-          <td>9</td>
-          <td>2, 1</td>
-          <td>8, 1</td>
-          <td>3</td>
-          <td><a href="graphs/27.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.c885471f.8474b089.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 12y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.5.1">2.2.5.1</a></td>
-          <td>9</td>
-          <td>2, 1, 1, 1</td>
-          <td>4, 2, 2, 1</td>
-          <td>1</td>
-          <td><a href="graphs/12.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.2f68bb2c.6da77c52.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 155/72&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.40.1">2.2.40.1</a></td>
-          <td>9</td>
-          <td>4, 1</td>
-          <td>8, 1</td>
-          <td>1</td>
-          <td><a href="graphs/28.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.b5876aa4.6951d87f.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.5.1">2.2.5.1</a></td>
-          <td>8</td>
-          <td>2, 1, 1, 1</td>
-          <td>3, 2, 2, 1</td>
-          <td>1</td>
-          <td><a href="graphs/23.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.a68cf1ff.024ac6d7.1</td>
-          <td class="fn">(x<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.0.3.1">2.0.3.1</a></td>
-          <td>8</td>
-          <td>2, 1, 1, 1</td>
-          <td>4, 2, 1, 1</td>
-          <td>1</td>
-          <td><a href="graphs/22.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-FN1997">FN1997</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.a6935bbd.880302df.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 2y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.12.1">2.2.12.1</a></td>
-          <td>8</td>
-          <td>1, 1, 1</td>
-          <td>4, 3, 1</td>
-          <td>2</td>
-          <td><a href="graphs/21.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.a6935bbd.880302df.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 2y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.8.1">2.2.8.1</a></td>
-          <td>8</td>
-          <td>1, 1, 1</td>
-          <td>5, 2, 1</td>
-          <td>3</td>
-          <td><a href="graphs/20.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.13a1af67.7eb43a7f.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 3/4&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.5.1">2.2.5.1</a></td>
-          <td>7</td>
-          <td>1, 1, 1</td>
-          <td>4, 2, 1</td>
-          <td>2</td>
-          <td><a href="graphs/10.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.e5f33c31.5bededd8.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 301/144&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.33.1">2.2.33.1</a></td>
-          <td>7</td>
-          <td>3, 1</td>
-          <td>6, 1</td>
-          <td>1</td>
-          <td><a href="graphs/13.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.a34189c0.fa08537d.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 3y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.5.1">2.2.5.1</a></td>
-          <td>7</td>
-          <td>2, 1</td>
-          <td>6, 1</td>
-          <td>2</td>
-          <td><a href="graphs/11.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.b5876aa4.6951d87f.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.8.1">2.2.8.1</a></td>
-          <td>6</td>
-          <td>2, 1</td>
-          <td>5, 1</td>
-          <td>2</td>
-          <td><a href="graphs/19.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.a68cf1ff.024ac6d7.1</td>
-          <td class="fn">(x<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.0.4.1">2.0.4.1</a></td>
-          <td>6</td>
-          <td>1, 1, 1</td>
-          <td>4, 1, 1</td>
-          <td>2</td>
-          <td><a href="graphs/16.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-FN1997">FN1997</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.a6935bbd.880302df.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 2y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.13.1">2.2.13.1</a></td>
-          <td>6</td>
-          <td>1, 1, 1</td>
-          <td>3, 2, 1</td>
-          <td>2</td>
-          <td><a href="graphs/8.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.e9464d8c.638cd9c2.1</td>
-          <td class="fn">(x<sup>2</sup> + ay<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.0.4.1">2.0.4.1</a></td>
-          <td>6</td>
-          <td>2, 1</td>
-          <td>5, 1</td>
-          <td>2</td>
-          <td><a href="graphs/18.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.a2ec8083.b1a8ea2c.1</td>
-          <td class="fn">(x<sup>2</sup> + 1/5&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.5.1">2.2.5.1</a></td>
-          <td>5</td>
-          <td>1, 1, 1</td>
-          <td>2, 2, 1</td>
-          <td>1</td>
-          <td><a href="graphs/15.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.22725afe.4113354a.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; 4/5&middot;y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.5.1">2.2.5.1</a></td>
-          <td>5</td>
-          <td>2, 1</td>
-          <td>4, 1</td>
-          <td>1</td>
-          <td><a href="graphs/9.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.b5876aa4.6951d87f.1</td>
-          <td class="fn">(x<sup>2</sup> &minus; y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.12.1">2.2.12.1</a></td>
-          <td>4</td>
-          <td>2, 1</td>
-          <td>3, 1</td>
-          <td>1</td>
-          <td><a href="graphs/3.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.a68cf1ff.024ac6d7.1</td>
-          <td class="fn">(x<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.5.1">2.2.5.1</a></td>
-          <td>4</td>
-          <td>1, 1, 1</td>
-          <td>2, 1, 1</td>
-          <td>1</td>
-          <td><a href="graphs/6.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Ingram2012">Ingram2012</a>, <a href="data-summary.html#cite-Lukas2014">Lukas2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-FN1997">FN1997</a></td>
-        </tr>
-        
-        <tr>
-          <td>1.1a2a6bbf.1ed2bf82.1</td>
-          <td class="fn">(x<sup>2</sup> + y<sup>2</sup>&nbsp;:&nbsp;y<sup>2</sup>)</td>
-          <td><a href="https://www.lmfdb.org/NumberField/2.2.5.1">2.2.5.1</a></td>
-          <td>1</td>
-          <td>1</td>
-          <td>1</td>
-          <td>0</td>
-          <td><a href="graphs/1.svg" target="_blank" rel="noopener" title="Open the graph of the rational preperiodic points">view</a></td>
-          <td><a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a></td>
+          <td><a href="data-summary.html#cite-Morton1992">Morton1992</a>, <a href="data-summary.html#cite-Poonen1998">Poonen1998</a>, <a href="data-summary.html#cite-Doyle2014">Doyle2014</a>, <a href="data-summary.html#cite-Doyle2018">Doyle2018</a>, <a href="data-summary.html#cite-DoHi2025">DoHi2025</a></td>
         </tr>
         
       </tbody>

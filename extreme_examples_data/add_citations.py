@@ -20,6 +20,9 @@ bibliography=[]
 bibliography.append(['AMT2020', ['Jacqueline Anderson', 'Michelle Manes', 'Bella Tobin'], 'Open Book Ser.', 2020,\
     'Jacqueline Anderson, Michelle Manes, and Bella Tobin. Cubic post-critically finite polynomials defined over Q. In ANTS XIV - Proceedings of the Fourteenth Algorithmic Number Theory Symposium, volume 4 of Open Book Ser., pages 23--38. Math. Sci. Publ., Berkeley, CA, 2020.',\
     'MR4235104'])
+bibliography.append(['BCE2015', ['Jérémy Blanc', 'Jung Kyu Canci', 'Noam D. Elkies'], 'Int. Math. Res. Not. IMRN', 2015,\
+    'Jérémy Blanc, Jung Kyu Canci, and Noam D. Elkies. Moduli spaces of quadratic rational maps with a marked periodic point of small order. Int. Math. Res. Not. IMRN, 2015(23):12459--12489, 2015.',\
+    'MR3431627'])
 bibliography.append(['BCHKW2014', ['Robert L. Benedetto', 'Ruqian Chen', 'Trevor Hyde', 'Yordanka Kovacheva', 'Colin White'],\
     'Exp. Math.', 2014,\
     'Robert L. Benedetto, Ruqian Chen, Trevor Hyde, Yordanka Kovacheva, and Colin White. Small dynamical heights for quadratic polynomials and rational functions. Exp. Math., 23(4):433--447, 2014.',\
@@ -28,28 +31,36 @@ bibliography.append(['Benedetto2009',['Robert Benedetto', 'Ben Dickman', 'Sasha 
     'Involve', 2009,\
     'Robert Benedetto, Ben Dickman, Sasha Joseph, Ben Krause, Dan Rubin, and Xinwen Zhou. Computing points of small height for cubic polynomials. Involve, 2:37--64, 2009.',\
     'MR2501344'])
-bibliography.append(['BFHJY2017', ['Robert L. Benedetto', 'Xander Faber', 'Benjamin Hutz', 'Jamie Juul', 'Yu Yasufuku'],\
-    'Res. Number Theory', 2017,\
-    'Robert L. Benedetto, Xander Faber, Benjamin Hutz, Jamie Juul, and Yu Yasufuku. A large arboreal Galois representation for a cubic postcritically finite polynomial. Res. Number Theory, 3:Paper No. 29, 21 pp., 2017.',\
-    'MR3736808'])
 bibliography.append(['BM2012', ['Nils Bruin', 'Alex Molnar'], 'LMS J. Comput. Math.', 2012,\
     'Nils Bruin, Alex Molnar. Minimal models for rational functions in a dynamical setting. LMS J. Comput. Math. 15 (2012) 400--417.',\
     'MR3015733'])
-bibliography.append(['Canci2010', ['Jung Kyu Canci'], 'Ann. Inst. Fourier (Grenoble)', 2010,\
-    'Jung Kyu Canci. Rational periodic points for quadratic maps. Ann. Inst. Fourier (Grenoble), 60(3):953--985, 2010.',\
-    'MR2680821'])
+bibliography.append(['BS2026', ['Hasan Bilgili', 'Mohammad Sadek'], 'arXiv preprint', 2026,\
+    'Hasan Bilgili and Mohammad Sadek. Rational preperiodic points of quadratic rational maps over Q with nonabelian automorphism groups. arXiv:2603.06203, 2026.',\
+    None])
 bibliography.append(['Chang2006', ['Jianming Chang'], 'J. Math. Anal. Appl.', 2006,\
     'Jianming Chang. Polynomials without repelling periodic point of given period. J. Math. Anal. Appl., 324:1--13, 2006.',\
     'MR2262451'])
-bibliography.append(['DH2025', ['John R. Doyle', 'Trevor Hyde'], 'Trans. Amer. Math. Soc.', 2025,\
+bibliography.append(['CV2017', ['Jung Kyu Canci', 'Solomon Vishkautsan'], 'Int. J. Number Theory', 2017,\
+    'Jung Kyu Canci and Solomon Vishkautsan. Quadratic maps with a periodic critical point of period 2. Int. J. Number Theory, 13(6):1393--1417, 2017.',\
+    'MR3656200'])
+bibliography.append(['DoHy2025', ['John R. Doyle', 'Trevor Hyde'], 'Trans. Amer. Math. Soc.', 2025,\
     'John R. Doyle and Trevor Hyde. Polynomials with many rational preperiodic points. Trans. Amer. Math. Soc., 378(8):5981--6011, 2025.',\
     'MR4929863'])
+bibliography.append(['DoHi2025', ['John R. Doyle', 'Wade Hindes'], 'arXiv preprint', 2025,\
+    'John R. Doyle and Wade Hindes. Preperiodic integers for x^d+c in large degree. arXiv:2510.14067, 2025.',\
+    None])
 bibliography.append(['Dickson1958', ['Leonard Eugene Dickson'], 'Dover Publications', 1958,\
     'Leonard Eugene Dickson. Linear Groups: With an Exposition of the Galois Field Theory. Dover Publications, New York, 1958.',\
     'MR0104735'])
 bibliography.append(['Doyle2014', ['John R. Doyle', 'Xander Faber', 'David Krumm'], 'New York J. Math.', 2014,\
     'John R. Doyle, Xander Faber, and David Krumm. Preperiodic points for quadratic polynomials over quadratic fields. New York J. Math., 20:507--605, 2014.',\
     'MR3218788'])
+bibliography.append(['Doyle2018', ['John R. Doyle'], 'Math. Z.', 2018,\
+    'John R. Doyle. Preperiodic points for quadratic polynomials with small cycles over quadratic fields. Math. Z., 289(1-2):729--786, 2018.',\
+    'MR3803810'])
+bibliography.append(['Doyle2020', ['John R. Doyle'], 'Acta Arith.', 2020,\
+    'John R. Doyle. Preperiodic points for quadratic polynomials over cyclotomic quadratic fields. Acta Arith., 196(3):219--268, 2020.',\
+    'MR4161298'])
 bibliography.append(['dFH2018', ['Joao Alberto de Faria', 'Benjamin Hutz'], 'J. Algebra Appl.', 2018,\
     'Joao Alberto de Faria and Benjamin Hutz. Automorphism groups and invariant theory on PN. J. Algebra Appl., 17:1850162, 38 pp., 2018.',\
     'MR3846410'])
@@ -80,12 +91,6 @@ bibliography.append(['Hutz2026', ['Benjamin Hutz'], 'arXiv preprint', 2026,\
 bibliography.append(['Ingram2012', ['Patrick Ingram'], 'Int. Math. Res. Not. IMRN', 2012,\
     'Patrick Ingram. A finiteness result for post-critically finite polynomials. Int. Math. Res. Not. IMRN, 2012(3):524--543, 2012.',\
     'MR2885981'])
-bibliography.append(['Jones2008', ['Rafe Jones'], 'J. Lond. Math. Soc. (2)', 2008,\
-    'Rafe Jones. The density of prime divisors in the arithmetic dynamics of quadratic polynomials. J. Lond. Math. Soc. (2), 78(2):523--544, 2008.',\
-    'MR2439638'])
-bibliography.append(['JM2014', ['Rafe Jones', 'Michelle Manes'], 'Comment. Math. Helv.', 2014,\
-    'Rafe Jones and Michelle Manes. Galois theory of quadratic rational functions. Comment. Math. Helv., 89(1):173--213, 2014.',\
-    'MR3177912'])
 bibliography.append(['Lukas2014', ['David Lukas', 'Michelle Manes', 'Diane Yap'], 'LMS J. Comput. Math.', 2014,\
     'David Lukas, Michelle Manes, and Diane Yap. A census of quadratic post-critically finite rational functions defined over Q. LMS J. Comput. Math., 17(A):314--329, 2014.',\
     'MR3240812'])
@@ -98,12 +103,18 @@ bibliography.append(['Miasnikov2017', ['Nikita Miasnikov', 'Brian Stout', 'Phill
 bibliography.append(['Milnor1993', ['John Milnor'], 'Experiment. Math.', 1993,\
     'John Milnor. Geometry and dynamics of quadratic rational maps. With an appendix by the author and Lei Tan. Experiment. Math., 2(1):37--83, 1993.',\
     'MR1246482'])
+bibliography.append(['Morton1992', ['Patrick Morton'], 'Acta Arith.', 1992,\
+    'Patrick Morton. Arithmetic properties of periodic points of quadratic maps. Acta Arith., 62(4):343--372, 1992.',\
+    'MR1199627'])
 bibliography.append(['Poonen1998', ['Bjorn Poonen'], 'Math. Z.', 1998,\
     'Bjorn Poonen. The classificiation of rational preperiodic points of quadratic polynomials over Q: a refined conjecture. Math. Z., 228(1):11--29, 1998.',\
     'MR1617987'])
 bibliography.append(['Stoll2008', ['Michael Stoll'], 'LMS J. Comput. Math.', 2008,\
     'Michael Stoll. Rational 6-cycles under iteration of quadratic polynomials. LMS J. Comput. Math., 11:367--380, 2008.',\
     'MR2465796'])
+bibliography.append(['Vishkautsan2019', ['Solomon Vishkautsan'], 'J. Théor. Nombres Bordeaux', 2019,\
+    'Solomon Vishkautsan. Quadratic rational functions with a rational periodic critical point of period 3. With an appendix by Michael Stoll. J. Théor. Nombres Bordeaux, 31(1):49--79, 2019.',\
+    'MR3994719'])
 bibliography.append(['Vishkautsan2026', ['Solomon Vishkautsan'], None, 2026,\
     'Solomon Vishkautsan, personal communication Sept 2026',\
     None])

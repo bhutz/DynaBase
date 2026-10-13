@@ -571,6 +571,270 @@ for F in func_list:
 my_session.commit()
 
 ###########################################
+#Vishkautsan Examples
+#arXiv:1711.06345 / Vishkautsan2019, Table 1: one map for each of the 6 possible
+#graphs of QQ-rational preperiodic points of a quadratic map with a rational
+#periodic critical point of period 3 (critical cycle 0 -> inf -> 1 -> 0; the
+#classification is conditional). R3P0 is 1/(z-1)^2, already in the database
+#from Lukas2014, so it only gets the citation; R3P1-R3P5 are new graphs
+#(checked against the database 2026-10-12).
+cites = ['Vishkautsan2019']
+P = ProjectiveSpace(QQ,1,'x,y')
+x,y = P.gens()
+
+func_list = []
+
+# R3P0: f(z) = 1/(z-1)^2, 4 points: inf, 0, 1, 2
+func_list.append(DynamicalSystem([y**2, (x - y)**2]))
+# R3P1: f(z) = (2z^2 - z - 1)/(2z^2), 5 points: 0, inf, 1, -1/2, -1
+func_list.append(DynamicalSystem([2*x**2 - x*y - y**2, 2*x**2]))
+# R3P2: f(z) = (z^2 + 5z - 6)/z^2, 7 points: 0, inf, 1, -6, 6/5, 3, 2
+func_list.append(DynamicalSystem([x**2 + 5*x*y - 6*y**2, x**2]))
+# R3P3: f(z) = (5z^2 - 7z + 2)/(5z^2), 7 points: 0, inf, 1, 2/5, 2/7, 2, 1/3
+func_list.append(DynamicalSystem([5*x**2 - 7*x*y + 2*y**2, 5*x**2]))
+# R3P4: f(z) = (3z^2 - 5z + 2)/(3z^2), 9 points: 0, inf, 1, 2/3, 2/5, -2, 2, 1/3, 1/2
+func_list.append(DynamicalSystem([3*x**2 - 5*x*y + 2*y**2, 3*x**2]))
+# R3P5: f(z) = (5z^2 - 11z + 6)/(5z^2), 11 points: 0, inf, 1, 6/5, 6/11, 2/3, 2/5,
+# 3, -3/2, 6, 3/5
+func_list.append(DynamicalSystem([5*x**2 - 11*x*y + 6*y**2, 5*x**2]))
+
+for F in func_list:
+    found, F_id = model_in_database_NF(F, my_cursor)
+    if found:
+        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
+    else: #not in database
+        label = add_function_all_NF(F, my_cursor,\
+                citations=cites, log_file=log_file)
+    my_session.commit()
+
+
+my_session.commit()
+
+###########################################
+#Canci-Vishkautsan Examples
+#arXiv:1510.04726 / CV2017, Section 6 (Graph tables): one map for each realizable
+#graph of QQ-rational preperiodic points of a quadratic map over QQ with a rational
+#periodic critical point of period 2 (13 graphs, assuming no rational periodic points
+#of period >= 7): P2P1-P2P6 (PCF, from Lukas2014) and R2P1-R2P7; plus the paper's
+#data for critical period 3 (R3P0-R3P5, the maps of Vishkautsan2019) and 4 (R4P1-R4P5).
+#Checked against the database and the sections above 2026-10-12. New graphs: P2P5
+#(a twist of 1/z^2, function 182), R2P1-R2P7, R4P1-R4P5. The rest only get the
+#citation: P2P1 = function 2, P2P2 = 185, P2P3 = 186, P2P4 = 190, P2P6 = 182,
+#R3P0 = 184, R3P1-R3P5 = the Vishkautsan2019 maps above (QQ-conjugate). The paper's
+#P2P4 graph labels its 2-cycle -2, -1; it is 0, 1 (the map is right).
+cites = ['CV2017']
+P = ProjectiveSpace(QQ,1,'x,y')
+x,y = P.gens()
+
+func_list = []
+
+# P2P1: z^2 - 1, 4 points
+func_list.append(DynamicalSystem([x**2 - y**2, y**2]))
+# P2P2: -1/(4z^2 - 4z), 4 points
+func_list.append(DynamicalSystem([-y**2, 4*x**2 - 4*x*y]))
+# P2P3: -4/(9z^2 - 12z), 6 points
+func_list.append(DynamicalSystem([-4*y**2, 9*x**2 - 12*x*y]))
+# P2P4: (3z^2 - 4z + 1)/(1 - 4z), 6 points
+func_list.append(DynamicalSystem([3*x**2 - 4*x*y + y**2, y**2 - 4*x*y]))
+# P2P5: 2/z^2, 2 points: the 2-cycle 0 <-> inf
+func_list.append(DynamicalSystem([2*y**2, x**2]))
+# P2P6: 1/z^2, 4 points
+func_list.append(DynamicalSystem([y**2, x**2]))
+# R2P1: (z + 1)/z^2, 3 points
+func_list.append(DynamicalSystem([x*y + y**2, x**2]))
+# R2P2: (-z + 2)/z^2, 5 points
+func_list.append(DynamicalSystem([-x*y + 2*y**2, x**2]))
+# R2P3: (6z - 4)/(3z^2), 5 points
+func_list.append(DynamicalSystem([6*x*y - 4*y**2, 3*x**2]))
+# R2P4: (3z - 2)/z^2, 7 points
+func_list.append(DynamicalSystem([3*x*y - 2*y**2, x**2]))
+# R2P5: (-z - 1)/(6z^2), 7 points
+func_list.append(DynamicalSystem([-x*y - y**2, 6*x**2]))
+# R2P6: (5z - 2)/(3z^2), 7 points
+func_list.append(DynamicalSystem([5*x*y - 2*y**2, 3*x**2]))
+# R2P7: (7z - 6)/z^2, 9 points
+func_list.append(DynamicalSystem([7*x*y - 6*y**2, x**2]))
+# R3P0: 1/(z - 1)^2, 4 points
+func_list.append(DynamicalSystem([y**2, (x - y)**2]))
+# R3P1: (2z^2 - z - 1)/(2z^2), 5 points
+func_list.append(DynamicalSystem([2*x**2 - x*y - y**2, 2*x**2]))
+# R3P2: (z^2 + 5z - 6)/z^2, 7 points
+func_list.append(DynamicalSystem([x**2 + 5*x*y - 6*y**2, x**2]))
+# R3P3: (5z^2 - 7z + 2)/(5z^2), 7 points
+func_list.append(DynamicalSystem([5*x**2 - 7*x*y + 2*y**2, 5*x**2]))
+# R3P4: (3z^2 - 5z + 2)/(3z^2), 9 points
+func_list.append(DynamicalSystem([3*x**2 - 5*x*y + 2*y**2, 3*x**2]))
+# R3P5: (5z^2 - 11z + 6)/(5z^2), 11 points
+func_list.append(DynamicalSystem([5*x**2 - 11*x*y + 6*y**2, 5*x**2]))
+# R4P1: (12z^2 - 11z + 2)/(12z^2), 7 points
+func_list.append(DynamicalSystem([12*x**2 - 11*x*y + 2*y**2, 12*x**2]))
+# R4P2: (7z^2 + 29z - 30)/(7z^2), 9 points
+func_list.append(DynamicalSystem([7*x**2 + 29*x*y - 30*y**2, 7*x**2]))
+# R4P3: (3z^2 + z - 2)/(3z^2), 9 points
+func_list.append(DynamicalSystem([3*x**2 + x*y - 2*y**2, 3*x**2]))
+# R4P4: (15z^2 - 11z + 2)/(15z^2), 11 points
+func_list.append(DynamicalSystem([15*x**2 - 11*x*y + 2*y**2, 15*x**2]))
+# R4P5: (35z^2 - 31z + 6)/(35z^2), 13 points
+func_list.append(DynamicalSystem([35*x**2 - 31*x*y + 6*y**2, 35*x**2]))
+
+for F in func_list:
+    found, F_id = model_in_database_NF(F, my_cursor)
+    if found:
+        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
+    else: #not in database
+        label = add_function_all_NF(F, my_cursor,\
+                citations=cites, log_file=log_file)
+    my_session.commit()
+
+
+my_session.commit()
+
+###########################################
+#Blanc-Canci-Elkies Examples
+#arXiv:1305.1054 / BCE2015: quadratic maps over QQ with a rational 6-cycle. Checked
+#against the database and the sections above 2026-10-12. The explicit maps of
+#Example 4.10 and of the two rational points of M_2(6) printed at the end of
+#Section 4.3 all have the graph of a 6-cycle with one preimage of each cycle point
+#(12 points), already in the database (BCHKW2014, graph of functions 160, 161, 169,
+#175), and none is QQ-conjugate to a stored function, so they are not added.
+#(The paper prints those two points in the order [X:Y:Z:W]; they lie on S_6 with W
+#the last coordinate.) The family of Lemma 4.7 (a 6-cycle and the fixed point
+#[1:p+1]; the paper's LaTeX source gives f in a comment) has, for every p scanned
+#(|numerator|, denominator <= 12), the new graph of a 6-cycle and a fixed point, each
+#point with one preimage (14 points); its member of smallest height p = 1/2 is added.
+cites = ['BCE2015']
+P = ProjectiveSpace(QQ,1,'x,y')
+x,y = P.gens()
+
+func_list = []
+
+# NOT ADDED - Example 4.10: 6-cycle 0 -> inf -> 1 -> 91/19 -> 49/13 -> -98/19 -> 0, 12 points
+#func_list.append(DynamicalSystem([(19*x + 98*y)*(133*x - 441*y), 19*x*(133*x - 529*y)]))
+# NOT ADDED - [X:Y:Z:W] = [-46572:20403:35913:16685]: 6-cycle
+# 0 -> inf -> 1 -> 456/1859 -> -608/429 -> -1904/1573 -> 0, 12 points
+#func_list.append(DynamicalSystem([82941144*x**2 + 42054688*x*y - 70615552*y**2, 82941144*x**2 + 138753901*x*y]))
+# NOT ADDED - [X:Y:Z:W] = [-75523:54607:72443:62257]: 6-cycle
+# 0 -> inf -> 1 -> 9856/48285 -> -352/63 -> -28736/3219 -> 0, 12 points
+#func_list.append(DynamicalSystem([1507419072*x**2 + 12140075712*x*y - 11753713664*y**2, 1507419072*x**2 + 7770302253*x*y]))
+
+# Lemma 4.7, p = 1/2: 6-cycle inf -> 27/22 -> 0 -> 85/72 -> 1 -> 160/129 -> inf (the
+# paper's x_1, ..., x_6), fixed point 2/3 = [1:p+1], 14 points
+func_list.append(DynamicalSystem([919512*x**2 - 1764292*x*y + 780300*y**2, 749232*x**2 - 1462179*x*y + 660960*y**2]))
+
+for F in func_list:
+    found, F_id = model_in_database_NF(F, my_cursor)
+    if found:
+        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
+    else: #not in database
+        label = add_function_all_NF(F, my_cursor,\
+                citations=cites, log_file=log_file)
+    my_session.commit()
+
+
+my_session.commit()
+
+###########################################
+#Bilgili-Sadek Examples
+#arXiv:2603.06203 / BS2026, the Example at the end of Section 6: one map for each of
+#the 5 possible portraits (Table 1) of QQ-rational preperiodic points of a quadratic
+#map over QQ with automorphism group S_3 (unconditional). Every such map is
+#QQ-conjugate to theta_{d,k}(z) = (kz^2 - 2dz + dk)/(z^2 - 2kz + d), d != 0, k^2 != d;
+#all are twists of 1/z^2 (function 182). Checked against the database 2026-10-12:
+#ii is QQ-conjugate to 182, so it only gets the citation; iii, iv, v are new graphs.
+#For iii and iv the paper also gives the families (-3a^2, 0) and (-a^2, 0), which
+#are QQ-conjugate to its (d, k) examples; the simpler a = 1 members are used.
+cites = ['BS2026']
+P = ProjectiveSpace(QQ,1,'x,y')
+x,y = P.gens()
+
+func_list = []
+
+# NOT ADDED - (d, k) = (2, 7/5): 2 points, a fixed point and its preimage. The graph
+# is already in the database (functions 189, 565) and the map is a twist of 182, not
+# a stored function
+#d = QQ(2)
+#k = QQ(7)/5
+#func_list.append(DynamicalSystem([k*x**2 - 2*d*x*y + d*k*y**2, x**2 - 2*k*x*y + d*y**2]))
+
+# ii: (d, k) = (49/324, -1/2), 4 points: a fixed point with one preimage, and a 2-cycle
+d = QQ(49)/324
+k = QQ(-1)/2
+func_list.append(DynamicalSystem([k*x**2 - 2*d*x*y + d*k*y**2, x**2 - 2*k*x*y + d*y**2]))
+
+# iii: (d, k) = (-3, 0), i.e. 6z/(z^2 - 3), 6 points: three fixed points, each with a
+# preimage (QQ-conjugate to the paper's (-100/2187, -1/3))
+d = QQ(-3)
+k = QQ(0)
+func_list.append(DynamicalSystem([k*x**2 - 2*d*x*y + d*k*y**2, x**2 - 2*k*x*y + d*y**2]))
+
+# iv: (d, k) = (-1, 0), i.e. 2z/(z^2 - 1), 4 points: the fixed point 0, its other
+# preimage inf, and the two preimages 1, -1 of inf (QQ-conjugate to the paper's
+# (-13417569/640747969, 1))
+d = QQ(-1)
+k = QQ(0)
+func_list.append(DynamicalSystem([k*x**2 - 2*d*x*y + d*k*y**2, x**2 - 2*k*x*y + d*y**2]))
+
+# v: (d, k) = (-1031116321/672121026723, 1), 6 points: a 3-cycle, each point with a
+# preimage
+d = QQ(-1031116321)/672121026723
+k = QQ(1)
+func_list.append(DynamicalSystem([k*x**2 - 2*d*x*y + d*k*y**2, x**2 - 2*k*x*y + d*y**2]))
+
+for F in func_list:
+    found, F_id = model_in_database_NF(F, my_cursor)
+    if found:
+        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
+    else: #not in database
+        label = add_function_all_NF(F, my_cursor,\
+                citations=cites, log_file=log_file)
+    my_session.commit()
+
+
+my_session.commit()
+
+###########################################
+#Manes Examples
+#Manes2008 (Proc. Lond. Math. Soc. 96 (2008), 669-696), Section 4 and Figure 1: every
+#possible graph of QQ-rational preperiodic points (cycles of length at most 4) of a
+#quadratic map with automorphism group C2, phi(z) = kz + b/z, with a (k, b) for each (12
+#graphs; the figure has (-25/24, 1/6), which the text's list (a)-(k) lacks). Checked
+#2026-10-12, every graph against the figure: Figure 1 labels example (j) (4/3, 2/15), but
+#the text's b = -2/15 is right (b = 2/15 has no finite periodic points). (1, 1) = z + 1/z
+#(function 565) and (1/2, 1/2) (conjugate to z^2, function 4) only get the citation;
+#(1, -1) and (3/4, 1) are not added (not stored, and their graphs come from the maps of
+#the sections above); the other 8 are new graphs.
+cites = ['Manes2008']
+P = ProjectiveSpace(QQ,1,'x,y')
+x,y = P.gens()
+
+func_list = []
+
+for k, b in [(QQ(1), QQ(1)),  # (a) z + 1/z
+             (QQ(1)/2, QQ(1)/2),  # (b) conjugate to z^2
+             (QQ(-1)/3, QQ(1)/3),  # (e) 8 points
+             (QQ(-2), QQ(1)),  # (f) 6 points
+             (QQ(-5)/4, QQ(1)),  # (g) 10 points
+             (QQ(1)/3, QQ(-1)/3),  # (h) 8 points
+             (QQ(2)/3, QQ(-2)/3),  # (i) 8 points
+             (QQ(-25)/24, QQ(1)/6),  # Figure 1 only, 12 points
+             (QQ(4)/3, QQ(-2)/15),  # (j) a 4-cycle, 10 points
+             (QQ(7)/24, QQ(-7)/6)]:  # (k) a 4-cycle, 12 points
+    func_list.append(DynamicalSystem([k*x**2 + b*y**2, x*y]))
+# NOT ADDED - (c) (1, -1) and (d) (3/4, 1): graphs already in the sections above
+
+for F in func_list:
+    found, F_id = model_in_database_NF(F, my_cursor)
+    if found:
+        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
+    else: #not in database
+        label = add_function_all_NF(F, my_cursor,\
+                citations=cites, log_file=log_file)
+    my_session.commit()
+
+
+my_session.commit()
+
+###########################################
 #Hutz Examples (genetic algorithm)
 #arXiv:2601.11482 / Hutz2026, Appendix (Extended Data Set): the maps from the
 #Many Preperiodic Points ("many"), Long Periodic Cycles ("cycle") and Long

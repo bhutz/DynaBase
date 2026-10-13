@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Dimension {{ dimension }}, Degree {{ degree }}, {{ type_label }}: Small Height Ratio{% if page_export %} <a class="sage-export" href="{{ page_export }}" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a>{% endif %}</h1>
+<h1>Small Height Ratio</h1>
+<p class="subject">{{ subject | safe }}</p>
 <p class="intro">For a map f and a point P that is not preperiodic, the height ratio is
 &#x0125;<sub>f</sub>(P) / h<sub>M</sub>(f): the canonical height of P divided by a height of f on
 moduli space, here the largest height of the fixed point multiplier invariants

@@ -44,32 +44,93 @@ hr.header-rule {
   margin: 0;
 }
 
-form.selectors {
+nav.problem-tabs {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: flex-end;
-  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  padding: 0 1.25rem;
+}
+
+nav.problem-tabs button {
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: #555;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* centered, but still scrollable from the first tab when narrower than the tabs */
+nav.problem-tabs button:first-child { margin-left: auto; }
+nav.problem-tabs button:last-child { margin-right: auto; }
+
+nav.problem-tabs button:hover { color: #1a1a1a; }
+nav.problem-tabs button[aria-pressed="true"] { color: #1a1a1a; border-bottom-color: var(--link); }
+
+form.selectors {
+  display: grid;
+  gap: 0.7rem;
+  padding: 0.9rem 1.25rem;
   border-bottom: 1px solid var(--border);
   background: #f7f8fa;
 }
 
+.selector-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem 1.75rem;
+}
+
 form.selectors label {
   display: flex;
-  flex-direction: column;
-  font-size: 0.85rem;
-  color: #444;
+  align-items: center;
+  gap: 0.5rem;
 }
+
+.selector-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #555;
+}
+
+.selector-label.kq { text-transform: none; letter-spacing: 0; font-size: 0.9rem; }
 
 form.selectors select {
-  margin-top: 0.25rem;
-  padding: 0.3rem;
+  padding: 0.25rem 0.35rem;
+  font: inherit;
+  font-size: 0.9rem;
 }
 
-form.selectors button {
-  padding: 0.4rem 1rem;
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.segmented button {
+  font: inherit;
+  font-size: 0.88rem;
+  padding: 0.3rem 0.75rem;
+  border: 0;
+  border-right: 1px solid var(--border);
+  background: #fff;
   cursor: pointer;
 }
+
+.segmented button:last-child { border-right: 0; }
+.segmented button[aria-pressed="true"] { background: var(--link); color: #fff; }
+
+p.subject { color: #444; margin-top: -0.5rem; }
 
 main {
   padding: 1.25rem;

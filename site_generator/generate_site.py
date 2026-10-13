@@ -15,7 +15,10 @@ Jinja2 (both plain Python).
 """
 
 import argparse
+import html
+import json
 import os
+import re
 import shutil
 import sys
 
@@ -27,6 +30,7 @@ import render
 import sage_export
 import graph_images
 import mdlite
+from labels import is_lmfdb_label
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(HERE)
@@ -57,10 +61,39 @@ STATUS_CHART_PROBLEMS = ['rational-preperiodic', 'postcritically-finite', 'small
 # charts whose cells also give a count from the database (degree, type, field): for
 # automorphism groups, the number of distinct nontrivial groups among the maps
 COUNTED_STATUS_PROBLEMS = ['automorphism-groups']
-TYPE_LABELS = {'polynomial': 'Polynomial', 'rational': 'Rational'}
+TYPE_LABELS = {'polynomial': 'Polynomial', 'rational': 'Non-polynomial'}
 
 DEFAULT_DEGREE = 2
-DEFAULT_TYPE = 'polynomial'
+DEFAULT_TYPE = 'poly'
+
+# Data pages (Ben, 2026-10-13): data/{dimension}/{degree}/{type}/{field}/{problem}.html,
+# field = [K:QQ] for all fields of that degree, or one field's label. The header selects
+# the problem by tabs, then dimension and degree, type, and [K:QQ] with a field.
+# Page types: (URL part, is_polynomial - None for both, selector label)
+PAGE_TYPES = [('poly', True, 'Polynomial'), ('nonpoly', False, 'Non-polynomial'), ('all', None, 'All maps')]
+TYPE_SLUGS = {'polynomial': 'poly', 'rational': 'nonpoly'}  # TYPES (status charts etc.) -> page type
+PROBLEM_SLUGS = {'rational-preperiodic': 'preper', 'postcritically-finite': 'pcf',
+                 'small-height': 'height', 'automorphism-groups': 'aut'}
+# [K:QQ] values with pages: 1 up to the largest field degree in the data (set in main)
+FIELD_DEGREES = [1, 2]
+
+
+def data_page_rel(dimension, degree, page_type, field, problem):
+    """a data page's path under docs/; field: [K:QQ] or field_slug(label)"""
+    return f'data/{dimension}/{degree}/{page_type}/{field}/{PROBLEM_SLUGS[problem]}.html'
+
+
+def page_link(degree, type_name, field_degree, problem):
+    """the data page for a status chart / extreme examples cell: type_name is a TYPES name"""
+    return data_page_rel(1, degree, TYPE_SLUGS[type_name], field_degree, problem)
+
+
+def field_sort_key(label):
+    """fields in the selector: by degree, then |discriminant|, then label"""
+    if is_lmfdb_label(label):
+        n, r, disc, i = (int(v) for v in label.split('.'))
+        return (n, disc, r, i, '')
+    return (99, 0, 0, 0, label)
 
 # Status of each problem, for the chart on the data summary page. Set by hand,
 # not computed from the data. Keyed by problem, then (field, type), then
@@ -131,7 +164,7 @@ def build_automorphism_summary(rows):
         for field, _ in STATUS_FIELDS:
             for type_name, _ in TYPES:
                 d = smallest.get((iso_type, field_degrees[field], type_name))
-                link = f'data/1/{d}/{type_name}/automorphism-groups.html' if d else None
+                link = page_link(d, type_name, field_degrees[field], 'automorphism-groups') if d else None
                 if field == 'QQ' and type_name == 'polynomial':
                     known = polynomial_min_degree(iso_type)
                     if known is None:
@@ -263,6 +296,8 @@ def make_env():
     )
     env.globals['degrees'] = DEGREES  # header selector options, on every page
     env.globals['problems'] = PROBLEMS
+    env.globals['problem_slugs'] = PROBLEM_SLUGS
+    env.globals['page_types'] = PAGE_TYPES
     env.globals['goatcounter_code'] = GOATCOUNTER_CODE
     return env
 
@@ -319,129 +354,108 @@ FIELD_SLUGS = {1: 'QQ', 2: 'quadratic'}
 FIELD_TITLES = {1: 'over QQ', 2: 'over quadratic fields'}
 
 
-def export_page_tables(groups, dimension, degree, type_name, problem, root, citations_by_id, model_of=None,
-                       with_points=False):
+def field_slug(label):
+    """A field's part of a data page URL: its LMFDB label, or for a field labeled by
+    its polynomial (not in the LMFDB) that polynomial with the punctuation dashed."""
+    if is_lmfdb_label(label):
+        return label
+    return re.sub(r'[^0-9A-Za-z]+', '-', label).strip('-')
+
+
+def field_name(label):
+    """A field's name for the field selector and page headings: a quadratic LMFDB field
+    as Q(sqrt(d)) (Q(i) for d = -1) with its label, anything else as its label."""
+    if is_lmfdb_label(label):
+        n, r, disc, _ = (int(v) for v in label.split('.'))
+        if n == 2:
+            disc = disc if r == 2 else -disc
+            d = disc // 4 if disc % 4 == 0 else disc
+            if d == -1:
+                return f'&#x211A;(i) ({label})'
+            sign = '&minus;' if d < 0 else ''
+            return f'&#x211A;(&radic;{sign}{abs(d)}) ({label})'
+        return label
+    return f'&#x211A;[x]/({html.escape(label)})'
+
+
+def subject_heading(dimension, degree, page_type, field_degree, field=None):
+    """'Dimension 1, degree 2 polynomials over QQ' - what a data page lists."""
+    kind = {'poly': 'polynomials', 'nonpoly': 'non-polynomial maps', 'all': 'maps'}[page_type]
+    if field is not None:
+        over = 'over ' + field_name(field)
+    elif field_degree == 1:
+        over = 'over &#x211A;'
+    elif field_degree == 2:
+        over = 'over quadratic fields'
+    else:
+        over = f'over fields of degree {field_degree}'
+    return f'Dimension {dimension}, degree {degree} {kind} {over}'
+
+
+def fetch_problem_rows(conn, problem, degree, is_polynomial):
+    """(rows, how many maps have the problem's data not computed, or None)"""
+    if problem == 'rational-preperiodic':
+        return db.get_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial), None
+    if problem == 'postcritically-finite':
+        return db.get_pcf_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
+    if problem == 'small-height':
+        return db.get_small_height_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
+    return db.get_automorphism_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
+
+
+# problem -> (template, table grouping, what a missing value means, export options)
+PROBLEM_PAGES = {
+    'rational-preperiodic': ('data_page.html', render.group_by_field_degree, None, {}),
+    'postcritically-finite': ('pcf_page.html', render.group_pcf_by_field_degree,
+                              'have is_pcf not computed, so cannot appear on the PCF pages', {}),
+    'small-height': ('small_height_page.html', render.group_small_height_by_field_degree,
+                     'have no smallest height ratio, so cannot appear on the small height pages',
+                     # the point is in the coordinates of smallest_height_model
+                     {'model_of': lambda r: r.get('smallest_height_model') or 'original',
+                      'with_points': True}),
+    'automorphism-groups': ('automorphism_page.html', render.group_automorphism_by_field_degree,
+                            'have no automorphism group type, so cannot appear on the automorphism pages', {}),
+}
+
+
+def render_problem_page(env, problem, rows, dimension, degree, page_type, field_degree, field, out_rel,
+                        citations_by_id, used_citation_ids, report=True, export=True):
     """
-    Write the Export to Sage files of one data page: one per table (field degree)
-    and one for the whole page. Returns (page link or None, [(heading, formatted
-    rows, table link)]) for the template. Links are relative to the page (root).
+    One data page: the maps of rows (already restricted to this page's field degree, or
+    to one field) in one table, plus its Export to Sage file next to the page (unless
+    export is False). out_rel: where the HTML goes (sets the relative root).
+    Returns (html, number of maps shown).
     """
-    base = f'data/{dimension}/{degree}/{type_name}/{problem}'
-    problem_name = dict(PROBLEMS)[problem]
-    title = f'dimension {dimension}, degree {degree}, {TYPE_LABELS[type_name].lower()} maps, {problem_name}'
-    out, all_rows = [], []
-    for heading, formatted, raw, d in groups:
-        rel = f'{base}-{FIELD_SLUGS.get(d, f"degree-{d}")}.sage'
-        sage_export.write_sage_file(os.path.join(SITE_DIR, rel),
-                                    f'{title}, {FIELD_TITLES.get(d, f"over fields of degree {d}")}',
-                                    raw, citations_by_id, dimension=dimension, model_of=model_of,
-                                    with_points=with_points)
-        out.append((heading, formatted, root + rel))
-        all_rows += raw
-    if not all_rows:
-        return None, out
-    rel = base + '.sage'
-    sage_export.write_sage_file(os.path.join(SITE_DIR, rel), title, all_rows, citations_by_id,
-                                dimension=dimension, model_of=model_of, with_points=with_points)
-    return root + rel, out
-
-
-def render_data_page(env, conn, dimension, degree, type_name, is_polynomial, root,
-                      citations_by_id, used_citation_ids, report=True):
-    rows = db.get_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
-    rows, duplicates, no_graph = render.filter_distinct_graphs(rows)
-    if report:
-        report_excluded(dimension, degree, type_name, duplicates, no_graph)
-    for row in rows:
+    root = root_prefix(out_rel)
+    page_rel = data_page_rel(dimension, degree, page_type, field_slug(field) if field else field_degree, problem)
+    if problem == 'rational-preperiodic':
+        rows, duplicates, no_graph = render.filter_distinct_graphs(rows)
+        if report:
+            report_excluded(dimension, degree, page_type, duplicates, no_graph)
+    template, grouper, _, export_options = PROBLEM_PAGES[problem]
+    groups = grouper(dimension, rows, citations_by_id, root, field=field)
+    shown = [r for _, _, raw, _ in groups for r in raw]
+    for row in shown:
         used_citation_ids.update(row.get('citations') or [])
-    groups = render.group_by_field_degree(dimension, rows, citations_by_id, root)
-    page_export, groups = export_page_tables(
-        groups, dimension, degree, type_name, 'rational-preperiodic', root, citations_by_id)
-    template = env.get_template('data_page.html')
-    return template.render(
-        title=f'Degree {degree} {TYPE_LABELS[type_name]} Rational Preperiodic',
-        problem='rational-preperiodic',
+    subject = subject_heading(dimension, degree, page_type, field_degree, field)
+    sage_rel = page_rel[:-len('.html')] + '.sage'
+    if shown and export:
+        sage_export.write_sage_file(os.path.join(SITE_DIR, sage_rel),
+                                    f'{subject}, {dict(PROBLEMS)[problem]}'.replace('&#x211A;', 'QQ'),
+                                    shown, citations_by_id, dimension=dimension, **export_options)
+    html_out = env.get_template(template).render(
+        title=f'{subject}: {dict(PROBLEMS)[problem]}',
+        subject=subject,
         dimension=dimension,
         degree=degree,
-        type_=type_name,
-        type_label=TYPE_LABELS[type_name],
-        groups=groups,
-        page_export=page_export,
+        type_=page_type,
+        field_degree=field_degree,
+        groups=[(heading, formatted, root + sage_rel) for heading, formatted, _, _ in groups],
+        nav={'degree': degree, 'type': page_type, 'kq': field_degree,
+             'field': field_slug(field) if field else '', 'problem': PROBLEM_SLUGS[problem]},
         root=root,
     )
-
-
-def render_pcf_page(env, conn, dimension, degree, type_name, is_polynomial, root,
-                    citations_by_id, used_citation_ids, report=True):
-    rows, not_computed = db.get_pcf_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
-    if report and not_computed:
-        print(f'  note (dimension {dimension}, degree {degree}, {type_name}): '
-              f'{not_computed} function(s) have is_pcf not computed, so cannot appear on the PCF page')
-    for row in rows:
-        used_citation_ids.update(row.get('citations') or [])
-    groups = render.group_pcf_by_field_degree(dimension, rows, citations_by_id, root)
-    page_export, groups = export_page_tables(
-        groups, dimension, degree, type_name, 'postcritically-finite', root, citations_by_id)
-    return env.get_template('pcf_page.html').render(
-        title=f'Degree {degree} {TYPE_LABELS[type_name]} Postcritically Finite',
-        problem='postcritically-finite',
-        dimension=dimension,
-        degree=degree,
-        type_=type_name,
-        type_label=TYPE_LABELS[type_name],
-        groups=groups,
-        page_export=page_export,
-        root=root,
-    )
-
-
-def render_small_height_page(env, conn, dimension, degree, type_name, is_polynomial, root,
-                             citations_by_id, used_citation_ids, report=True):
-    rows, not_computed = db.get_small_height_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
-    if report and not_computed:
-        print(f'  note (dimension {dimension}, degree {degree}, {type_name}): '
-              f'{not_computed} function(s) have no smallest height ratio, so cannot appear on the small height page')
-    for row in rows:
-        used_citation_ids.update(row.get('citations') or [])
-    groups = render.group_small_height_by_field_degree(dimension, rows, citations_by_id, root)
-    page_export, groups = export_page_tables(
-        groups, dimension, degree, type_name, 'small-height', root, citations_by_id,
-        model_of=lambda r: r.get('smallest_height_model') or 'original', with_points=True)
-    return env.get_template('small_height_page.html').render(
-        title=f'Degree {degree} {TYPE_LABELS[type_name]} Small Height Ratio',
-        problem='small-height',
-        dimension=dimension,
-        degree=degree,
-        type_=type_name,
-        type_label=TYPE_LABELS[type_name],
-        groups=groups,
-        page_export=page_export,
-        root=root,
-    )
-
-
-def render_automorphism_page(env, conn, dimension, degree, type_name, is_polynomial, root,
-                             citations_by_id, used_citation_ids, report=True):
-    rows, not_computed = db.get_automorphism_functions_dim_1(conn, degree=degree, is_polynomial=is_polynomial)
-    if report and not_computed:
-        print(f'  note (dimension {dimension}, degree {degree}, {type_name}): '
-              f'{not_computed} function(s) have no automorphism group type, so cannot appear on the automorphism page')
-    for row in rows:
-        used_citation_ids.update(row.get('citations') or [])
-    groups = render.group_automorphism_by_field_degree(dimension, rows, citations_by_id, root)
-    page_export, groups = export_page_tables(
-        groups, dimension, degree, type_name, 'automorphism-groups', root, citations_by_id)
-    return env.get_template('automorphism_page.html').render(
-        title=f'Degree {degree} {TYPE_LABELS[type_name]} Automorphism Groups',
-        problem='automorphism-groups',
-        dimension=dimension,
-        degree=degree,
-        type_=type_name,
-        type_label=TYPE_LABELS[type_name],
-        groups=groups,
-        page_export=page_export,
-        root=root,
-    )
+    return html_out, len(shown)
 
 
 def main():
@@ -453,7 +467,9 @@ def main():
 
     conn = db.connect(section=args.section)
     env = make_env()
-    type_by_name = dict(TYPES)  # 'polynomial' -> True, 'rational' -> False
+    global FIELD_DEGREES
+    FIELD_DEGREES = list(range(1, db.get_max_field_degree(conn) + 1))
+    env.globals['field_degrees'] = FIELD_DEGREES
 
     # images of the graph structures (rational preperiodic graphs and critical portraits),
     # linked from the tables
@@ -463,32 +479,65 @@ def main():
     citations_by_id = db.get_citations_by_id(conn)
     used_citation_ids = set()
 
-    # --- data pages: dimension=1 x degree in {2,3} x type in {polynomial,rational} ---
+    # --- data pages: data/{dimension}/{degree}/{type}/{field}/{problem}.html, field =
+    # [K:QQ] (all fields of that degree, every value up to the largest in the data) or one
+    # field (only those with data on that page). The header's selectors need to know which
+    # combinations have maps: written to assets/nav-data.js at the end.
+    shutil.rmtree(os.path.join(SITE_DIR, 'data'), ignore_errors=True)  # old URL scheme, stale pages
+    nav_counts, nav_fields = {}, {}
     for dimension in DIMENSIONS:
         for degree in DEGREES:
-            for type_name, is_polynomial in TYPES:
-                for problem, renderer in [('rational-preperiodic', render_data_page),
-                                          ('postcritically-finite', render_pcf_page),
-                                          ('small-height', render_small_height_page),
-                                          ('automorphism-groups', render_automorphism_page)]:
-                    rel = f'data/{dimension}/{degree}/{type_name}/{problem}.html'
-                    html = renderer(env, conn, dimension, degree, type_name,
-                                    is_polynomial, root=root_prefix(rel),
-                                    citations_by_id=citations_by_id,
-                                    used_citation_ids=used_citation_ids)
-                    write(os.path.join(SITE_DIR, rel), html)
-                    print('wrote', rel)
+            for page_type, is_polynomial, _ in PAGE_TYPES:
+                for problem, _ in PROBLEMS:
+                    rows, not_computed = fetch_problem_rows(conn, problem, degree, is_polynomial)
+                    # 'all' repeats the other two types' rows: report those once
+                    report = page_type != 'all'
+                    if report and not_computed:
+                        print(f'  note (dimension {dimension}, degree {degree}, {page_type}): '
+                              f'{not_computed} function(s) {PROBLEM_PAGES[problem][2]}')
+                    key = f'{degree}/{page_type}/{{}}/{PROBLEM_SLUGS[problem]}'
+                    for field_degree in FIELD_DEGREES:
+                        k_rows = [r for r in rows if r['base_field_degree'] == field_degree]
+                        rel = data_page_rel(dimension, degree, page_type, field_degree, problem)
+                        html_out, n = render_problem_page(env, problem, k_rows, dimension, degree, page_type,
+                                                          field_degree, None, rel, citations_by_id,
+                                                          used_citation_ids, report=report)
+                        write(os.path.join(SITE_DIR, rel), html_out)
+                        nav_counts[key.format(field_degree)] = n
+                        fields = []
+                        # over QQ the [K:QQ] page is the field's page
+                        labels = dict.fromkeys(r['base_field_label'] for r in k_rows) if field_degree > 1 else []
+                        for label in labels:
+                            f_rows = [r for r in k_rows if r['base_field_label'] == label]
+                            rel = data_page_rel(dimension, degree, page_type, field_slug(label), problem)
+                            html_out, n = render_problem_page(env, problem, f_rows, dimension, degree, page_type,
+                                                              field_degree, label, rel, citations_by_id,
+                                                              used_citation_ids, report=False)
+                            if n:
+                                write(os.path.join(SITE_DIR, rel), html_out)
+                                fields.append((label, n))
+                        if fields:
+                            nav_fields[key.format(field_degree)] = [
+                                [field_slug(label), html.unescape(re.sub('<[^>]+>', '', field_name(label)))]
+                                for label, _ in sorted(fields, key=lambda f: field_sort_key(f[0]))]
+        print(f'wrote dimension {dimension}, degree {degree} pages')
+    write(os.path.join(SITE_DIR, 'assets', 'nav-data.js'),
+          '// Generated by site_generator/generate_site.py: which data pages have maps, for the\n'
+          '// header selectors. counts: "degree/type/[K:QQ]/problem" -> maps shown; fields: the\n'
+          '// fields with their own page there, [URL part, name].\n'
+          'window.DYNABASE_NAV_DATA = ' + json.dumps({'counts': nav_counts, 'fields': nav_fields},
+                                                   ensure_ascii=False, separators=(',', ':')) + ';\n')
 
-    # index.html = the default combination re-rendered at depth 0 (root='') -
-    # can't just reuse the data/ page's HTML, its links/JS are relative to a
-    # different depth.
-    index_html = render_data_page(env, conn, DIMENSIONS[0], DEFAULT_DEGREE, DEFAULT_TYPE,
-                                   type_by_name[DEFAULT_TYPE], root='',
-                                   citations_by_id=citations_by_id,
-                                   used_citation_ids=used_citation_ids,
-                                   report=False)  # same rows as its data/ page, already reported
+    # index.html = the default page re-rendered at depth 0 (root='') - its links are
+    # relative to its own depth. Its export link points at the data page's file.
+    rows, _ = fetch_problem_rows(conn, 'rational-preperiodic', DEFAULT_DEGREE, dict(
+        (t, p) for t, p, _ in PAGE_TYPES)[DEFAULT_TYPE])
+    index_html, _ = render_problem_page(env, 'rational-preperiodic',
+                                        [r for r in rows if r['base_field_degree'] == 1],
+                                        DIMENSIONS[0], DEFAULT_DEGREE, DEFAULT_TYPE, 1, None, 'index.html',
+                                        citations_by_id, used_citation_ids, report=False, export=False)
     write(os.path.join(SITE_DIR, 'index.html'), index_html)
-    print('wrote index.html (= dimension 1, degree', DEFAULT_DEGREE, ',', DEFAULT_TYPE, ')')
+    print('wrote index.html (= dimension 1, degree', DEFAULT_DEGREE, ',', DEFAULT_TYPE, 'over QQ)')
 
     # Extreme Examples: one section per problem. Each has a table per (field
     # category - QQ or quadratic fields, as on the data pages - and type) with
@@ -532,7 +581,7 @@ def main():
                     used_citation_ids.update(winner.get('citations') or [])
                     row = render.build_extreme_row(
                         degree, winner, value, citations_by_id, root='',
-                        link=f'data/1/{degree}/{type_name}/{problem}.html',
+                        link=page_link(degree, type_name, base_field_degree, problem),
                         model=model_of(winner) if model_of else None)
                     if extra:
                         status = PROBLEM_STATUS.get(problem, {}).get(
@@ -609,7 +658,7 @@ def main():
         automorphism_rows.append({
             'group': render.format_group(row['automorphism_group_iso_type']),
             'order': row['automorphism_group_cardinality'],
-            'degree': f'<a href="data/1/{row["degree"]}/{type_name}/automorphism-groups.html">{row["degree"]}</a>',
+            'degree': f'<a href="{page_link(row["degree"], type_name, row["base_field_degree"], "automorphism-groups")}">{row["degree"]}</a>',
             'type': TYPE_LABELS[type_name],
             'function': render.format_function(row),
             'field': render.format_field_link(row['base_field_label']),
@@ -624,7 +673,7 @@ def main():
         for fd in (1, 2):
             for type_name, _ in TYPES:
                 entries = by_degree[degree].get((fd, type_name), [])
-                link = f'data/1/{degree}/{type_name}/automorphism-groups.html'
+                link = page_link(degree, type_name, fd, 'automorphism-groups')
                 cells.append(', '.join(f'<a href="{link}">{render.format_group(iso)}</a>' for iso in entries)
                              or '&mdash;')
         groups_table.append((degree, cells))
@@ -674,7 +723,7 @@ def main():
     used_citation_ids.update(c['id'] for c in citations_by_id.values() if c['label'] in status_citation_labels())
     bib_rows = sorted(
         (citations_by_id[cid] for cid in used_citation_ids if cid in citations_by_id),
-        key=lambda c: c['label']
+        key=render.citation_order
     )
     bibliography_html = render.format_bibliography(bib_rows)
     map_rows, map_column_totals, map_total = build_map_count_table(db.get_map_counts(conn))
@@ -701,6 +750,8 @@ def main():
     os.makedirs(os.path.join(SITE_DIR, 'assets'), exist_ok=True)
     shutil.copyfile(os.path.join(HERE, 'static', 'style.css'),
                      os.path.join(SITE_DIR, 'assets', 'style.css'))
+    shutil.copyfile(os.path.join(HERE, 'static', 'nav.js'),
+                     os.path.join(SITE_DIR, 'assets', 'nav.js'))
 
     # GitHub Pages: don't run this through Jekyll
     open(os.path.join(SITE_DIR, '.nojekyll'), 'a').close()

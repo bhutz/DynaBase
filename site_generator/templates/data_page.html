@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Dimension {{ dimension }}, Degree {{ degree }}, {{ type_label }}: Rational Preperiodic Points{% if page_export %} <a class="sage-export" href="{{ page_export }}" download title="Download a .sage file that defines these maps as a list of dynamical systems">Export to Sage</a>{% endif %}</h1>
+<h1>Rational Preperiodic Points</h1>
+<p class="subject">{{ subject | safe }}</p>
 
 {% if groups %}
   {% for heading, rows, export in groups %}

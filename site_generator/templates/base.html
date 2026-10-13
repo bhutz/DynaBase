@@ -24,44 +24,41 @@
 
 <hr class="header-rule">
 
-<form class="selectors" id="selectors">
-  <label>Dimension
-    <select id="sel-dimension">
-      <option value="1" selected>1</option>
-    </select>
-  </label>
-  <label>Degree
-    <select id="sel-degree">
-      {% for d in degrees %}
-      <option value="{{ d }}" {% if degree == d %}selected{% endif %}>{{ d }}</option>
-      {% endfor %}
-    </select>
-  </label>
-  <label>Type
-    <select id="sel-type">
-      <option value="polynomial" {% if type_ == 'polynomial' %}selected{% endif %}>polynomial</option>
-      <option value="rational" {% if type_ == 'rational' %}selected{% endif %}>rational</option>
-    </select>
-  </label>
-  <label>Problem
-    <select id="sel-problem">
-      {% for value, name in problems %}
-      <option value="{{ value }}" {% if problem == value %}selected{% endif %}>{{ name }}</option>
-      {% endfor %}
-    </select>
-  </label>
-  <button type="submit">View</button>
+{% set n = nav or {'degree': 2, 'type': 'poly', 'kq': 1, 'field': '', 'problem': ''} %}
+<nav class="problem-tabs" id="problem-tabs" aria-label="Problem">
+  {% for value, name in problems %}
+  <button type="button" data-problem="{{ problem_slugs[value] }}" aria-pressed="{{ 'true' if n.problem == problem_slugs[value] else 'false' }}">{{ name }}</button>
+  {% endfor %}
+</nav>
+<form class="selectors" id="selectors" data-root="{{ root }}" data-degree="{{ n.degree }}" data-type="{{ n.type }}"
+      data-kq="{{ n.kq }}" data-field="{{ n.field }}" data-problem="{{ n.problem }}">
+  <div class="selector-row">
+    <label><span class="selector-label">Dimension</span>
+      <select id="sel-dimension"><option value="1" selected>1</option></select>
+    </label>
+    <label><span class="selector-label">Degree</span>
+      <select id="sel-degree">
+        {% for d in degrees %}<option value="{{ d }}"{% if n.degree == d %} selected{% endif %}>{{ d }}</option>{% endfor %}
+      </select>
+    </label>
+  </div>
+  <div class="selector-row">
+    <span class="selector-label">Type</span>
+    <span class="segmented" id="sel-type">{% for slug, _, label in page_types %}<button type="button" data-type="{{ slug }}" aria-pressed="{{ 'true' if n.type == slug else 'false' }}">{{ label }}</button>{% endfor %}</span>
+  </div>
+  <div class="selector-row">
+    <label><span class="selector-label kq">[K:&#x211A;]</span>
+      <select id="sel-kq">
+        {% for k in field_degrees %}<option value="{{ k }}"{% if n.kq == k %} selected{% endif %}>{{ k }}</option>{% endfor %}
+      </select>
+    </label>
+    <label><span class="selector-label">Field</span>
+      <select id="sel-field"{% if n.kq == 1 %} disabled{% endif %}><option value="">{% if n.kq == 1 %}&#x211A;{% else %}All fields{% endif %}</option></select>
+    </label>
+  </div>
 </form>
-<script>
-document.getElementById('selectors').addEventListener('submit', function (e) {
-  e.preventDefault();
-  var dim = document.getElementById('sel-dimension').value;
-  var deg = document.getElementById('sel-degree').value;
-  var typ = document.getElementById('sel-type').value;
-  var prob = document.getElementById('sel-problem').value;
-  window.location.href = '{{ root }}data/' + dim + '/' + deg + '/' + typ + '/' + prob + '.html';
-});
-</script>
+<script src="{{ root }}assets/nav-data.js"></script>
+<script src="{{ root }}assets/nav.js"></script>
 
 <main>
 {% block content %}{% endblock %}

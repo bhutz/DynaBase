@@ -19,7 +19,7 @@ import os
 import re
 
 from labels import is_lmfdb_label
-from render import choose_coeffs, format_label
+from render import choose_coeffs, format_label, sort_citation_ids
 
 SITE_URL = 'https://dynabase.org'
 
@@ -108,7 +108,8 @@ def write_sage_file(path, title, rows, citations_by_id, dimension=1, model_of=No
                 fields_used = True
                 body.append(f'K.<a> = NumberField({poly})  # {field}')
             body.append('P.<x,y> = ProjectiveSpace(K, 1)')
-        cites = ', '.join(citations_by_id[c]['label'] for c in (row.get('citations') or [])
+        cites = ', '.join(citations_by_id[c]['label']
+                          for c in sort_citation_ids(row.get('citations'), citations_by_id)
                           if c in citations_by_id)
         comment = [cites] if cites else []
         if with_points and row.get('smallest_height_ratio') is not None:

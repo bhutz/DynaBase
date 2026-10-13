@@ -60,6 +60,10 @@ func_list.append((DynamicalSystem([x**3 - 3*y**3, -3*x**2*y]), ['GHJSX2021']))
 
 # octahedral S_4
 func_list.append((DynamicalSystem([-x**5 + 5*x*y**4, 5*x**4*y - y**5]), ['dFH2018']))
+# the same map as written in Miasnikov-Stout-Williams, arXiv:1408.5655 / Miasnikov2017,
+# Example 1: (z^5 - 5z)/(1 - 5z^4), the single point of the A_4 = S_4 locus in degree 5
+# (function 438, checked 2026-10-12); this only adds the citation
+func_list.append((DynamicalSystem([x**5 - 5*x*y**4, y**5 - 5*x**4*y]), ['Miasnikov2017']))
 
 # icosahedral A_5
 func_list.append((DynamicalSystem([-(x**11 + 66*x**6*y**5 - 11*x*y**10),

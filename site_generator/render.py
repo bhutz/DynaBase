@@ -126,7 +126,10 @@ def format_field_link(base_field_label):
     return f'<a href="https://www.lmfdb.org/NumberField/{base_field_label}">{base_field_label}</a>'
 
 
-def field_degree_label(base_field_degree):
+def field_degree_label(base_field_degree, field=None):
+    """The table heading's start; field: one field's label, for a page of that field only."""
+    if field is not None:
+        return f'Functions over {format_field_link(field)}'
     if base_field_degree == 1:
         return 'Functions over &#x211A;'  # blackboard-bold Q
     if base_field_degree == 2:
@@ -135,8 +138,8 @@ def field_degree_label(base_field_degree):
 
 
 def extreme_heading(is_polynomial, base_field_degree):
-    """'Polynomials over QQ', 'Rational maps over quadratic fields', ..."""
-    kind = 'Polynomials' if is_polynomial else 'Rational maps'
+    """'Polynomials over QQ', 'Non-polynomial maps over quadratic fields', ..."""
+    kind = 'Polynomials' if is_polynomial else 'Non-polynomial maps'
     if base_field_degree == 1:
         return f'{kind} over &#x211A;'
     if base_field_degree == 2:
@@ -220,17 +223,28 @@ def format_label(dimension, row):
     return f"{dimension}.{row['sigma_one']}.{row['sigma_two']}.{row['ordinal']}"
 
 
+def citation_order(c):
+    """Sort key for citations: chronological, oldest first (Ben, 2026-10-13), then label."""
+    return (c.get('year') or 9999, c['label'])
+
+
+def sort_citation_ids(citation_ids, citations_by_id):
+    """citation ids in chronological order (citation_order); unknown ids last"""
+    return sorted(citation_ids or [], key=lambda cid: citation_order(citations_by_id[cid])
+                  if cid in citations_by_id else (10000, ''))
+
+
 def format_citations(citation_ids, citations_by_id, root):
     """
     functions_dim_1_NF.citations is int[] of citations.id. Render each as its
     short label, linked to its entry in the Summary of Included Data page's
     bibliography (see format_bibliography / the #cite-<label> anchors it
-    writes there).
+    writes there). Oldest first.
     """
     if not citation_ids:
         return '&mdash;'
     parts = []
-    for cid in citation_ids:
+    for cid in sort_citation_ids(citation_ids, citations_by_id):
         c = citations_by_id.get(cid)
         if c is None:
             continue  # stale id, shouldn't happen, but don't break the page over it
@@ -293,7 +307,7 @@ def filter_distinct_graphs(rows):
     return kept, duplicates, no_graph
 
 
-def group_by_field_degree(dimension, rows, citations_by_id, root):
+def group_by_field_degree(dimension, rows, citations_by_id, root, field=None):
     """
     Group already-sorted (by base_field_degree first) rows into a list of
     (heading, formatted rows, raw rows, field degree) tuples, one per distinct
@@ -311,7 +325,7 @@ def group_by_field_degree(dimension, rows, citations_by_id, root):
         if d != current_degree:
             current_degree = d
             current_rows = []
-            groups.append((field_degree_label(d), current_rows))
+            groups.append((field_degree_label(d, field), current_rows))
         current_rows.append(row)
     return [(f'{heading}: {len(rs)} distinct graph structure{"" if len(rs) == 1 else "s"}',
              build_table_rows(dimension, rs, citations_by_id, root), rs, rs[0]['base_field_degree'])
@@ -365,7 +379,7 @@ def build_pcf_rows(dimension, rows, citations_by_id, root):
     return out
 
 
-def group_pcf_by_field_degree(dimension, rows, citations_by_id, root):
+def group_pcf_by_field_degree(dimension, rows, citations_by_id, root, field=None):
     """
     PCF functions grouped by their field's degree, one table per degree
     present, each sorted by critical portrait size (largest first) then
@@ -379,7 +393,7 @@ def group_pcf_by_field_degree(dimension, rows, citations_by_id, root):
     for d in sorted(by_degree):
         rs = sorted(by_degree[d], key=lambda r: (-(r['portrait_cardinality'] or 0), r['function_id']))
         classes = count_conjugacy_classes(rs)
-        heading = (f'{field_degree_label(d)}: {classes} conjugacy class{"" if classes == 1 else "es"}'
+        heading = (f'{field_degree_label(d, field)}: {classes} conjugacy class{"" if classes == 1 else "es"}'
                    f' over {QBAR}')
         if len(rs) != classes:
             heading += f' ({len(rs)} maps, counting rational twists separately)'
@@ -415,7 +429,7 @@ def build_small_height_rows(dimension, rows, citations_by_id, root):
     return out
 
 
-def group_small_height_by_field_degree(dimension, rows, citations_by_id, root):
+def group_small_height_by_field_degree(dimension, rows, citations_by_id, root, field=None):
     """
     Functions with a smallest height ratio, one table per field degree present,
     each sorted by ratio, smallest first, then function_id.
@@ -426,7 +440,7 @@ def group_small_height_by_field_degree(dimension, rows, citations_by_id, root):
     groups = []
     for d in sorted(by_degree):
         rs = sorted(by_degree[d], key=lambda r: (r['smallest_height_ratio'], r['function_id']))
-        heading = f'{field_degree_label(d)}: {len(rs)} map{"" if len(rs) == 1 else "s"}'
+        heading = f'{field_degree_label(d, field)}: {len(rs)} map{"" if len(rs) == 1 else "s"}'
         groups.append((heading, build_small_height_rows(dimension, rs, citations_by_id, root), rs, d))
     return groups
 
@@ -451,7 +465,7 @@ def build_automorphism_rows(dimension, rows, citations_by_id, root):
     } for row in rows]
 
 
-def group_automorphism_by_field_degree(dimension, rows, citations_by_id, root):
+def group_automorphism_by_field_degree(dimension, rows, citations_by_id, root, field=None):
     """
     Functions with a nontrivial automorphism group, one table per field degree
     present, with one map per automorphism group (Ben, 2026-10-08): the one of
@@ -471,7 +485,7 @@ def group_automorphism_by_field_degree(dimension, rows, citations_by_id, root):
                 best[key] = (rank, r)
         rs = sorted((r for _, r in best.values()),
                     key=lambda r: (-r['automorphism_group_cardinality'], r['automorphism_group_iso_type']))
-        heading = f'{field_degree_label(d)}: {len(rs)} automorphism group{"" if len(rs) == 1 else "s"}'
+        heading = f'{field_degree_label(d, field)}: {len(rs)} automorphism group{"" if len(rs) == 1 else "s"}'
         groups.append((heading, build_automorphism_rows(dimension, rs, citations_by_id, root), rs, d))
     return groups
 
