@@ -24,13 +24,7 @@ from sage.rings.fraction_field import is_FractionField
 from sage.rings.polynomial.multi_polynomial_ring_base import MPolynomialRing_base
 from sage.rings.polynomial.polynomial_ring import PolynomialRing_general
 
-#sagerel -pip install pysha3
-import sha3  #adds shake to hashlib
-import hashlib  #for shake
 import sys
-
-#length of SHAKE-256S hash for function label
-digest_length = int(4)
 
 
 ###########################################
@@ -43,6 +37,7 @@ from functions.function_dim_1_helpers_generic import get_post_critical
 from functions.function_dim_1_helpers_generic import choose_display_model
 from functions.function_dim_1_helpers_generic import graph_to_array
 from functions.function_dim_1_helpers_generic import array_to_graph
+from functions.function_dim_1_helpers_generic import sigma_hash
 
 
 ##############################################################
@@ -303,8 +298,7 @@ def add_function_FF(F, citations=[], family=[], keywords=[], action='add', bool_
     #f['base_field_emb'] = int(emb_index)
 
     f['sigma_invariants.one']=[str(t) for t in F.sigma_invariants(1)]
-    sigma_hash = str(hashlib.shake_256(''.join(f['sigma_invariants.one']).encode('utf-8')).hexdigest(digest_length))
-    label = str(f['dimension']) +'.'+ str(f['degree']) + '.' + sigma_hash + '.'
+    label = str(f['dimension']) +'.'+ str(f['degree']) + '.' + sigma_hash(f['sigma_invariants.one']) + '.'
 
     log_file.write('Searching for functions: ' + label + ': ')
     query = {'degree':f['degree'], 'sigma_invariants.one': f['sigma_invariants.one']}

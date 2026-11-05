@@ -40,13 +40,7 @@ from sage.rings.rational_field import QQ
 from sage.schemes.projective.projective_space import ProjectiveSpace
 
 
-#sagerel -pip install pysha3
-import sha3  #adds shake to hashlib
-import hashlib  #for shake
 import sys
-
-#length of SHAKE-256S hash for function label
-digest_length = int(4)
 
 
 ###########################################
@@ -61,6 +55,7 @@ from functions.function_dim_1_helpers_generic import graph_to_array
 from functions.function_dim_1_helpers_generic import array_to_graph
 from functions.function_dim_1_helpers_generic import ChildTimeout
 from functions.function_dim_1_helpers_generic import run_in_child
+from functions.function_dim_1_helpers_generic import sigma_hash
 from functions.function_dim_1_helpers_generic import automorphism_group_structure
 
 
@@ -115,8 +110,7 @@ def model_in_database_NF(F, my_cursor, sigma_1=None, conj_fns=None, log_file=sys
     """
     if conj_fns is None:
         if sigma_1 is None:
-                s1 = [str(t) for t in F.sigma_invariants(1)]
-                sigma_1 = str(hashlib.shake_256(''.join(s1).encode('utf-8')).hexdigest(digest_length))
+                sigma_1 = sigma_hash(F.sigma_invariants(1))
         query = {'degree':int(F.degree()), 'sigma_one': sigma_1}
         my_cursor.execute("""SELECT
             function_id,
@@ -214,7 +208,7 @@ def check_conjugates_NF(F,G, normalize_base=False, log_file=sys.stdout):
 
 
 
-def conj_in_database_NF(F, my_cursor, conj_fns=None, log_file=sys.stdout, timeout=30):
+def conj_in_database_NF(F, my_cursor, conj_fns=None, log_file=sys.stdout, timeout=30, sigma_1=None, sigma_2=None):
     """
     Determine if F is conjugate to a model already in the database.
     This includes the identity conjugation.
@@ -225,6 +219,10 @@ def conj_in_database_NF(F, my_cursor, conj_fns=None, log_file=sys.stdout, timeou
     Need to be careful that max_sigma is not larger than what is computed in the database.
     If it is, it will always say the function is new.
 
+    sigma_1, sigma_2 - F's label hashes, if the caller already has them (computing
+    sigma_invariants(2) is very slow). Pass sigma_2 only with conj_fns already narrowed
+    to the functions with those hashes, as add_function_NF does.
+
     Returns:
     0,[]  if not there.
     1,[g] if rationally conjugate to g
@@ -233,8 +231,8 @@ def conj_in_database_NF(F, my_cursor, conj_fns=None, log_file=sys.stdout, timeou
     base_field = F.base_ring()
     query = {}
     query['degree'] = int(F.degree())
-    s1 = [str(t) for t in F.sigma_invariants(1)]
-    sigma_1 = str(hashlib.shake_256(''.join(s1).encode('utf-8')).hexdigest(digest_length))
+    if sigma_1 is None:
+        sigma_1 = sigma_hash(F.sigma_invariants(1))
     query['sigma_one'] = sigma_1
     if conj_fns is None:
         my_cursor.execute("""SELECT * FROM functions_dim_1_NF
@@ -250,13 +248,12 @@ def conj_in_database_NF(F, my_cursor, conj_fns=None, log_file=sys.stdout, timeou
 
     #now check for twists/conjugates
     #sigma_2
-    s2 = [str(t) for t in F.sigma_invariants(2)]
-    sigma_2 = str(hashlib.shake_256(''.join(s2).encode('utf-8')).hexdigest(digest_length))
-    query['sigma_two'] = sigma_2
-    my_cursor.execute("""SELECT * FROM functions_dim_1_NF
-        WHERE degree=%(degree)s AND
-            sigma_one=%(sigma_one)s AND sigma_two=%(sigma_two)s""",query)
-    conj_fns = my_cursor.fetchall()
+    if sigma_2 is None:
+        query['sigma_two'] = sigma_hash(F.sigma_invariants(2))
+        my_cursor.execute("""SELECT * FROM functions_dim_1_NF
+            WHERE degree=%(degree)s AND
+                sigma_one=%(sigma_one)s AND sigma_two=%(sigma_two)s""",query)
+        conj_fns = my_cursor.fetchall()
     if len(conj_fns) == 0:
         #nothing with the same sigma_1,sigma_2
         return 0, []
@@ -300,11 +297,14 @@ def conj_in_database_NF(F, my_cursor, conj_fns=None, log_file=sys.stdout, timeou
     return 0, []
 
 
-def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, timeout=30):
+def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, timeout=30, sigmas=None):
     """
     Give a sage function F, determine it's label and add it to the database.
 
     add_field checks to see if the field is in the database and adds it if it is not
+
+    sigmas - a dict; if given and they get computed, F's invariants are put in it as
+    sigmas[1] and sigmas[2], so the caller doesn't have to compute them again
 
 
     'degree'
@@ -374,10 +374,13 @@ def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, tim
         return False, G[0]
 
     # TODO: What about labels for Lattes maps? Should it be based on cremona label?
-    s1 = [str(t) for t in F.sigma_invariants(1)]
-    sigma_1 = str(hashlib.shake_256(''.join(s1).encode('utf-8')).hexdigest(digest_length))
-    s2 = [str(t) for t in F.sigma_invariants(2)]
-    sigma_2 = str(hashlib.shake_256(''.join(s2).encode('utf-8')).hexdigest(digest_length))
+    s1 = F.sigma_invariants(1)
+    s2 = F.sigma_invariants(2)
+    if sigmas is not None:
+        sigmas[1] = s1
+        sigmas[2] = s2
+    sigma_1 = sigma_hash(s1)
+    sigma_2 = sigma_hash(s2)
 
     f['sigma_one'] = sigma_1
     f['sigma_two'] = sigma_2
@@ -391,7 +394,8 @@ def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, tim
         AND sigma_two=%(sigma_two)s""",query)
     conj_fns = my_cursor.fetchall()
     m = len(conj_fns)
-    found, L = conj_in_database_NF(F, my_cursor, conj_fns=conj_fns, log_file=log_file, timeout=timeout)
+    found, L = conj_in_database_NF(F, my_cursor, conj_fns=conj_fns, log_file=log_file, timeout=timeout,
+        sigma_1=sigma_1, sigma_2=sigma_2)
 
     if found == 1:
         #function or rational conjugate already there
@@ -1609,10 +1613,15 @@ def function_in_family_NF(f, F, maxk=3):
             return True,v
     return False,{}
 
-def add_families_NF(function_id, my_cursor, log_file=sys.stdout):
+def add_families_NF(function_id, my_cursor, log_file=sys.stdout, f_sigmas=None):
     """
         Check if F is a member of any family in the table of families.
         Add those families to the record
+
+        f_sigmas - [sigma_invariants(1), sigma_invariants(2)] of the function, if the
+        caller already has them. They may be over a different copy of the field (see
+        below), or over another field when a conjugate was found there; either way the
+        stored function has the same hashes, so the same strings over its own field.
     """
     my_cursor.execute("""SELECT degree, base_field_label, family
             FROM functions_dim_1_NF where function_id = %s""",[function_id])
@@ -1630,9 +1639,14 @@ def add_families_NF(function_id, my_cursor, log_file=sys.stdout):
             FROM families_dim_1_NF where degree = %s""",[d])
     if my_cursor.rowcount == 0:
         return False
-    f_sigmas = []
-    for k in range(1,3):
-        f_sigmas.append(f.sigma_invariants(k))
+    if f_sigmas is None:
+        f_sigmas = []
+        for k in range(1,3):
+            f_sigmas.append(f.sigma_invariants(k))
+    else:
+        #by string: get_sage_field_NF's K need not be the same Sage parent as the
+        #caller's field (over Q(i) they compared unequal)
+        f_sigmas = [[K(str(v)) for v in sig] for sig in f_sigmas]
 
     for fam in my_cursor.fetchall():
         F = get_sage_family_NF(fam['family_id'], my_cursor, log_file=sys.stdout)
@@ -1710,7 +1724,9 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
     """
     #TODO add parameter to overwrite data in the database
 
-    is_new, F_id = add_function_NF(F, my_cursor, log_file=log_file, timeout=timeout) #has timeout
+    sigmas = {}
+    is_new, F_id = add_function_NF(F, my_cursor, log_file=log_file, timeout=timeout, sigmas=sigmas) #has timeout
+    f_sigmas = [sigmas[1], sigmas[2]] if sigmas else None
     K = F.base_ring()
     K, phi = normalize_field_NF(K)
     bool, base_field_label = lmfdb_field_label_NF(K)
@@ -1731,7 +1747,7 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         add_newton_model_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
         add_is_lattes_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
         choose_display_model(F_id, my_cursor, log_file=log_file)
-        add_families_NF(F_id, my_cursor, log_file=log_file)
+        add_families_NF(F_id, my_cursor, log_file=log_file, f_sigmas=f_sigmas)
         add_smallest_height(F_id, my_cursor, point=sh_point, model_name=sh_model, log_file=log_file, timeout=timeout)
     else:
         # already in the database, possibly as a conjugate of a different
@@ -1776,7 +1792,7 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         if missing:
             choose_display_model(F_id, my_cursor, log_file=log_file)
         if 'family' in missing:
-            add_families_NF(F_id, my_cursor, log_file=log_file)
+            add_families_NF(F_id, my_cursor, log_file=log_file, f_sigmas=f_sigmas)
         if 'smallest_height_ratio' in missing:
             add_smallest_height(F_id, my_cursor, point=sh_point, model_name=sh_model, log_file=log_file, timeout=timeout)
 

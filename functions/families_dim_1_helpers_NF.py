@@ -19,9 +19,6 @@ AUTHORS:
 # ****************************************************************************
 
 
-#sagerel -pip install pysha3
-import sha3  #adds shake to hashlib
-import hashlib  #for shake
 from sage.categories.number_fields import NumberFields
 from sage.dynamics.arithmetic_dynamics.generic_ds import DynamicalSystem
 from sage.rings.polynomial.multi_polynomial_ring_base import MPolynomialRing_base
@@ -29,9 +26,6 @@ from sage.rings.polynomial.polynomial_ring_constructor import PolynomialRing
 from sage.rings.rational_field import QQ
 from sage.schemes.projective.projective_space import ProjectiveSpace
 import sys
-
-#length of SHAKE-256S hash for function label
-digest_length = int(4)
 
 
 ##########################
@@ -41,6 +35,7 @@ from functions.function_dim_1_helpers_generic import get_post_critical
 from functions.function_dim_1_helpers_generic import choose_display_model
 from functions.function_dim_1_helpers_generic import graph_to_array
 from functions.function_dim_1_helpers_generic import array_to_graph
+from functions.function_dim_1_helpers_generic import sigma_hash
 
 from fields.field_helpers_NF import get_sage_field_NF
 from fields.field_helpers_NF import lmfdb_field_label_NF
@@ -167,11 +162,8 @@ def add_family_NF(F, my_cursor, is_poly=None, num_crit=None, num_aut=None, aut_i
     f['base_field_degree'] = int(base_field.degree())
     #f['base_field_emb'] = int(emb_index)
 
-    sig_one = [str(t) for t in F.sigma_invariants(1)]
-    sig_two = [str(t) for t in F.sigma_invariants(2)]
-
-    f['sigma_one']=str(hashlib.shake_256(''.join(sig_one).encode('utf-8')).hexdigest(digest_length))
-    f['sigma_two']=str(hashlib.shake_256(''.join(sig_two).encode('utf-8')).hexdigest(digest_length))
+    f['sigma_one'] = sigma_hash(F.sigma_invariants(1))
+    f['sigma_two'] = sigma_hash(F.sigma_invariants(2))
 
     #see if a conjugate is already in the database
     log_file.write('Searching for functions: ' + str(list(F)) + ': ')

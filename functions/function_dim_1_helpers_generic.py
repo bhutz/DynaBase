@@ -35,10 +35,24 @@ import signal
 import sys
 from sage.parallel.decorate import fork
 
+#length of SHAKE-256S hash for function label
+digest_length = int(4)
+
 
 ###########################################
 # General Functions
 ###########################################
+
+def sigma_hash(sigma):
+    """
+    The label hash of a list of multiplier invariants, e.g. F.sigma_invariants(1).
+
+    Takes the invariants, not the map, so that hashing never computes them:
+    sigma_invariants(2) is very slow in high degree. They are hashed comma separated,
+    as without a separator ['1', '23'] and ['12', '3'] would have the same hash.
+    """
+    s = ','.join(str(t) for t in sigma)
+    return str(hashlib.shake_256(s.encode('utf-8')).hexdigest(digest_length))
 
 def get_coefficients(F, d=None):
     """
