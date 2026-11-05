@@ -19,6 +19,7 @@
   <a href="{{ root }}data-summary.html">Summary of Included Data</a>
   <a href="{{ root }}status.html">Status of Problems</a>
   <a href="{{ root }}extreme-examples.html">Summary of Extreme Examples</a>
+  <a href="{{ root }}changelog.html">Changelog</a>
   <a href="{{ root }}comments.html">Comments</a>
 </nav>
 
@@ -65,7 +66,7 @@
 </main>
 
 <footer class="site-footer">
-  <p>DynaBase &mdash; Database of Arithmetic Dynamics</p>
+  <p>DynaBase &mdash; Database of Arithmetic Dynamics{% if data_version %} &mdash; data version {{ data_version }}{% endif %} &mdash; <a href="{{ root }}changelog.html">changelog</a></p>
   <p class="footnote">Claude, an AI assistant made by Anthropic, was used in creating this site.</p>
 </footer>
 </body>

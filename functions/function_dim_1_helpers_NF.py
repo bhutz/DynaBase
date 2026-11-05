@@ -56,6 +56,7 @@ from functions.function_dim_1_helpers_generic import array_to_graph
 from functions.function_dim_1_helpers_generic import ChildTimeout
 from functions.function_dim_1_helpers_generic import run_in_child
 from functions.function_dim_1_helpers_generic import sigma_hash
+from functions.release_files import entries_with_hashes
 from functions.function_dim_1_helpers_generic import automorphism_group_structure
 
 
@@ -155,13 +156,20 @@ def get_sage_func_NF(function_id, model_name, my_cursor, log_file=sys.stdout):
             """, query)
     G = my_cursor.fetchone()
 
-    K = get_sage_field_NF(G['base_field_label'])
+    return sage_func_from_coeffs_NF(G['coeffs'], G['base_field_label'])
+
+
+def sage_func_from_coeffs_NF(coeffs, field_label):
+    """
+    The sage dynamical system with these stored coefficients over this field label.
+    """
+    K = get_sage_field_NF(field_label)
     P = ProjectiveSpace(K,1,'x,y')
     R = P.coordinate_ring()
     x,y = R.gens()
-    d = len(G['coeffs'][0])-1
+    d = len(coeffs[0])-1
     polys = []
-    for L in G['coeffs']:
+    for L in coeffs:
         poly = 0
         for i in range(0,d+1):
             poly += x**(d-i)*y**i*K(L[i])
@@ -297,6 +305,42 @@ def conj_in_database_NF(F, my_cursor, conj_fns=None, log_file=sys.stdout, timeou
     return 0, []
 
 
+def stable_ordinal_NF(F, f, conj_fns, log_file=sys.stdout, timeout=30):
+    """
+    The ordinal of a new function F. Labels are permanent, so the label file decides it
+    (see functions/release_files.py): a map recorded there gets its recorded ordinal, by
+    its exact model, otherwise by rational conjugacy to a recorded model, as it may be
+    loaded before the recorded one if the load order changes. Anything else, or no label
+    file yet, gets the next ordinal not in use.
+
+    f - F's record so far: 'degree', 'base_field_label', 'sigma_one', 'sigma_two'
+    conj_fns - the functions already stored with those hashes
+    """
+    taken = set(g['ordinal'] for g in conj_fns)
+    entries = entries_with_hashes(f['degree'], f['sigma_one'], f['sigma_two'])
+    free = [e for e in entries if e['ordinal'] not in taken]
+    coeffs = [[str(c) for c in get_coefficients(g)] for g in F]
+    for e in free:
+        if e['field'] == f['base_field_label'] and e['coeffs'] == coeffs:
+            return e['ordinal']
+    if free:
+        #read the fields here, the child process can't use the LMFDB connection
+        Gs = [sage_func_from_coeffs_NF(e['coeffs'], e['field']) for e in free]
+        def compute():
+            for i in range(len(Gs)):
+                if check_conjugates_NF(Gs[i], F) == 1:
+                    return i
+            return None
+        try:
+            i = run_in_child(compute, timeout=timeout, log_file=log_file)
+        except ChildTimeout:
+            #a guess could give this map another map's permanent label
+            raise RuntimeError('timeout checking the label file for: ' + str(list(F)))
+        if i is not None:
+            return free[i]['ordinal']
+    return max(taken | set(e['ordinal'] for e in entries) | set([0])) + 1
+
+
 def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, timeout=30, sigmas=None):
     """
     Give a sage function F, determine it's label and add it to the database.
@@ -393,7 +437,6 @@ def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, tim
         WHERE degree=%(degree)s AND sigma_one=%(sigma_one)s
         AND sigma_two=%(sigma_two)s""",query)
     conj_fns = my_cursor.fetchall()
-    m = len(conj_fns)
     found, L = conj_in_database_NF(F, my_cursor, conj_fns=conj_fns, log_file=log_file, timeout=timeout,
         sigma_1=sigma_1, sigma_2=sigma_2)
 
@@ -403,7 +446,7 @@ def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, tim
         return False, L[0]
     # otherwise we'll add the function
     # assume none are conjugate if we get to here
-    f['ordinal'] = m+1
+    f['ordinal'] = stable_ordinal_NF(F, f, conj_fns, log_file=log_file, timeout=timeout)
 
     #original model
     f['original_model.coeffs'] = [get_coefficients(g) for g in F]

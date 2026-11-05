@@ -471,6 +471,11 @@ def main():
     FIELD_DEGREES = list(range(1, db.get_max_field_degree(conn) + 1))
     env.globals['field_degrees'] = FIELD_DEGREES
 
+    # the current data version: in every page's footer and every Sage export's header
+    releases = db.get_releases(conn)
+    env.globals['data_version'] = releases[0]['version'] if releases else None
+    sage_export.DATA_VERSION = env.globals['data_version']
+
     # images of the graph structures (rational preperiodic graphs and critical portraits),
     # linked from the tables
     render.GRAPH_IMAGES = graph_images.write_graph_images(SITE_DIR, db.get_site_graphs(conn))
@@ -690,6 +695,8 @@ def main():
     # --- static-link pages (all top-level, so root='') ---
     write(os.path.join(SITE_DIR, 'about.html'),
           env.get_template('about.html').render(title='About', root=''))
+    write(os.path.join(SITE_DIR, 'changelog.html'),
+          env.get_template('changelog.html').render(title='Changelog', root='', releases=releases))
     write(os.path.join(SITE_DIR, 'comments.html'),
           env.get_template('comments.html').render(
               title='Comments', root='', form_url=COMMENTS_FORM_URL,

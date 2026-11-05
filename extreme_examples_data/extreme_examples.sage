@@ -2,6 +2,10 @@ load_attach_path('/home/ben/dynabase')
 import sys
 sys.path.append("/home/ben/dynabase")
 
+# data versions already released (setup_all drops them)
+load("connect.py")
+load("extreme_examples_data/add_releases.py")
+
 # citations
 load("connect.py")
 load("extreme_examples_data/add_citations.py")
@@ -36,6 +40,6 @@ load("extreme_examples_data/add_functions_small_height_dim_1.py")
 load("connect.py")
 load("extreme_examples_data/add_functions_automorphisms_dim_1.py")
 
-# backfill automorphism group types for functions stored before that column (only null types)
+# every label in the label file should have survived the load
 load("connect.py")
-load("extreme_examples_data/backfill_automorphism_types.py")
+load("extreme_examples_data/check_labels.py")

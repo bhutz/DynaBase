@@ -22,6 +22,7 @@ from labels import is_lmfdb_label
 from render import choose_coeffs, format_label, sort_citation_ids
 
 SITE_URL = 'https://dynabase.org'
+DATA_VERSION = None  # the data's version, set by generate_site.main before any export
 
 
 def field_polynomial(label):
@@ -128,6 +129,7 @@ def write_sage_file(path, title, rows, citations_by_id, dimension=1, model_of=No
     names = 'K, a, P, x, y, R, t' if fields_used else 'K, P, x, y'
     lines = [
         f'# Dynabase ({SITE_URL}): {title}',
+    ] + ([f'# Data version {DATA_VERSION}'] if DATA_VERSION else []) + [
         '#',
         '# Load in Sage with load("<this file>"). It defines dynabase_systems, a list of',
         ('# [map, label, point] triples in table order: the map as a DynamicalSystem over the'

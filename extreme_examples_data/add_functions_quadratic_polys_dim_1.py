@@ -165,6 +165,8 @@ my_session.commit()
 #already realized by an earlier entry in the same table - same degree,
 #polynomial/rational, and base field degree - are commented out and
 #marked DUPLICATE, so each table holds one function per graph structure.
+#They differ in their field, so they are still data: the Doyle2018 section below
+#loads all of them, and on the site each field's page has its own map per graph.
 cites = ['Doyle2014']
 
 R = PolynomialRing(QQ, 't')

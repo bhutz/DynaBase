@@ -5,4 +5,5 @@ __pycache__/
 *.ipynb
 extreme_examples.sage.py
 database.ini
+releases/
 CLAUDE.md

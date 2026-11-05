@@ -10,6 +10,13 @@ The code/functionality is written to be run under a SageMath kernel.
 
 A static rendering of some of the data can be found on https://dynabase.org This is a static rendering served through github pages.
 
+# Data versions
+
+Versions of the data are numbered major.minor.patch: major for a schema change, minor for data
+added or newly computed, patch for a correction to existing values. See the changelog at
+https://dynabase.org/changelog.html. Each version is made by `data_release/make_release.py`
+and archived on Zenodo.
+
 # Pre-requisites and Set-up
 
 On an existing 20.02 ubunutu install with release sage built from sage github

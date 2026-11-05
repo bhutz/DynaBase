@@ -129,7 +129,9 @@ CREATE TABLE functions_dim_1_NF (
     critical_portrait_graph_id varchar,
     smallest_height_ratio decimal,
     smallest_height_point varchar,
-    smallest_height_model display_model_type
+    smallest_height_model display_model_type,
+    first_release varchar,
+    last_changed_release varchar
   )
 """)
 
