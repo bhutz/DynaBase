@@ -1719,8 +1719,9 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
     add all entries for one dynamical system
 
     smallest_height_point - a point, in the coordinates of F, of smallest height ratio
-    (e.g. from a paper): its ratio is stored instead of searching for one, as long as
-    F is one of the stored models of the function
+    (e.g. from a paper): its ratio is stored, as long as F is one of the stored models
+    of the function. Without a usable point no smallest height is computed: searching
+    for one is slow, so call add_smallest_height directly for that.
     """
     #TODO add parameter to overwrite data in the database
 
@@ -1748,7 +1749,8 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         add_is_lattes_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
         choose_display_model(F_id, my_cursor, log_file=log_file)
         add_families_NF(F_id, my_cursor, log_file=log_file, f_sigmas=f_sigmas)
-        add_smallest_height(F_id, my_cursor, point=sh_point, model_name=sh_model, log_file=log_file, timeout=timeout)
+        if sh_point is not None:
+            add_smallest_height(F_id, my_cursor, point=sh_point, model_name=sh_model, log_file=log_file, timeout=timeout)
     else:
         # already in the database, possibly as a conjugate of a different
         # model - credit this source too (add_citations_NF merges, no duplicates)
@@ -1768,6 +1770,9 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
             missing = [k for k in missing if k != 'critical_portrait_graph_id']
         if G['is_polynomial'] == False:
             missing = [k for k in missing if k != 'monic_centered']
+        # no smallest height unless a point was given
+        if sh_point is None:
+            missing = [k for k in missing if k != 'smallest_height_ratio']
         if missing:
             log_file.write('rerunning missing ' + str(missing) + ' for:' + str(F_id) + '\n')
         if 'is_pcf' in missing:
