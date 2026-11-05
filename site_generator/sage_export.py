@@ -15,6 +15,16 @@ labels (degree 3+) can't be rebuilt without the LMFDB, so those maps are left
 out with a comment and a printed warning.
 """
 
+# ****************************************************************************
+#       Copyright (C) 2026 Ben Hutz <benjamin.hutz@slu.edu>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#                  https://www.gnu.org/licenses/
+# ****************************************************************************
+
 import os
 import re
 

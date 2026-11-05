@@ -31,6 +31,7 @@ import sha3  #adds shake to hashlib
 import hashlib  #for shake
 import ctypes
 import os
+import pickle
 import signal
 import sys
 from sage.parallel.decorate import fork
@@ -224,7 +225,77 @@ class ChildTimeout(BaseException):
     pass
 
 
-def run_in_child(compute, timeout=30, log_file=sys.stdout):
+# Results of computations already done by a parallel worker (functions/parallel_load.py):
+# (key, timeout) -> ('ok', pickled value), ('error', message) or ('timeout',). Empty in a
+# serial load. A worker records into it; the process loading the data reads it. Values are
+# pickled when recorded, as callers change them: identify_graph relabels a graph in place.
+_computations = {}
+_recording = False
+
+
+def start_recording_computations():
+    global _recording
+    _recording = True
+
+
+def recorded_computations():
+    return _computations
+
+
+def add_recorded_computations(computations):
+    _computations.update(computations)
+
+
+def computation_key(name, F, *inputs):
+    """
+    What identifies a computation: its name, the model and field it's on, and anything
+    else it depends on. The string form is what's compared, as with the stored models.
+    """
+    return (name, str(list(F)), str(F.base_ring())) + tuple(str(list(v)) if hasattr(v, 'base_ring') else str(v)
+                                                            for v in inputs)
+
+
+def computed_once(key, compute):
+    """compute(), in this process and with no timeout, unless a worker has already done it."""
+    if key in _computations:
+        return pickle.loads(_computations[key][1])
+    result = compute()
+    if _recording:
+        _computations[key] = ('ok', pickle.dumps(result))
+    return result
+
+
+def run_in_child(compute, timeout=30, log_file=sys.stdout, key=None):
+    """
+    run_in_child_process, unless a worker has already done this computation (see
+    _computations): then its result, or the same exception. key: computation_key.
+    """
+    if key is None:
+        return run_in_child_process(compute, timeout=timeout, log_file=log_file)
+    full_key = (key, timeout)
+    if full_key in _computations:
+        recorded = _computations[full_key]
+        if recorded[0] == 'timeout':
+            raise ChildTimeout()
+        if recorded[0] == 'error':
+            raise RuntimeError(recorded[1])
+        return pickle.loads(recorded[1])
+    try:
+        result = run_in_child_process(compute, timeout=timeout, log_file=log_file)
+    except ChildTimeout:
+        if _recording:
+            _computations[full_key] = ('timeout',)
+        raise
+    except RuntimeError as e:
+        if _recording:
+            _computations[full_key] = ('error', str(e))
+        raise
+    if _recording:
+        _computations[full_key] = ('ok', pickle.dumps(result))
+    return result
+
+
+def run_in_child_process(compute, timeout=30, log_file=sys.stdout):
     """
     Return compute() evaluated in a forked child process (Sage's fork decorator),
     which is killed after timeout seconds (0 means no limit).

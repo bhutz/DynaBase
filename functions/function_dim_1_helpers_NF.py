@@ -55,6 +55,8 @@ from functions.function_dim_1_helpers_generic import graph_to_array
 from functions.function_dim_1_helpers_generic import array_to_graph
 from functions.function_dim_1_helpers_generic import ChildTimeout
 from functions.function_dim_1_helpers_generic import run_in_child
+from functions.function_dim_1_helpers_generic import computed_once
+from functions.function_dim_1_helpers_generic import computation_key
 from functions.function_dim_1_helpers_generic import sigma_hash
 from functions.release_files import entries_with_hashes
 from functions.function_dim_1_helpers_generic import automorphism_group_structure
@@ -283,7 +285,7 @@ def conj_in_database_NF(F, my_cursor, conj_fns=None, log_file=sys.stdout, timeou
             return twist, 2
         return None, 0
     try:
-        i, twist_val = run_in_child(compute, timeout=timeout, log_file=log_file)
+        i, twist_val = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('conjugates', F, *Gs))
     except ChildTimeout:
         log_file.write('timeout: func_in_db: ' + str(timeout) + ':' + str(list(F)) + '\n')
         #can't tell whether it is new; this used to return None, which the caller couldn't unpack
@@ -332,7 +334,7 @@ def stable_ordinal_NF(F, f, conj_fns, log_file=sys.stdout, timeout=30):
                     return i
             return None
         try:
-            i = run_in_child(compute, timeout=timeout, log_file=log_file)
+            i = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('label file', F, *Gs))
         except ChildTimeout:
             #a guess could give this map another map's permanent label
             raise RuntimeError('timeout checking the label file for: ' + str(list(F)))
@@ -418,8 +420,8 @@ def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, tim
         return False, G[0]
 
     # TODO: What about labels for Lattes maps? Should it be based on cremona label?
-    s1 = F.sigma_invariants(1)
-    s2 = F.sigma_invariants(2)
+    s1 = computed_once(computation_key('sigma 1', F), lambda: F.sigma_invariants(1))
+    s2 = computed_once(computation_key('sigma 2', F), lambda: F.sigma_invariants(2))
     if sigmas is not None:
         sigmas[1] = s1
         sigmas[2] = s2
@@ -543,7 +545,7 @@ def add_is_pcf(my_cursor, function_id=None, model_name='original', bool_add_fiel
             F_cp = F.change_ring(psi*phi)
             cp = F_cp.critical_points()
             return is_pcf, L, len(cp)
-        is_pcf, L, cp_cardinality = run_in_child(compute, timeout=timeout, log_file=log_file)
+        is_pcf, L, cp_cardinality = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('pcf', F))
         pcf = {'function_id':function_id}
         pcf['is_pcf']=is_pcf
         # L_id is L's defining polynomial if L is not in the LMFDB (see lmfdb_field_label_NF)
@@ -599,7 +601,7 @@ def add_critical_portrait(function_id, my_cursor, model_name='original', log_fil
 
     try:
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
-        g = run_in_child(lambda: F.critical_point_portrait(), timeout=timeout, log_file=log_file)
+        g = run_in_child(lambda: F.critical_point_portrait(), timeout=timeout, log_file=log_file, key=computation_key('portrait', F))
 
         #identify graph and add if necessary
         query['critical_portrait_graph_id'] = identify_graph(g, F, my_cursor, 2, log_file=log_file)
@@ -704,7 +706,7 @@ def add_automorphism_group_NF(function_id, my_cursor, model_name='original', log
             n, iso_type = known
             log_file.write('aut group of polynomial from its exponents for:' + str(function_id) + '\n')
         else:
-            n, iso_type = run_in_child(compute, timeout=timeout, log_file=log_file)
+            n, iso_type = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('automorphisms', F))
         query['automorphism_group_cardinality'] = int(n)
         query['automorphism_group_iso_type'] = iso_type
         my_cursor.execute("""UPDATE functions_dim_1_NF
@@ -891,7 +893,7 @@ def add_rational_preperiodic_points_NF(function_id, my_cursor, model_name='origi
                     #every prime in the default range [1, 20] is bad, e.g. some BCHKW2014 maps
                     log_file.write('no good primes up to 20, using prime_bound [1, 60] for:' + str(function_id) + '\n')
                     return F.rational_preperiodic_graph(prime_bound=[1, 60])
-        preper = run_in_child(compute, timeout=timeout, log_file=log_file)
+        preper = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('preperiodic', F))
         ## TODO: add graph_id
 
         periodic = []
@@ -965,12 +967,12 @@ def add_reduced_model_NF(function_id, my_cursor, model_name='original', log_file
             return compute
         try:
             log_file.write('trying reduced with dynatomic for:' + str(function_id) + '\n')
-            query.update(run_in_child(reduce(True), timeout=timeout, log_file=log_file))
+            query.update(run_in_child(reduce(True), timeout=timeout, log_file=log_file, key=computation_key('reduced dynatomic', F)))
         except Exception as e:
             #a timeout (not an Exception) doesn't get a second try, as with the alarm before
             log_file.write('error reduced with dynatomic for:' + str(function_id) + 'with error:' + str(e) + '\n')
             log_file.write('trying reduced with periodic for:' + str(function_id) + '\n')
-            query.update(run_in_child(reduce(False), timeout=timeout, log_file=log_file))
+            query.update(run_in_child(reduce(False), timeout=timeout, log_file=log_file, key=computation_key('reduced periodic', F)))
         bool, K_id = lmfdb_field_label_NF(F.base_ring())
         assert(bool)
         query['reduced_model.base_field_label'] = K_id
@@ -1045,7 +1047,7 @@ def add_is_polynomial_NF(function_id, my_cursor, model_name='original', log_file
         query={}
         query['function_id']=function_id
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
-        is_poly = run_in_child(lambda: is_poly_helper_NF(F), timeout=timeout, log_file=log_file)
+        is_poly = run_in_child(lambda: is_poly_helper_NF(F), timeout=timeout, log_file=log_file, key=computation_key('is polynomial', F))
 
         query['is_polynomial'] = is_poly
         my_cursor.execute("""UPDATE functions_dim_1_NF
@@ -1125,7 +1127,7 @@ def add_monic_centered_model_NF(function_id, my_cursor, model_name='original', l
             values['monic_centered.bad_primes'] = [int(p) for p in bad_primes]
             values['monic_centered.height'] = float(G.global_height())
             return L, values
-        L, values = run_in_child(compute, timeout=timeout, log_file=log_file)
+        L, values = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('monic centered', F))
         query.update(values)
         # L_id is L's defining polynomial if L is not in the LMFDB (see lmfdb_field_label_NF)
         bool, L_id = lmfdb_field_label_NF(L, log_file=log_file)
@@ -1247,7 +1249,7 @@ def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_fi
             else:
                 is_cheby = False
             return is_cheby
-        is_cheby = run_in_child(compute, timeout=timeout, log_file=log_file)
+        is_cheby = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('chebyshev', F))
         query['is_chebyshev'] = is_cheby
         if not is_cheby:
             log_file.write('not chebyshev:' + str(function_id) + '\n')
@@ -1352,7 +1354,7 @@ def add_newton_model_NF(function_id, my_cursor, model_name='original', log_file=
             for i in range(0,Npoly.degree()+1):
                 C.append(str(Npoly.coefficient({z:i})))
             return C
-        C = run_in_child(compute, timeout=timeout, log_file=log_file)
+        C = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('newton', F))
         if C is None:
             query['is_newton'] = False
             my_cursor.execute("""UPDATE functions_dim_1_NF
@@ -1463,7 +1465,7 @@ def add_is_lattes_NF(function_id, my_cursor, model_name='original', log_file=sys
             else:
                is_lattes = False
             return is_lattes
-        is_lattes = run_in_child(compute, timeout=timeout, log_file=log_file)
+        is_lattes = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('lattes', F))
 
         query['is_lattes'] = is_lattes
         my_cursor.execute("""UPDATE functions_dim_1_NF
@@ -1556,7 +1558,7 @@ def add_smallest_height(function_id, my_cursor, B=None, point=None, err=None, mo
             if smallest is None:
                 return None
             return float(smallest[0]), str(smallest[1])
-        smallest = run_in_child(compute, timeout=timeout, log_file=log_file)
+        smallest = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('smallest height', F, point, err, B))
         if smallest is None:
             log_file.write('smallest height failure: no non-preperiodic point found for:' + str(function_id) + '\n')
             return False

@@ -14,6 +14,16 @@ This only ever reads from the database. It requires no Sage, only psycopg2 +
 Jinja2 (both plain Python).
 """
 
+# ****************************************************************************
+#       Copyright (C) 2026 Ben Hutz <benjamin.hutz@slu.edu>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#                  https://www.gnu.org/licenses/
+# ****************************************************************************
+
 import argparse
 import html
 import json

@@ -11,6 +11,17 @@ extreme_examples_data/labels.jsonl - one line per function: its label, the model
 extreme_examples_data/releases.jsonl - one line per data version, the rows of the
     data_releases table, which the driver reloads after setup_all drops the table.
 """
+
+# ****************************************************************************
+#       Copyright (C) 2026 Ben Hutz <benjamin.hutz@slu.edu>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#                  https://www.gnu.org/licenses/
+# ****************************************************************************
+
 import json
 import os
 

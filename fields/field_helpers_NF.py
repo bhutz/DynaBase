@@ -86,15 +86,32 @@ def check_field_normalized_NF(K, log_file=sys.stdout):
     raise ValueError('field not a number field')
 
 
+# LMFDB answers already seen, as the data files ask about the same few fields many times
+_labels_by_coeffs = {}
+_coeffs_by_label = {}
+# True in a parallel worker (functions/parallel_load.py), which shares this process's LMFDB
+# connection and so must not use it: it works from the answers above, and a field not among
+# them gets the same treatment as one not in the LMFDB. Its results are not stored.
+no_lmfdb = False
+
+
 def lmfdb_field_label_NF(K, log_file = sys.stdout): #label finding
     #assumes the field is nomalized
     if not check_field_normalized_NF(K):
         raise ValueError('field not normalized')
     poly = K.defining_polynomial() 
     C = [int(c) for c in poly.coefficients(sparse=False)]
-    dat = db.nf_fields.lucky({"coeffs": C}, ["label"])
-    if not dat is None:
-        label = dat['label']
+    if tuple(C) in _labels_by_coeffs:
+        label = _labels_by_coeffs[tuple(C)]
+    elif no_lmfdb:
+        label = None
+    else:
+        dat = db.nf_fields.lucky({"coeffs": C}, ["label"])
+        label = None if dat is None else dat['label']
+        _labels_by_coeffs[tuple(C)] = label
+        if label is not None:
+            _coeffs_by_label[label] = C
+    if label is not None:
         return True, label
     else:
         # can't find the field - label it by its defining polynomial instead,
@@ -121,11 +138,15 @@ def get_sage_field_NF(label, log_file=sys.stdout): # get field from db, return a
         # (see lmfdb_field_label_NF), already normalized when it was labeled
         R = PolynomialRing(QQ, 'x')
         return NumberField(R(label), 'a')
-    dat = db.nf_fields.lucky({"label": label}, ["coeffs"])
-    if dat is None:
-        log_file.write('Field not found in LMFDB: ' + str(label) + '\n')
-        return 0
-    C = dat['coeffs']
+    if label not in _coeffs_by_label:
+        if no_lmfdb:
+            raise RuntimeError('field not seen yet, and no LMFDB in a parallel worker: ' + str(label))
+        dat = db.nf_fields.lucky({"label": label}, ["coeffs"])
+        if dat is None:
+            log_file.write('Field not found in LMFDB: ' + str(label) + '\n')
+            return 0
+        _coeffs_by_label[label] = dat['coeffs']
+    C = _coeffs_by_label[label]
     if C == [0,1]:
         return QQ
     R=PolynomialRing(QQ, 'z')
