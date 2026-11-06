@@ -26,8 +26,6 @@ from sage.rings.fraction_field import is_FractionField
 from sage.rings.polynomial.multi_polynomial_ring_base import MPolynomialRing_base
 from sage.rings.polynomial.polynomial_ring import PolynomialRing_general
 
-#sagerel -pip install pysha3
-import sha3  #adds shake to hashlib
 import hashlib  #for shake
 import ctypes
 import os
