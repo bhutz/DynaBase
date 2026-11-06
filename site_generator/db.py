@@ -332,7 +332,7 @@ def get_releases(conn):
     """The rows of data_releases, newest version first (compared as numbers: 1.10.0 is
     after 1.9.0)."""
     cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-    cur.execute("SELECT version, release_date, doi, notes, summary FROM data_releases")
+    cur.execute("SELECT version, release_date, notes, summary FROM data_releases")
     rows = [dict(row) for row in cur.fetchall()]
     return sorted(rows, key=lambda r: tuple(int(v) for v in r['version'].split('.')), reverse=True)
 

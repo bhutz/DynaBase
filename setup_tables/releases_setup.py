@@ -25,8 +25,6 @@ CREATE TABLE data_releases (
     release_date date,
     git_commit varchar,
     sage_version varchar,
-    lmfdb_date date,
-    doi varchar,
     notes text,
     summary jsonb
   )""")

@@ -8,20 +8,18 @@
   <li><b>minor</b>: data added or newly computed;</li>
   <li><b>patch</b>: a correction to existing values.</li>
 </ul>
-<p>Labels are permanent from version 1.0.0 on. To cite the data, give the version you used and,
-where it has one, its DOI, which points to an archived copy of that version.</p>
+<p>Labels are permanent from version 1.0.0 on. To cite the data, give the version you used.</p>
 
 {% if releases %}
 <table>
   <thead>
-    <tr><th>Version</th><th>Date</th><th>DOI</th><th>Maps</th><th>Changes</th></tr>
+    <tr><th>Version</th><th>Date</th><th>Maps</th><th>Changes</th></tr>
   </thead>
   <tbody>
     {% for r in releases %}
     <tr>
       <td>{{ r.version }}</td>
       <td>{{ r.release_date }}</td>
-      <td>{% if r.doi %}<a href="https://doi.org/{{ r.doi }}">{{ r.doi }}</a>{% else %}&mdash;{% endif %}</td>
       <td>{{ r.summary.maps }}</td>
       <td>{{ r.notes | e }}</td>
     </tr>
