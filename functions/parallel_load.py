@@ -4,15 +4,15 @@ Run the data files with their computations done in parallel.
 Loading has to stay in order: a map's function_id, its graph rows and which map a table
 keeps for a graph all follow the load order, and a map is compared with those loaded
 before it. So the database is still written by one process, in order, and only the
-computations are parallel, in three steps (extreme_examples.sage):
+computations are parallel, in three steps for each data file (extreme_examples.sage):
 
-1. start_collecting: load the data files with add_function_all_NF only noting each map
+1. start_collecting: load the data file with add_function_all_NF only noting each map
    that isn't stored yet. Nothing is computed or written.
 2. precompute_jobs: fork a worker per map, num_cpus at a time. Each runs the real
    add_function_all_NF on its own connection, records every computation's result
    (run_in_child's key), and rolls back. Workers see only what's committed and never
    touch the LMFDB (field_helpers_NF.no_lmfdb): lookups come from what step 1 found.
-3. Load the data files normally. A computation with a recorded result uses it; anything
+3. Load the data file normally. A computation with a recorded result uses it; anything
    else is computed then, so a worker failing or seeing different inputs only costs time.
 
 A timeout recorded by a worker is reused too, which is the one way the result can differ

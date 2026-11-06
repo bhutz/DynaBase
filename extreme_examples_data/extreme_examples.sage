@@ -50,8 +50,9 @@ function_files = ["extreme_examples_data/add_functions_quadratic_polys_dim_1.py"
                   "extreme_examples_data/add_functions_small_height_dim_1.py",
                   "extreme_examples_data/add_functions_automorphisms_dim_1.py"]
 
-# the computations run in parallel first (see functions/parallel_load.py); the load after
-# them writes the database in order.
+# Each file is done in turn: its computations run in parallel (see functions/parallel_load.py),
+# then the file's load writes the results to the database in order. A build that stops keeps
+# what the finished files wrote, and rerunning this skips those maps.
 #
 # The number of processes is half of the available CPUs by default. To change it, set the
 # environment variable DYNABASE_CPUS (the exact name, in capitals) to a whole number; 1 skips
@@ -62,15 +63,14 @@ function_files = ["extreme_examples_data/add_functions_quadratic_polys_dim_1.py"
 #   for this terminal:            export DYNABASE_CPUS=4
 #   for new terminals as well:    echo 'export DYNABASE_CPUS=4' >> ~/.bashrc
 num_cpus = default_num_cpus()
-if num_cpus > 1:
-    parallel_jobs = start_collecting()
-    for function_file in function_files:
+for function_file in function_files:
+    print(function_file)
+    if num_cpus > 1:
+        parallel_jobs = start_collecting()
         load("connect.py")
         load(function_file)
-    stop_collecting()
-    precompute_jobs(parallel_jobs, num_cpus)
-
-for function_file in function_files:
+        stop_collecting()
+        precompute_jobs(parallel_jobs, num_cpus)
     load("connect.py")
     load(function_file)
 

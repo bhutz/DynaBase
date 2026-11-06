@@ -10,7 +10,7 @@
 
 from configparser import ConfigParser
 
-def load_config(filename='/home/ben/dynabase/database.ini', section='postgresql_local'):
+def load_config(filename='/home/ben/dynabase/database.ini', section='postgresql'):
     parser = ConfigParser()
     parser.read(filename)
 
