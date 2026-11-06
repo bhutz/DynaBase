@@ -12,6 +12,7 @@ from functions.function_dim_1_helpers_NF import model_in_database_NF
 from functions.function_dim_1_helpers_NF import add_function_all_NF
 from functions.function_dim_1_helpers_NF import add_citations_NF
 from functions.function_dim_1_helpers_NF import add_automorphism_group_NF
+from functions.function_dim_1_helpers_generic import build_timeout
 
 ###################################
 ###connect to database
@@ -52,7 +53,7 @@ log_file = open(path_to_log, 'a', 1)
 
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
-timeout = int(120)
+timeout = build_timeout(int(120))
 
 #(map, citations)
 func_list = []

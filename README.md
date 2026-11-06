@@ -26,6 +26,11 @@ Run everything from the repo root with sage in your path.
 The driver runs its computations in parallel on half of the CPUs by default. Set
 `DYNABASE_CPUS` to change that; `DYNABASE_CPUS=1` skips the parallel step. If the driver is interrupted during the parallel step, its results are lost. Maps already written to the database are skipped on a rerun.
 
+Each computation has a time limit, 30 seconds unless a data file asks for longer (120 for the
+automorphisms file, 300 for `x^2 + 1/4` over quadratic fields). Set `DYNABASE_TIMEOUT` to a whole
+number of seconds to override all of them for a build; 0 means no limit. It only affects maps
+computed in that build, as stored maps are skipped.
+
 ## Making the next version
 
 This assumes something has been updated since the last version. The database is updated in place;

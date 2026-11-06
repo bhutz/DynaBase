@@ -58,6 +58,7 @@ from functions.function_dim_1_helpers_generic import run_in_child
 from functions.function_dim_1_helpers_generic import computed_once
 from functions.function_dim_1_helpers_generic import computation_key
 from functions.function_dim_1_helpers_generic import sigma_hash
+from functions.function_dim_1_helpers_generic import build_timeout
 from functions.release_files import entries_with_hashes
 from functions.function_dim_1_helpers_generic import automorphism_group_structure
 
@@ -1767,9 +1768,12 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
     (e.g. from a paper): its ratio is stored, as long as F is one of the stored models
     of the function. Without a usable point no smallest height is computed: searching
     for one is slow, so call add_smallest_height directly for that.
+
+    timeout - in seconds, for each computation, unless DYNABASE_TIMEOUT is set (build_timeout)
     """
     #TODO add parameter to overwrite data in the database
 
+    timeout = build_timeout(timeout)
     sigmas = {}
     is_new, F_id = add_function_NF(F, my_cursor, log_file=log_file, timeout=timeout, sigmas=sigmas) #has timeout
     f_sigmas = [sigmas[1], sigmas[2]] if sigmas else None

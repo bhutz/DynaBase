@@ -13,6 +13,17 @@ import sys
 sys.path.append("/home/ben/dynabase")
 
 from functions.parallel_load import default_num_cpus, start_collecting, stop_collecting, precompute_jobs
+from functions.function_dim_1_helpers_generic import build_timeout
+
+# Each computation has a time limit, 30 seconds unless a data file asks for longer (120 for the
+# automorphisms file, 300 for x^2 + 1/4 over quadratic fields). To change them all for this
+# build, set the environment variable DYNABASE_TIMEOUT to a whole number of seconds, which
+# overrides all of those values (0 means no limit). A map already stored is skipped, so
+# this only affects maps computed in this build.
+#
+#   for one run:                  DYNABASE_TIMEOUT=60 sage extreme_examples_data/extreme_examples.sage
+#   for this terminal:            export DYNABASE_TIMEOUT=60
+build_timeout(int(30)) # a bad value stops here, before any computing
 
 # data versions already released (setup_all drops them)
 load("connect.py")

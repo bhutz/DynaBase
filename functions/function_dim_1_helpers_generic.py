@@ -225,6 +225,21 @@ class ChildTimeout(BaseException):
     pass
 
 
+def build_timeout(timeout):
+    """
+    The timeout to use in a build of the data: the DYNABASE_TIMEOUT environment variable,
+    in seconds, if it is set (it overrides every other value, including the longer ones some
+    data files ask for; 0 means no limit), otherwise the timeout given.
+    """
+    requested = os.environ.get('DYNABASE_TIMEOUT')
+    if not requested:
+        return timeout
+    seconds = int(requested)
+    if seconds < 0:
+        raise ValueError('DYNABASE_TIMEOUT must not be negative: ' + requested)
+    return seconds
+
+
 # Results of computations already done by a parallel worker (functions/parallel_load.py):
 # (key, timeout) -> ('ok', pickled value), ('error', message) or ('timeout',). Empty in a
 # serial load. A worker records into it; the process loading the data reads it. Values are
