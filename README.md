@@ -32,13 +32,6 @@ This assumes something has been updated since the last version. The database is 
 don't run `setup_all.sage` unless the schema change requires it (see step 1). The first version,
 1.0.0, follows a full rebuild and starts from step 6, with no earlier version to compare with.
 
-**After any rebuild, restore the generated setup file.** `setup_all.sage` rewrites the tracked
-`setup_tables/setup_all.sage.py`, and the release helper refuses to run with uncommitted changes:
-
-```bash
-git checkout setup_tables/setup_all.sage.py
-```
-
 1. Make the change in the way that fits it:
    
    | Change                         | What to do                                                                                | Version |
