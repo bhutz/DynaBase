@@ -12,20 +12,42 @@ load_attach_path('/home/ben/dynabase')
 import sys
 sys.path.append("/home/ben/dynabase")
 
-from functions.parallel_load import default_num_cpus, start_collecting, stop_collecting, precompute_jobs
-from functions.function_dim_1_helpers_generic import build_timeout
+import os
+from functions.function_dim_1_helpers_generic import build_cpus, build_timeout, build_compute_missing
 
-# Each computation has a time limit, 30 seconds unless a data file asks for longer (120 for the
-# automorphisms file, 300 for x^2 + 1/4 over quadratic fields). To change them all for this
-# build, set the environment variable DYNABASE_TIMEOUT to a whole number of seconds, which
-# overrides all of those values (0 means no limit). A map already stored is skipped, so
-# this only affects maps computed in this build.
+# Build settings. Every data file reads the environment variables
+# when it adds its maps (functions/parallel_load.py),
+# so a data file loaded on its own uses them too. Each is an environment variable: set it for
+# one run (DYNABASE_TIMEOUT=600 sage extreme_examples_data/extreme_examples.sage), for the
+# terminal (export DYNABASE_TIMEOUT=600), or here by uncommenting its line (which overrides
+# an environment variable setting).
 #
-#   for one run:                  DYNABASE_TIMEOUT=60 sage extreme_examples_data/extreme_examples.sage
-#   for this terminal:            export DYNABASE_TIMEOUT=60
-build_timeout(int(30)) # a bad value stops here, before any computing
+# To run an individual file with the non-default setting, you must specify
+# the value when running: e.g.,
+#DYNABASE_TIMEOUT=1800 sage -c 'load("/home/ben/dynabase/extreme_examples_data/add_functions_cubic_polys_dim_1.py")'
+# (not `sage filename`: sage runs a .py file as plain Python, without QQ, load, etc.)
+#
+# DYNABASE_CPUS: the number of processes computing at once, half of the available CPUs by
+#   default; 1 computes serially. Each can start child processes of its own, so a build can
+#   use more CPUs than this.
+# DYNABASE_TIMEOUT: the limit, in seconds, of every computation, overriding each file's own
+#   (30 s by default, 120 for the automorphisms file, 300 for x^2 + 1/4 over quadratic
+#   fields); 0 means no limit.
+# DYNABASE_COMPUTE_MISSING: 1 to rerun the missing steps (a column still null, e.g. it timed
+#   out) of each map already in the database; 0, the default, gives a stored map only its
+#   citations. To fill in what timed out with a longer limit:
+#   DYNABASE_COMPUTE_MISSING=1 DYNABASE_TIMEOUT=1800 sage extreme_examples_data/extreme_examples.sage
+
+os.environ['DYNABASE_CPUS'] = '4'
+os.environ['DYNABASE_TIMEOUT'] = '1800'
+os.environ['DYNABASE_COMPUTE_MISSING'] = '1'
+
+# a bad value stops here, before any computing
+print('build settings: cpus', build_cpus(), ' timeout', build_timeout(int(30)),
+      ' compute missing', build_compute_missing())
 
 # data versions already released (setup_all drops them)
+# for label continuity
 load("connect.py")
 load("extreme_examples_data/add_releases.py")
 
@@ -41,36 +63,18 @@ load("extreme_examples_data/add_fields.py")
 load("connect.py")
 load("extreme_examples_data/add_families.py")
 
-# functions data
+# functions data: each file compiles its maps and adds them, its computations in parallel
 function_files = ["extreme_examples_data/add_functions_quadratic_polys_dim_1.py",
                   "extreme_examples_data/add_functions_cubic_polys_dim_1.py",
                   "extreme_examples_data/add_functions_quadratic_rational_dim_1.py",
+                  "extreme_examples_data/add_functions_special_cases_dim_1.py",
                   "extreme_examples_data/add_functions_higher_degree_polys_dim_1.py",
                   "extreme_examples_data/add_functions_higher_degree_rational_dim_1.py",
                   "extreme_examples_data/add_functions_small_height_dim_1.py",
                   "extreme_examples_data/add_functions_automorphisms_dim_1.py"]
 
-# Each file is done in turn: its computations run in parallel (see functions/parallel_load.py),
-# then the file's load writes the results to the database in order. A build that stops keeps
-# what the finished files wrote, and rerunning this skips those maps.
-#
-# The number of processes is half of the available CPUs by default. To change it, set the
-# environment variable DYNABASE_CPUS (the exact name, in capitals) to a whole number; 1 skips
-# the parallel step. Each process can start child processes of its own, so a load can use
-# more CPUs than this number.
-#
-#   for one run:                  DYNABASE_CPUS=4 sage extreme_examples_data/extreme_examples.sage
-#   for this terminal:            export DYNABASE_CPUS=4
-#   for new terminals as well:    echo 'export DYNABASE_CPUS=4' >> ~/.bashrc
-num_cpus = default_num_cpus()
 for function_file in function_files:
     print(function_file)
-    if num_cpus > 1:
-        parallel_jobs = start_collecting()
-        load("connect.py")
-        load(function_file)
-        stop_collecting()
-        precompute_jobs(parallel_jobs, num_cpus)
     load("connect.py")
     load(function_file)
 

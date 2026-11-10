@@ -19,9 +19,6 @@ AUTHORS:
 
 import sys
 
-path_to_log = "/home/ben/dynabase/functions_log.txt"
-log_file = open(path_to_log, 'w', 1)
-
 
 def citation_in_database(label, my_cursor, log_file=sys.stdout):
     """

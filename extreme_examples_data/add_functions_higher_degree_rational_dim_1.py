@@ -8,9 +8,14 @@
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
-from functions.function_dim_1_helpers_NF import model_in_database_NF
-from functions.function_dim_1_helpers_NF import add_function_all_NF
-from functions.function_dim_1_helpers_NF import add_citations_NF
+# Can be run independently, but must set the environment variables to change the defaults
+# of DYNABASE_CPUS, DYNABASE_TIMEOUT, DYNABASE_COMPUTE_MISSING
+
+load_attach_path('/home/ben/dynabase')
+import sys
+sys.path.append('/home/ben/dynabase')
+
+from functions.parallel_load import MapList, add_maps_NF
 
 ###################################
 ###connect to database
@@ -23,24 +28,28 @@ load("connect.py")
 
 #########################
 
-path_to_log = "/home/ben/dynabase/functions_log.txt"
-log_file = open(path_to_log, 'a', 1)
+path_to_log = "/home/ben/dynabase/functions_higher_degree_rational_log.txt"
+log_file = open(path_to_log, 'w', 1)
+
+# the file's maps, in order; added (and computed) together at the end
+maps = MapList()
 
 #rational functions of degree 3 and higher, one table per degree
 
 ###########################################
-#Hutz Examples (genetic algorithm)
-#arXiv:2601.11482 / Hutz2026, Appendix (Extended Data Set): the maps from the
-#Many Preperiodic Points ("many"), Long Periodic Cycles ("cycle") and Long
-#Preperiodic Tail ("tail") tables; the Small Height ratio tables are not used.
-#Each map is determined by the orbit the paper lists for it: f sends each orbit
-#point to the next (d+2 points for a degree d polynomial, 2d+2 for a degree d
-#rational map), recovered here by interpolation. Some tables print an orbit
-#without its leading 0 (the map sends 0 to the first printed point); the 0 is
-#restored below. Comments give the paper's result: (tail, cycle) of the orbit,
-#after the number of rational preperiodic points in the "many" table. A map
-#listed in several tables appears once. Not yet checked for repeated graph
-#structures - the site generator drops repeats within a table.
+# Hutz Examples (genetic algorithm)
+# arXiv:2601.11482 / Hutz2026, Appendix (Extended Data Set): the maps from the
+# Many Preperiodic Points ("many"), Long Periodic Cycles ("cycle") and Long
+# Preperiodic Tail ("tail") tables; the Small Height ratio tables are not used.
+# Each map is determined by the orbit the paper lists for it: f sends each orbit
+# point to the next (d+2 points for a degree d polynomial, 2d+2 for a degree d
+# rational map), recovered here by interpolation. Some tables print an orbit
+# without its leading 0 (the map sends 0 to the first printed point); the 0 is
+# restored below. Comments give the paper's result: (tail, cycle) of the orbit,
+# after the number of rational preperiodic points in the "many" table. A map
+# listed in several tables appears once. Not yet checked for repeated graph
+# structures - the site generator drops repeats within a table.
+
 cites = ['Hutz2026']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -118,30 +127,23 @@ func_list.append(orbit_rational_system([0, -1, 3, -3, 4, -5, 1, -2, 2, -6]))
 # tail (9, 1): orbit [0, 1, -5, -7, -1, 3, 9, 7, -3, 5]
 func_list.append(orbit_rational_system([0, 1, -5, -7, -1, 3, 9, 7, -3, 5]))
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
-    my_session.commit()
+maps.extend(func_list, cites)
 
 
 ###########################################
-#Gontmacher-Hutz-Jorgenson-Srimani-Xu, arXiv:2007.15483 / GHJSX2021, Sections 6 and 7:
-#rational preperiodic graph structures over QQ of the maps with a nontrivial
-#automorphism group in degrees 3 and 4. For the families with one parameter the
-#paper classifies the structures by a parametrization of the parameter; for the
-#others it gives a census table labeled by parameter values. Only the structures
-#not already in the database (over QQ, same degree, polynomial or not) are added,
-#each once: checked in Sage on 2026-10-08 against the database graphs, isomorphism
-#classes as unlabeled directed graphs. For a parametrized structure the parameter
-#of smallest height found is used (t ranging over p/q with |p|, |q| <= 4, plus a
-#grid with |p|, |q| <= 6); for a table structure, the paper's parameters. G_1 of the
-#C_3 family (a point on the elliptic curve y^2 - y = x^3 - 1) is a = 343/342 (t = 1/7).
-#Each comment gives the family, the parameter(s) and the number of rational
-#preperiodic points.
+# Gontmacher-Hutz-Jorgenson-Srimani-Xu, arXiv:2007.15483 / GHJSX2021, Sections 6 and 7:
+# rational preperiodic graph structures over QQ of the maps with a nontrivial
+# automorphism group in degrees 3 and 4. For the families with one parameter the
+# paper classifies the structures by a parametrization of the parameter; for the
+# others it gives a census table labeled by parameter values. Only the structures
+# not already in the database (over QQ, same degree, polynomial or not) are added,
+# each once. For a parametrized structure the parameter
+# of smallest height found is used (t ranging over p/q with |p|, |q| <= 4, plus a
+# grid with |p|, |q| <= 6); for a table structure, the paper's parameters. G_1 of the
+# C_3 family (a point on the elliptic curve y^2 - y = x^3 - 1) is a = 343/342 (t = 1/7).
+# Each comment gives the family, the parameter(s) and the number of rational
+# preperiodic points.
+
 cites = ['GHJSX2021']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -281,18 +283,14 @@ func_list.append(ghjsx_4_C2(QQ(-3)/4, QQ(-7)/2, QQ(7)/2))  # (-3/4, -7/2, 7/2): 
 func_list.append(ghjsx_4_C2(QQ(7)/4, QQ(8), QQ(-8)))  # (7/4, 8, -8): 12 points
 func_list.append(ghjsx_4_C2(QQ(7)/4, QQ(-8), QQ(8)))  # (7/4, -8, 8): 12 points
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
-    my_session.commit()
+maps.extend(func_list, cites)
 
+
+
+# add them all: computed in parallel, written in order (functions/parallel_load.py)
+add_maps_NF(maps, my_session, my_cursor, log_file=log_file)
 
 my_session.commit()
-
 log_file.close()
 
 #my_session.close()

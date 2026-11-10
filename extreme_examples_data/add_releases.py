@@ -23,7 +23,8 @@ load("connect.py")
 
 #########################
 
-#setup_all drops data_releases: put back the versions already released
+#setup_all drops data_releases: this pust back the versions already released
+#These are needed to ensure label consistency across data versions/rebuilds
 for r in read_release_file():
     my_cursor.execute("""INSERT INTO data_releases
         (version, release_date, git_commit, sage_version, notes, summary)

@@ -238,6 +238,36 @@ def build_timeout(timeout):
     return seconds
 
 
+def build_cpus():
+    """
+    The number of processes a build computes with: the DYNABASE_CPUS environment variable
+    if it is set, otherwise half of the CPUs available to this process. 1 computes serially.
+    """
+    requested = os.environ.get('DYNABASE_CPUS')
+    if not requested:
+        return max(1, len(os.sched_getaffinity(0)) // 2)
+    cpus = int(requested)
+    if cpus < 1:
+        raise ValueError('DYNABASE_CPUS must be at least 1: ' + requested)
+    return cpus
+
+
+def build_compute_missing():
+    """
+    Whether a build recomputes the missing items of a function already in the database
+    (a step whose column is still null, e.g. it timed out): the DYNABASE_COMPUTE_MISSING
+    environment variable, 1/true/yes or 0/false/no, False if it is not set. Without it, a
+    stored function only gets the citations, and its rational preperiodic points over a field
+    other than its own (new data, e.g. x^2 + c with rational c over a quadratic field).
+    """
+    requested = os.environ.get('DYNABASE_COMPUTE_MISSING', '').strip().lower()
+    if requested in ('', '0', 'false', 'no'):
+        return False
+    if requested in ('1', 'true', 'yes'):
+        return True
+    raise ValueError('DYNABASE_COMPUTE_MISSING must be 1/true/yes or 0/false/no: ' + requested)
+
+
 # Results of computations already done by a parallel worker (functions/parallel_load.py):
 # (key, timeout) -> ('ok', pickled value), ('error', message) or ('timeout',). Empty in a
 # serial load. A worker records into it; the process loading the data reads it. Values are
@@ -257,6 +287,11 @@ def recorded_computations():
 
 def add_recorded_computations(computations):
     _computations.update(computations)
+
+
+def clear_recorded_computations():
+    """forget the workers' results, e.g. when a data file is done with them"""
+    _computations.clear()
 
 
 def computation_key(name, F, *inputs):
@@ -341,9 +376,20 @@ def run_in_child_process(compute, timeout=30, log_file=sys.stdout):
     #whole group is killed: sage's fork only kills the child, and processes the child
     #forked (e.g. sage's parallel workers in automorphism_group) would keep running
     pid_read, pid_write = os.pipe()
+    parent_pid = os.getpid()
     def child():
         os.close(pid_read)
         os.setpgid(0, 0)
+        #killed if this process dies: otherwise nothing kills it (the timeout and the group
+        #kill below both happen here), so it would compute forever with no one to report to,
+        #as a child of a killed build did for 46 hours on 2026-11-07. The kernel sends
+        #SIGKILL; if this process already died before the prctl, exit now.
+        try:
+            ctypes.CDLL(None).prctl(1, signal.SIGKILL, 0, 0, 0) #PR_SET_PDEATHSIG = 1
+        except Exception:
+            pass
+        if os.getppid() != parent_pid:
+            os._exit(1)
         os.write(pid_write, str(os.getpid()).encode())
         os.close(pid_write) #before compute forks, so its workers don't hold the pipe open
         os.environ["CYSIGNALS_CRASH_NDEBUG"] = "yes" #skip the slow enhanced backtrace on a crash

@@ -8,11 +8,14 @@
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
-from functions.function_dim_1_helpers_NF import model_in_database_NF
-from functions.function_dim_1_helpers_NF import add_function_all_NF
-from functions.function_dim_1_helpers_NF import add_citations_NF
-from functions.function_dim_1_helpers_NF import add_automorphism_group_NF
-from functions.function_dim_1_helpers_generic import build_timeout
+# Can be run independently, but must set the environment variables to change the defaults
+# of DYNABASE_CPUS, DYNABASE_TIMEOUT, DYNABASE_COMPUTE_MISSING
+
+load_attach_path('/home/ben/dynabase')
+import sys
+sys.path.append('/home/ben/dynabase')
+
+from functions.parallel_load import MapList, add_maps_NF
 
 ###################################
 ###connect to database
@@ -25,10 +28,13 @@ load("connect.py")
 
 #########################
 
-path_to_log = "/home/ben/dynabase/functions_log.txt"
-log_file = open(path_to_log, 'a', 1)
+path_to_log = "/home/ben/dynabase/functions_automorphisms_log.txt"
+log_file = open(path_to_log, 'w', 1)
 
-#maps with a given exact automorphism group, polynomials and rational maps of any degree
+# the file's maps, in order; added (and computed) together at the end
+maps = MapList()
+
+# maps with a given exact automorphism group, polynomials and rational maps of any degree
 
 ###########################################
 #de Faria-Hutz, arXiv:1509.06670 / dFH2018, Figure 1 (Exact Automorphism Groups):
@@ -53,7 +59,7 @@ log_file = open(path_to_log, 'a', 1)
 
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
-timeout = build_timeout(int(120))
+timeout = int(120) #DYNABASE_TIMEOUT overrides it
 
 #(map, citations)
 func_list = []
@@ -82,19 +88,18 @@ func_list.append((DynamicalSystem([-(x**11 + 66*x**6*y**5 - 11*x*y**10),
 
 ###########################################
 #Gontmacher-Hutz-Jorgenson-Srimani-Xu, arXiv:2007.15483 / GHJSX2021, Sections 2 and 4
-#(summarized in the introduction): every automorphism locus in degrees 3 and 4. A locus is a single
-#conjugacy class or a family; for a family, the member of smallest height (largest
-#|numerator| or denominator of its parameters, integers preferred on ties) whose
-#automorphism group over QQbar is exactly the family's group - smaller parameters
-#can give a larger group, e.g. a = 0 in the D_2 families is 1/z^3, with group D_4.
-#Each was checked in Sage. The single classes 1/z^3 (D_4), the A_4 map above and
-#1/z^4 (D_5) are already in the dFH2018 lists; listing them again credits GHJSX2021.
+# (summarized in the introduction): the automorphism locus in degrees 3 and 4.
+# For a family, the member of smallest height, integers preferred on ties, whose
+# automorphism group over QQbar is exactly the family's group - smaller parameters
+# can give a larger group, e.g. a = 0 in the D_2 families is 1/z^3, with group D_4.
+# Each was checked in Sage. The single classes 1/z^3 (D_4), the A_4 map above and
+# 1/z^4 (D_5) are already in the dFH2018 lists; listing them again adds the citation
+# GHJSX2021.
 
-# degree 2 (the paper calls this case well known): the rational maps' groups are C_2 and
+# degree 2: the rational maps' groups are C_2 and
 # S_3; S_3 is the D_6 map (y^2 : x^2) above, and for C_2 the smallest height example,
-# z + 1/z (its other height 1 examples, e.g. z/(z^2 + 1) or (z^2 - 1)/z, are conjugate to
-# it). Cited to Milnor1993, whose symmetry locus of quadratic rational maps gives the degree 2
-# groups (C_2 generically, S_3 at one point). Checked in Sage: exactly C_2, not a polynomial.
+# z + 1/z. Cited to Milnor1993, whose symmetry locus of quadratic rational maps gives the degree 2
+# groups (C_2 generically, S_3 at one point).
 func_list.append((DynamicalSystem([x**2 + y**2, x*y]), ['Milnor1993']))                # (z^2 + 1)/z: C_2
 
 # degree 3
@@ -114,18 +119,18 @@ func_list.append((DynamicalSystem([x**4, x**3*y + y**4]), ['GHJSX2021']))       
 func_list.append((DynamicalSystem([x**4 + y**4, x*y**3]), ['GHJSX2021']))              # C_2: (z^4 + k1 z^2 + 1)/(k2 z^3 + k3 z), (k1, k2, k3) = (0, 0, 1)
 
 ###########################################
-#Polynomials (Fujimura-Nishizawa, FN1997, symmetry loci of polynomial maps): a
-#polynomial of degree d conjugate to z^d has the dihedral group of order 2(d-1) as
-#automorphism group; any other one has a cyclic group C_m with m dividing d-1, and
-#has C_m exactly when its monic centered form is z*g(z^m). So these are all the
-#groups a polynomial can have. One example of each, for every degree d <= 10, with
-#all coefficients 1:
+# Polynomials (Fujimura-Nishizawa, FN1997, symmetry loci of polynomial maps): a
+# polynomial of degree d conjugate to z^d has the dihedral group of order 2(d-1) as
+# automorphism group; any other one has a cyclic group C_m with m dividing d-1, and
+# has C_m exactly when its monic centered form is z*g(z^m). So these are all the Aut
+# groups a polynomial can have. One example of each, for every degree d <= 10, with
+# all coefficients 1:
 #  z^d                       dihedral of order 2(d-1) (GAP: C2, C2 x C2, S3, D4, ...)
 #  z^d + z                   C_(d-1)
 #  z^d + z^(m+1)             C_m, for each divisor 1 < m < d-1 of d-1
-#Each group was checked in Sage. Several are already in the database (z^2 from
-#Poonen1998, z^(n+1) + z from dFH2018, z^4 from GHJSX2021); for those this only
-#adds the FN1997 citation.
+# Several are already in the database (z^2 from
+# Poonen1998, z^(n+1) + z from dFH2018, z^4 from GHJSX2021); for those this only
+# adds the FN1997 citation.
 for d in range(2, 11):
     func_list.append((DynamicalSystem([x**d, y**d]), ['FN1997']))
     for m in ZZ(d - 1).divisors():
@@ -134,23 +139,17 @@ for d in range(2, 11):
         e = 1 if m == d - 1 else m + 1  # z^d + z^e has automorphism group C_m
         func_list.append((DynamicalSystem([x**d + x**e*y**(d - e), y**d]), ['FN1997']))
 
+# Creates the maps list and needed call data
 for F, cites in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-        #e.g. D_6 = (y^2 : x^2) is already a Lukas2014 map (182), stored before the iso type column
-        my_cursor.execute("""SELECT automorphism_group_iso_type FROM functions_dim_1_NF
-            WHERE function_id = %s""", [F_id])
-        if my_cursor.fetchone()['automorphism_group_iso_type'] is None:
-            add_automorphism_group_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file, timeout=timeout)
-    my_session.commit()
+    maps.add(F, cites, timeout=timeout)
 
+
+
+
+# add them all: computed in parallel, written in order (functions/parallel_load.py)
+add_maps_NF(maps, my_session, my_cursor, log_file=log_file)
 
 my_session.commit()
-
 log_file.close()
 
 #my_session.close()

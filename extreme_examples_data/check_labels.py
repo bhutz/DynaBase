@@ -21,7 +21,7 @@ load("connect.py")
 
 #########################
 
-#every label is permanent from v1.0.0 on: report any that didn't survive this load
+# every label is permanent from v1.0.0 on: report any that didn't survive this load
 label_entries = read_label_file()
 if not label_entries:
     print('label check: no label file yet, make_release.py writes it')

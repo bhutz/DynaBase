@@ -8,9 +8,14 @@
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
-from functions.function_dim_1_helpers_NF import model_in_database_NF
-from functions.function_dim_1_helpers_NF import add_function_all_NF
-from functions.function_dim_1_helpers_NF import add_citations_NF
+# Can be run independently, but must set the environment variables to change the defaults
+# of DYNABASE_CPUS, DYNABASE_TIMEOUT, DYNABASE_COMPUTE_MISSING
+
+load_attach_path('/home/ben/dynabase')
+import sys
+sys.path.append('/home/ben/dynabase')
+
+from functions.parallel_load import MapList, add_maps_NF
 
 ###################################
 ###connect to database
@@ -23,26 +28,30 @@ load("connect.py")
 
 #########################
 
-path_to_log = "/home/ben/dynabase/functions_log.txt"
-log_file = open(path_to_log, 'a', 1)
+path_to_log = "/home/ben/dynabase/functions_small_height_log.txt"
+log_file = open(path_to_log, 'w', 1)
+
+# the file's maps, in order; added (and computed) together at the end
+maps = MapList()
 
 #small canonical height ratio examples, polynomials and rational maps of every degree
 
 ###########################################
-#Hutz Examples (genetic algorithm)
-#arXiv:2601.11482 / Hutz2026, Appendix (Extended Data Set), Small Height Ratio
-#tables: the 3 smallest ratios for each degree and type (polynomials of degree
-#2-12, rational maps of degree 2-5; the degree 2 rational table has only 2 maps
-#and the degree 13 table is empty), plus a 4th degree 6 polynomial (see there).
-#Each record in the paper's Section 5 summary table is its appendix table's best. The ratio is hhat(0)/h_M(f), with h_M the
-#largest height of the first sigma invariants. Each map is determined by the
-#orbit of 0 the paper lists for it: f sends each orbit point to the next (d+2
-#points for a degree d polynomial, 2d+2 for a degree d rational map), recovered
-#here by interpolation. The tables for degree 7 and up print orbits without
-#their leading 0; it is restored. Each entry gives the paper's ratio, and every
-#map was checked to reproduce it (relative error < 3e-4).
-#The point 0 is passed to add_function_all_NF, which stores its ratio as the
-#smallest height (smallest_height_model 'original') instead of searching.
+# Hutz Examples (genetic algorithm)
+# arXiv:2601.11482 / Hutz2026, Appendix (Extended Data Set), Small Height Ratio
+# tables: the 3 smallest ratios for each degree and type (polynomials of degree
+# 2-12, rational maps of degree 2-5; the degree 2 rational table has only 2 maps
+# and the degree 13 table is empty), plus a 4th degree 6 polynomial (see there).
+# Each record in the paper's Section 5 summary table is its appendix table's best. The ratio is hhat(0)/h_M(f), with h_M the
+# largest height of the first sigma invariants. Each map is determined by the
+# orbit of 0 the paper lists for it: f sends each orbit point to the next (d+2
+# points for a degree d polynomial, 2d+2 for a degree d rational map), recovered
+# here by interpolation. The tables for degree 7 and up print orbits without
+# their leading 0; it is restored. Each entry gives the paper's ratio, and every
+# map was checked to reproduce it (relative error < 3e-4).
+# The point 0 is passed to add_function_all_NF, which stores its ratio as the
+# smallest height (smallest_height_model 'original') instead of searching.
+
 cites = ['Hutz2026']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -166,18 +175,15 @@ for map_type, orbit, ratio in small_height:
     else:
         F = orbit_rational_system(orbit)
     map_cites = cites + earlier_cites.get((map_type, tuple(orbit)), [])
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, map_cites, my_cursor, log_file=log_file)
-    else: #not in database
-        #the paper's point is 0
-        F_id = add_function_all_NF(F, my_cursor,\
-                citations=map_cites, log_file=log_file, smallest_height_point=[0,1])
-    my_session.commit()
+    #the paper's point is 0
+    maps.add(F, map_cites, smallest_height_point=[0,1])
 
+
+
+# add them all: computed in parallel, written in order (functions/parallel_load.py)
+add_maps_NF(maps, my_session, my_cursor, log_file=log_file)
 
 my_session.commit()
-
 log_file.close()
 
 #my_session.close()

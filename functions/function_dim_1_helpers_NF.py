@@ -58,7 +58,7 @@ from functions.function_dim_1_helpers_generic import run_in_child
 from functions.function_dim_1_helpers_generic import computed_once
 from functions.function_dim_1_helpers_generic import computation_key
 from functions.function_dim_1_helpers_generic import sigma_hash
-from functions.function_dim_1_helpers_generic import build_timeout
+from functions.function_dim_1_helpers_generic import build_timeout, build_compute_missing
 from functions.release_files import entries_with_hashes
 from functions.function_dim_1_helpers_generic import automorphism_group_structure
 
@@ -127,13 +127,19 @@ def model_in_database_NF(F, my_cursor, sigma_1=None, conj_fns=None, log_file=sys
 
     model_names = ['original_model', 'monic_centered', 'reduced_model']
     #field_label, emb_index, field_id = get_field_label(F.base_ring(), log_file=log_file)
-    F_coeffs = [get_coefficients(g) for g in F]
+    # compare F as given and with normalized coordinates, as add_function_NF does: it stores
+    # the original model with normalized coordinates (e.g. a map built by interpolation with
+    # fractional coefficients is stored cleared of denominators), while a stored monic or
+    # reduced model may not have them. Normalized on a copy, as the caller keeps using F.
+    G = DynamicalSystem(list(F), domain=F.domain())
+    G.normalize_coordinates()
+    F_coeffs = [[get_coefficients(g) for g in F], [get_coefficients(g) for g in G]]
     # a field not in the LMFDB is labeled by its defining polynomial instead
     # (see lmfdb_field_label_NF), which is what gets stored, so compare with that
     bool, K_id = lmfdb_field_label_NF(F.base_ring(), log_file=log_file)
     for g in conj_fns:
         for i in range(len(model_names)):
-            if g[2*i+1] == F_coeffs and g[2*i+2] == str(K_id):
+            if g[2*i+1] in F_coeffs and g[2*i+2] == str(K_id):
                 return 1, g[0]
     return 0, '0'
 
@@ -729,6 +735,22 @@ def add_automorphism_group_NF(function_id, my_cursor, model_name='original', log
     return False
 
 
+def simple_cycles(G):
+    """
+    G.all_simple_cycles(), in G's own vertices.
+
+    Sage's all_simple_cycles keeps a cycle only when it starts at its smallest vertex, so it
+    silently drops a cycle whose vertices don't compare: over Q(zeta_12), neither
+    (0 : 1) < (a^3 - a : 1) nor the reverse holds, and the 2-cycle of x^7 + a^3 - a was lost
+    (2026-11-09). So the cycles are found on a copy with integer vertices, numbered in sorted
+    order: where the points do compare (QQ, quadratic fields), each cycle then starts at the
+    same point as before, so the stored periodic points don't change.
+    """
+    vertices = sorted(G.vertices(sort=False))
+    H = G.relabel({v: i for i, v in enumerate(vertices)}, inplace=False)
+    return [[vertices[i] for i in cycle] for cycle in H.all_simple_cycles()]
+
+
 def identify_graph(G, f, my_cursor, type, log_file=sys.stdout):
     """
     determine if the digraph is already in the table and returns it's graph_id
@@ -753,7 +775,7 @@ def identify_graph(G, f, my_cursor, type, log_file=sys.stdout):
     graph_data['num_components'] = len(G.connected_components())
     graph_data['positive_in_degree'] = len([t for t in G.in_degree() if t != 0])
     periodic = set()
-    for T in G.all_simple_cycles():
+    for T in simple_cycles(G): #not G.all_simple_cycles(), see simple_cycles
         periodic=periodic.union(set(T))
     graph_data['periodic_cardinality'] = len(periodic)
     periodic_cycles = []
@@ -765,7 +787,11 @@ def identify_graph(G, f, my_cursor, type, log_file=sys.stdout):
         periodic_cycles.append(int(num_periodic))
     graph_data['periodic_cycles'] = periodic_cycles
     max_tail = 0
-    for t in G.all_simple_paths():
+    #paths on a copy with integer vertices, like the cycles in simple_cycles
+    vertices = sorted(G.vertices(sort=False))
+    H = G.relabel({v: i for i, v in enumerate(vertices)}, inplace=False)
+    for path in H.all_simple_paths():
+        t = [vertices[j] for j in path]
         i=0
         while t[i] not in periodic and i != len(t)-1:
             i+=1
@@ -898,7 +924,7 @@ def add_rational_preperiodic_points_NF(function_id, my_cursor, model_name='origi
         ## TODO: add graph_id
 
         periodic = []
-        for c in preper.all_simple_cycles():
+        for c in simple_cycles(preper): #not preper.all_simple_cycles(), see simple_cycles
             periodic.append([str(t) for t in c[0]])
         preperiodic_data['rational_periodic_points'] = periodic
         # one point per connected component
@@ -1165,7 +1191,7 @@ def add_monic_centered_model_NF(function_id, my_cursor, model_name='original', l
 
 def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_file=sys.stdout, timeout=30):
     """
-    Determine if chebyshev.
+    Determine if chebyshev, i.e., conjugate over QQbar to +-T_d.
 
     if 'is_polynomial' is not set, add_is_polynomial is called.
 
@@ -1173,6 +1199,17 @@ def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_fi
 
     is_Chebshyev is set
 
+    A postcritically finite polynomial f of degree d is conjugate to +-T_d if and only if,
+    counting finite points only:
+
+    1. f has d-1 distinct critical points (all simple);
+    2. the post-critical set P has exactly 2 points;
+    3. no critical point is in P (every critical point is strictly preperiodic).
+
+    Why: every critical point maps into P and f(P) is in P, so f^{-1}(P) has
+    2d - (d-1) = d+1 points and contains P and the d-1 critical points; so it is exactly
+    P union the critical points. Weight 2 on P and infinity at infinity is then an invariant
+    orbifold of type (2, 2, infinity), so f is conjugate to +-T_d (Milnor).
     """
     query={}
     query['function_id']=function_id
@@ -1183,6 +1220,10 @@ def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_fi
         add_is_polynomial_NF(function_id, my_cursor, model_name=model_name, log_file=log_file, timeout=timeout)
         my_cursor.execute("""SELECT is_polynomial FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
         is_poly= my_cursor.fetchone()['is_polynomial']
+    if is_poly is None:
+        #unknown (e.g. timed out): store nothing, so it is a missing step on a rerun
+        log_file.write('chebyshev not determined, is_polynomial unknown for:' + str(function_id) + '\n')
+        return False
     if not is_poly:
         #not chebyshev if not a polynomial
         query['is_chebyshev']=False
@@ -1204,6 +1245,10 @@ def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_fi
         add_is_pcf(my_cursor, function_id, model_name=model_name, bool_add_field=True, log_file=log_file, timeout=timeout)
         my_cursor.execute("""SELECT is_pcf FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
         is_pcf = my_cursor.fetchone()['is_pcf']
+    if is_pcf is None:
+        #unknown (e.g. timed out): store nothing, so it is a missing step on a rerun
+        log_file.write('chebyshev not determined, is_pcf unknown for:' + str(function_id) + '\n')
+        return False
     if not is_pcf:
         #not chebyshev if not pcf
         query['is_chebyshev'] = False
@@ -1228,28 +1273,12 @@ def add_chebyshev_model_NF(function_id, my_cursor, model_name='original', log_fi
             d = F.degree()
             Pbar = Fbar.domain()
             crit, post_crit = get_post_critical(Fbar)
-            count_crit = 0
-            for Q in crit:
-                if Q != Pbar([1,0]):
-                    count_crit += 1
-            if count_crit == d-1:
-                count = 0
-                for Q in post_crit:
-                    if Q != Pbar([1,0]) and Q not in crit:
-                        good_Q = Q
-                        count += 1
-                if count == 2:
-                    # and we need either [1,1] or both fixed
-                    m,n = good_Q.is_preperiodic(Fbar, return_period=True)
-                    if n == 1:
-                        is_cheby = True
-                    else:
-                        is_cheby = False
-                else:
-                    is_cheby = False
-            else:
-                is_cheby = False
-            return is_cheby
+            #the three conditions in the docstring, finite points only
+            inf = Pbar([1,0])
+            finite_crit = [Q for Q in crit if Q != inf]
+            finite_post = [Q for Q in post_crit if Q != inf]
+            return (len(finite_crit) == d-1 and len(finite_post) == 2
+                    and all(Q not in post_crit for Q in finite_crit))
         is_cheby = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('chebyshev', F))
         query['is_chebyshev'] = is_cheby
         if not is_cheby:
@@ -1411,6 +1440,10 @@ def add_is_lattes_NF(function_id, my_cursor, model_name='original', log_file=sys
         add_is_pcf(my_cursor, function_id, model_name=model_name, bool_add_field=True, log_file=log_file, timeout=timeout)
         my_cursor.execute("""SELECT is_pcf FROM functions_dim_1_NF where function_id = %(function_id)s""",query)
         is_pcf = my_cursor.fetchone()['is_pcf']
+    if is_pcf is None:
+        #unknown (e.g. timed out): store nothing, so it is a missing step on a rerun
+        log_file.write('lattes not determined, is_pcf unknown for:' + str(function_id) + '\n')
+        return False
     if not is_pcf:
         #not lattes if not pcf
         query['is_lattes']=False
@@ -1760,7 +1793,8 @@ def stored_model_point_NF(F, function_id, point, my_cursor, log_file=sys.stdout)
     return None, 'original'
 
 
-def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout=30, smallest_height_point=None):
+def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout=30, smallest_height_point=None,
+                        compute_missing=None):
     """
     add all entries for one dynamical system
 
@@ -1770,10 +1804,18 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
     for one is slow, so call add_smallest_height directly for that.
 
     timeout - in seconds, for each computation, unless DYNABASE_TIMEOUT is set (build_timeout)
+
+    compute_missing - for a function already in the database (possibly as a conjugate of a
+    different model): whether to rerun each step whose result is missing (its column is
+    null, e.g. it timed out). None means DYNABASE_COMPUTE_MISSING (build_compute_missing).
+    Either way it gets the citations, and its rational preperiodic points over F's field if
+    that isn't the function's own field (new data); with it, over its own field too.
     """
     #TODO add parameter to overwrite data in the database
 
     timeout = build_timeout(timeout)
+    if compute_missing is None:
+        compute_missing = build_compute_missing()
     sigmas = {}
     is_new, F_id = add_function_NF(F, my_cursor, log_file=log_file, timeout=timeout, sigmas=sigmas) #has timeout
     f_sigmas = [sigmas[1], sigmas[2]] if sigmas else None
@@ -1804,16 +1846,22 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         # already in the database, possibly as a conjugate of a different
         # model - credit this source too (add_citations_NF merges, no duplicates)
         add_citations_NF(F_id, citations, my_cursor, log_file=log_file)
-        # rerun any step whose result is missing, e.g. it timed out when the function was added.
-        # reduced (number fields) and family (no families of that degree) can be missing
-        # legitimately; those reruns fail or return quickly
+        # with compute_missing, rerun any step whose result is missing, e.g. it timed out when
+        # the function was added. reduced (number fields) and family (no families of that
+        # degree) can be missing legitimately; those reruns fail or return quickly
         my_cursor.execute("""SELECT is_pcf, critical_portrait_graph_id, automorphism_group_cardinality,
                 (reduced_model).coeffs AS reduced_model, is_polynomial, (monic_centered).coeffs AS monic_centered,
                 is_chebyshev, is_newton, is_lattes, family, smallest_height_ratio,
-                automorphism_group_iso_type
+                automorphism_group_iso_type, (original_model).base_field_label AS own_field_label
             FROM functions_dim_1_NF WHERE function_id=%s""", [F_id])
         G = my_cursor.fetchone()
-        missing = [k for k, v in G.items() if v is None]
+        own_field_label = G['own_field_label']
+        # over another field the preperiodic points are new data, not a missing item
+        if compute_missing or base_field_label != own_field_label:
+            add_rational_preperiodic_points_NF(F_id, my_cursor, field_label=base_field_label, log_file=log_file, timeout=timeout)
+        if not compute_missing:
+            return F_id
+        missing = [k for k, v in G.items() if v is None and k != 'own_field_label']
         # no critical portrait unless pcf, no monic centered model unless a polynomial
         if G['is_pcf'] == False:
             missing = [k for k in missing if k != 'critical_portrait_graph_id']
@@ -1830,7 +1878,6 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
             add_critical_portrait(F_id, my_cursor, 'original', log_file=log_file, timeout=timeout)
         if 'automorphism_group_cardinality' in missing or 'automorphism_group_iso_type' in missing:
             add_automorphism_group_NF(F_id, my_cursor, 'original', log_file=log_file, timeout=timeout)
-        add_rational_preperiodic_points_NF(F_id, my_cursor, field_label=base_field_label, log_file=log_file, timeout=timeout)
         if 'reduced_model' in missing:
             add_reduced_model_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
         if 'is_polynomial' in missing:

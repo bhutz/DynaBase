@@ -8,10 +8,19 @@
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
+# Can be run independently, but must set the environment variables to change the defaults
+# of DYNABASE_CPUS, DYNABASE_TIMEOUT, DYNABASE_COMPUTE_MISSING
+
+# Several maps in this file need special treatment for the rational preperiodic points
+# Those are computed in add_functions_special_cases_dim_1.py
+# The special case file is run prior to this file in the extremem_examples.sage file
+
+load_attach_path('/home/ben/dynabase')
+import sys
+sys.path.append('/home/ben/dynabase')
+
+from functions.parallel_load import MapList, add_maps_NF
 from fields.field_helpers_NF import normalize_field_NF
-from functions.function_dim_1_helpers_NF import model_in_database_NF
-from functions.function_dim_1_helpers_NF import add_function_all_NF
-from functions.function_dim_1_helpers_NF import add_citations_NF
 
 ###################################
 ###connect to database
@@ -24,21 +33,25 @@ load("connect.py")
 
 #########################
 
-path_to_log = "/home/ben/dynabase/functions_log.txt"
-log_file = open(path_to_log, 'a', 1)
+path_to_log = "/home/ben/dynabase/functions_higher_degree_polys_log.txt"
+log_file = open(path_to_log, 'w', 1)
+
+# the file's maps, in order; added (and computed) together at the end
+maps = MapList()
 
 ###########################################
-#polynomials of degree 4 through 15, one table per degree
-#Doyle-Hyde Examples
-#arXiv:2201.11707 / DoHy2025
-#Table 2: f(z) = N(z)/D with f([m]) in [n] for [k] = {1,...,k}, degrees 4-9
-#(the d=2 and d=3 rows are in the quadratic/cubic files).
-#Table 4: degrees 10-15, given only by the interpolating values
-#(f(1), ..., f(d+1)); f is recovered by Lagrange interpolation.
-#Entries whose rational preperiodic graph (over the entry's own field) is
-#already realized by an earlier entry in the same table - same degree,
-#polynomial/rational, and base field degree - are commented out and
-#marked DUPLICATE, so each table holds one function per graph structure.
+# polynomials of degree 4 through 15, one table per degree
+# Doyle-Hyde Examples
+# arXiv:2201.11707 / DoHy2025
+# Table 2: f(z) = N(z)/D with f([m]) in [n] for [k] = {1,...,k}, degrees 4-9
+# (the d=2 and d=3 rows are in the quadratic/cubic files).
+# Table 4: degrees 10-15, given only by the interpolating values
+# (f(1), ..., f(d+1)); f is recovered by Lagrange interpolation.
+# Entries whose rational preperiodic graph (over the entry's own field) is
+# already realized by an earlier entry in the same table - same degree,
+# polynomial/rational, and base field degree - are commented out and
+# marked DUPLICATE, so each table holds one function per graph structure.
+
 cites = ['DoHy2025']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -96,31 +109,25 @@ func_list.append(interpolated_system([20, 4, 20, 4, 20, 14, 1, 8, 21, 18, 6, 6, 
 # d=15
 func_list.append(interpolated_system([21, 1, 2, 20, 4, 1, 9, 10, 5, 3, 6, 11, 16, 19, 17, 12]))
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
-    my_session.commit()
+maps.extend(func_list, cites)
 
 
 my_session.commit()
 
 ###########################################
-#Hutz Examples (genetic algorithm)
-#arXiv:2601.11482 / Hutz2026, Appendix (Extended Data Set): the maps from the
-#Many Preperiodic Points ("many"), Long Periodic Cycles ("cycle") and Long
-#Preperiodic Tail ("tail") tables; the Small Height ratio tables are not used.
-#Each map is determined by the orbit the paper lists for it: f sends each orbit
-#point to the next (d+2 points for a degree d polynomial, 2d+2 for a degree d
-#rational map), recovered here by interpolation. Some tables print an orbit
-#without its leading 0 (the map sends 0 to the first printed point); the 0 is
-#restored below. Comments give the paper's result: (tail, cycle) of the orbit,
-#after the number of rational preperiodic points in the "many" table. A map
-#listed in several tables appears once. Not yet checked for repeated graph
-#structures - the site generator drops repeats within a table.
+# Hutz Examples (genetic algorithm)
+# arXiv:2601.11482 / Hutz2026, Appendix (Extended Data Set): the maps from the
+# Many Preperiodic Points ("many"), Long Periodic Cycles ("cycle") and Long
+# Preperiodic Tail ("tail") tables; the Small Height ratio tables are not used.
+# Each map is determined by the orbit the paper lists for it: f sends each orbit
+# point to the next (d+2 points for a degree d polynomial, 2d+2 for a degree d
+# rational map), recovered here by interpolation. Some tables print an orbit
+# without its leading 0 (the map sends 0 to the first printed point); the 0 is
+# restored below. Comments give the paper's result: (tail, cycle) of the orbit,
+# after the number of rational preperiodic points in the "many" table. A map
+# listed in several tables appears once. Not yet checked for repeated graph
+# structures - the site generator drops repeats within a table.
+
 cites = ['Hutz2026']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -301,7 +308,8 @@ func_list.append(orbit_poly_system([0, 1, 5, 4, 6, -2, 7, 10, -1, 9, 2]))
 # cycle (1, 11): orbit [1, 3, 2, 4, 8, 9, 10, 6, 7, 5] (printed without its leading 0)
 func_list.append(orbit_poly_system([0, 1, 3, 2, 4, 8, 9, 10, 6, 7, 5]))
 # cycle (0, 11): orbit [-1, 2, -5, -2, 4, 1, -4, 3, -3, 5] (printed without its leading 0)
-func_list.append(orbit_poly_system([0, -1, 2, -5, -2, 4, 1, -4, 3, -3, 5]))
+# in add_functions_special_cases_dim_1.py (its default preperiodic computation takes over 30 minutes)
+#func_list.append(orbit_poly_system([0, -1, 2, -5, -2, 4, 1, -4, 3, -3, 5]))
 # cycle (0, 11): orbit [1, 2, -1, 3, -5, -4, -2, 4, -6, -3] (printed without its leading 0)
 func_list.append(orbit_poly_system([0, 1, 2, -1, 3, -5, -4, -2, 4, -6, -3]))
 # cycle (0, 11): orbit [1, 5, -5, -3, 2, -1, -4, -2, 3, 4] (printed without its leading 0)
@@ -383,28 +391,22 @@ func_list.append(orbit_poly_system([0, 1, 7, -3, -1, 8, 2, 3, 5, -5, 4, 10, -4, 
 # tail (14, 1): orbit [1, 6, 9, 15, 2, -1, 4, 12, 10, 13, 11, 3, 14, 8] (printed without its leading 0)
 func_list.append(orbit_poly_system([0, 1, 6, 9, 15, 2, -1, 4, 12, 10, 13, 11, 3, 14, 8]))
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
-    my_session.commit()
+maps.extend(func_list, cites)
 
 
 my_session.commit()
 
 ###########################################
-#postcritically finite (PCF) quartic polynomials over QQ
-#Fraser, On PCF polynomials (PhD dissertation, Fraser2024), Theorem 4.9: exactly
-#16 conjugacy classes, Table 4.1. The six bicritical classes are entered in the
-#Table 4.2 form (critical points moved to 0 and 1), which the dissertation gives
-#as conjugate to the Table 4.1 representatives.
-#Every class is kept, even when its rational preperiodic graph repeats one
-#already in the table: this is a complete classification of PCF maps (the site
-#generator still shows one function per graph). A map conjugate to one already
-#in the database adds no new function, only this citation.
+# postcritically finite (PCF) quartic polynomials over QQ
+# Fraser, On PCF polynomials (PhD dissertation, Fraser2024), Theorem 4.9: exactly
+# 16 conjugacy classes, Table 4.1. The six bicritical classes are entered in the
+# Table 4.2 form (critical points moved to 0 and 1), which the dissertation gives
+# as conjugate to the Table 4.1 representatives.
+# Every class is kept, even when its rational preperiodic graph repeats one
+# already in the table: this is a complete classification of PCF maps (the site
+# generator still shows one function per graph). A map conjugate to one already
+# in the database adds no new function, only this citation.
+
 cites = ['Fraser2024']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -444,30 +446,24 @@ func_list.append(DynamicalSystem([4*x**4 - 4*x**2*y**2 + y**4, y**4]))
 # tricritical, Chebyshev T_4: 8z^4 - 8z^2 + 1
 func_list.append(DynamicalSystem([8*x**4 - 8*x**2*y**2 + y**4, y**4]))
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
-    my_session.commit()
+maps.extend(func_list, cites)
 
 
 ###########################################
-#Gontmacher-Hutz-Jorgenson-Srimani-Xu, arXiv:2007.15483 / GHJSX2021, Sections 6 and 7:
-#rational preperiodic graph structures over QQ of the maps with a nontrivial
-#automorphism group in degrees 3 and 4. For the families with one parameter the
-#paper classifies the structures by a parametrization of the parameter; for the
-#others it gives a census table labeled by parameter values. Only the structures
-#not already in the database (over QQ, same degree, polynomial or not) are added,
-#each once: checked in Sage on 2026-10-08 against the database graphs, isomorphism
-#classes as unlabeled directed graphs. For a parametrized structure the parameter
-#of smallest height found is used (t ranging over p/q with |p|, |q| <= 4, plus a
-#grid with |p|, |q| <= 6); for a table structure, the paper's parameters. G_1 of the
-#C_3 family (a point on the elliptic curve y^2 - y = x^3 - 1) is a = 343/342 (t = 1/7).
-#Each comment gives the family, the parameter(s) and the number of rational
-#preperiodic points.
+# Gontmacher-Hutz-Jorgenson-Srimani-Xu, arXiv:2007.15483 / GHJSX2021, Sections 6 and 7:
+# rational preperiodic graph structures over QQ of the maps with a nontrivial
+# automorphism group in degrees 3 and 4. For the families with one parameter the
+# paper classifies the structures by a parametrization of the parameter; for the
+# others it gives a census table labeled by parameter values. Only the structures
+# not already in the database (over QQ, same degree, polynomial or not) are added,
+# each once: checked in Sage on 2026-10-08 against the database graphs, isomorphism
+# classes as unlabeled directed graphs. For a parametrized structure the parameter
+# of smallest height found is used (t ranging over p/q with |p|, |q| <= 4, plus a
+# grid with |p|, |q| <= 6); for a table structure, the paper's parameters. G_1 of the
+# C_3 family (a point on the elliptic curve y^2 - y = x^3 - 1) is a = 343/342 (t = 1/7).
+# Each comment gives the family, the parameter(s) and the number of rational
+# preperiodic points.
+
 cites = ['GHJSX2021']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -487,27 +483,20 @@ func_list = []
 # degree 4, (z^4 + k1 z)/(k2 z^3 + 1)
 func_list.append(ghjsx_4_C3(QQ(0), QQ(1)/2))  # (0, 1/2): 2 points
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
-    my_session.commit()
+maps.extend(func_list, cites)
 
 
 my_session.commit()
 
 ###########################################
-#Doyle-Hindes Examples
-#arXiv:2510.14067 / DoHi2025, Table 1 (Theorem 1.1 and its corollary): the 12 nonempty
-#skeletons of PrePer(x^d + c, K) for algebraic integers c and large d. One map x^d + c
-#for each, found 2026-10-12 from the conditions in the proofs (arXiv:2408.14657,
-#Section 4: c built from roots of unity; (1)a from c = y - y^d): smallest field, then
-#smallest d. The 12 are split by degree over the quadratic, cubic and higher degree
-#polynomial files; the full list is in the higher degree file.
-#All 12 (zeta_n a primitive n-th root of unity, the generator v of the field below):
+# Doyle-Hindes Examples
+# arXiv:2510.14067 / DoHi2025, Table 1 (Theorem 1.1 and its corollary): the 12 nonempty
+# skeletons of PrePer(x^d + c, K) for algebraic integers c and large d. One map x^d + c
+# for each, found 2026-10-12 from the conditions in the proofs (arXiv:2408.14657,
+# Section 4: c built from roots of unity; (1)a from c = y - y^d): smallest field, then
+# smallest d. The 12 are split by degree over the quadratic, cubic and higher degree
+# polynomial files; the full list is in the higher degree file.
+# All 12 (zeta_n a primitive n-th root of unity, the generator v of the field below):
 #  (1)a    x^3 - 6                     QQ          (cubic file)
 #  (2)b    x^2 - 1                     QQ          (quadratic file)
 #  (1,1)   x^2 + 1                     Q(zeta_3)   (quadratic file)
@@ -520,29 +509,27 @@ my_session.commit()
 #  (1)b    x^4 - zeta_16^4 - 1         Q(zeta_16)
 #  (1)e    x^6 + zeta_3                Q(zeta_36)
 #  (2)c    x^6 - 1                     Q(zeta_36)
-#The first five were verified with Sage's full preperiodic computation. The last seven (fields
-#of degree 4 to 12) were found by searching only 0 and roots of unity, and their skeletons are
-#the ones the paper's conditions give for large d, but they are NOT verified: Sage's
-#rational_preperiodic_graph did not finish in 30 minutes for any of them, with the default
-#settings or with the prime_bound / lifting_prime settings add_rational_preperiodic_points_NF
-#uses for these field degrees (and possible_periods only works over QQ). So when loaded they
-#time out in the preperiodic step and have no rational preperiodic rows. Their preperiodic
-#points need to be computed another way (e.g. bounding the periods by reduction modulo primes
-#of K, then factoring the dynatomic and preimage polynomials over K) and stored, checking that
-#there are no points of positive height for these small d; then the data is complete.
+# The first five were verified with Sage's full preperiodic computation. The last seven (fields
+# of degree 4 to 12) are in add_functions_special_cases_dim_1.py: Sage's
+# rational_preperiodic_graph did not finish in 30 minutes for any of them, so that file computes
+# their preperiodic points completely (periods by reduction modulo primes of K, then the
+# dynatomic polynomials and preimages over K), and all match the paper's Table 1.
+
 cites = ['DoHi2025']
 R = PolynomialRing(QQ, 't')
 t = R.gen()
 func_list = []
 for poly, d, c_of in [(t**2 + t + 1, 4, lambda v: QQ(1)),  # (2)a, Q(zeta_3)
                       (t**2 + t + 1, 6, lambda v: -v - 1),  # (1)c, zeta_3^2
-                      (t**4 - t**2 + 1, 7, lambda v: v**3 - v),  # (2,2), Q(zeta_12)
-                      (t**4 - t**2 + 1, 11, lambda v: -v**3),  # (2,1,1)
-                      (t**6 + t**3 + 1, 6, lambda v: v**3),  # (1)d, Q(zeta_9)
-                      (t**6 + t**3 + 1, 7, lambda v: v**5 + v**2),  # (3)
-                      (t**8 + 1, 4, lambda v: -v**4 - 1),  # (1)b, Q(zeta_16)
-                      (t**12 - t**6 + 1, 6, lambda v: v**6 - 1),  # (1)e, Q(zeta_36)
-                      (t**12 - t**6 + 1, 6, lambda v: QQ(-1))]:  # (2)c
+                      # in add_functions_special_cases_dim_1.py:
+                      #(t**4 - t**2 + 1, 7, lambda v: v**3 - v),  # (2,2), Q(zeta_12)
+                      #(t**4 - t**2 + 1, 11, lambda v: -v**3),  # (2,1,1)
+                      #(t**6 + t**3 + 1, 6, lambda v: v**3),  # (1)d, Q(zeta_9)
+                      #(t**6 + t**3 + 1, 7, lambda v: v**5 + v**2),  # (3)
+                      #(t**8 + 1, 4, lambda v: -v**4 - 1),  # (1)b, Q(zeta_16)
+                      #(t**12 - t**6 + 1, 6, lambda v: v**6 - 1),  # (1)e, Q(zeta_36)
+                      #(t**12 - t**6 + 1, 6, lambda v: QQ(-1)),  # (2)c
+                      ]:
     K0 = NumberField(poly, 'v')
     c0 = c_of(K0.gen())
     K, phi = normalize_field_NF(K0)
@@ -550,18 +537,15 @@ for poly, d, c_of in [(t**2 + t + 1, 4, lambda v: QQ(1)),  # (2)a, Q(zeta_3)
     x, y = P.gens()
     func_list.append(DynamicalSystem([x**d + phi(c0)*y**d, y**d]))
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database (or not over this field)
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
-    my_session.commit()
+maps.extend(func_list, cites)
+
+
+
+# add them all: computed in parallel, written in order (functions/parallel_load.py)
+add_maps_NF(maps, my_session, my_cursor, log_file=log_file)
 
 
 my_session.commit()
-
 log_file.close()
 
 #my_session.close()

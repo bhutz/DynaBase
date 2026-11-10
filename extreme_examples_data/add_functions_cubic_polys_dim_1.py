@@ -8,9 +8,14 @@
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
-from functions.function_dim_1_helpers_NF import model_in_database_NF
-from functions.function_dim_1_helpers_NF import add_function_all_NF
-from functions.function_dim_1_helpers_NF import add_citations_NF
+# Can be run independently, but must set the environment variables to change the defaults
+# of DYNABASE_CPUS, DYNABASE_TIMEOUT, DYNABASE_COMPUTE_MISSING
+
+load_attach_path('/home/ben/dynabase')
+import sys
+sys.path.append('/home/ben/dynabase')
+
+from functions.parallel_load import MapList, add_maps_NF
 
 ###################################
 ###connect to database
@@ -23,20 +28,24 @@ load("connect.py")
 
 #########################
 
-path_to_log = "/home/ben/dynabase/functions_log.txt"
-log_file = open(path_to_log, 'a', 1)
+path_to_log = "/home/ben/dynabase/functions_cubic_polys_log.txt"
+log_file = open(path_to_log, 'w', 1)
+
+# the file's maps, in order; added (and computed) together at the end
+maps = MapList()
 
 ###########################################
 #a*z^3 + b*z + c
-#Benedetto-Dickman-Joseph-Krause-Rubin-Zhou Examples
-#https://mgolech.github.io/cubics/index.html , f(z) column
-#Table I: form a*z^3 + b*z + 1 (79 preperiodic portraits, rows I1-I79;
-#some portraits have two representative maps, both included)
-#Table II: form a*z^3 + b*z (37 preperiodic portraits, rows II1-II37)
-#Entries whose rational preperiodic graph (over the entry's own field) is
-#already realized by an earlier entry in the same table - same degree,
-#polynomial/rational, and base field degree - are commented out and
-#marked DUPLICATE, so each table holds one function per graph structure.
+# Benedetto-Dickman-Joseph-Krause-Rubin-Zhou Examples
+# https://mgolech.github.io/cubics/index.html , f(z) column
+# Table I: form a*z^3 + b*z + 1 (79 preperiodic portraits, rows I1-I79;
+# some portraits have two representative maps, both included)
+# Table II: form a*z^3 + b*z (37 preperiodic portraits, rows II1-II37)
+# Entries whose rational preperiodic graph (over the entry's own field) is
+# already realized by an earlier entry in the same table - same degree,
+# polynomial/rational, and base field degree - are commented out and
+# marked DUPLICATE, so each table holds one function per graph structure.
+
 cites = ['Benedetto2009']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -427,24 +436,19 @@ func_list.append(DynamicalSystem([QQ(6)/5*x**3 - QQ(289)/120*x*y**2 + 0*y**3, y*
 # II37: f(z) = -6z^3/5 + 289z/120
 func_list.append(DynamicalSystem([-QQ(6)/5*x**3 + QQ(289)/120*x*y**2 + 0*y**3, y**3]))
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
+maps.extend(func_list, cites)
 
 
 my_session.commit()
 
 ###########################################
-#Doyle-Hyde Examples
-#arXiv:2201.11707 / DoHy2025, Table 2 row d=3: f([m]) in [n] for [k] = {1,...,k}
-#Entries whose rational preperiodic graph (over the entry's own field) is
-#already realized by an earlier entry in the same table - same degree,
-#polynomial/rational, and base field degree - are commented out and
-#marked DUPLICATE, so each table holds one function per graph structure.
+# Doyle-Hyde Examples
+# arXiv:2201.11707 / DoHy2025, Table 2 row d=3: f([m]) in [n] for [k] = {1,...,k}
+# Entries whose rational preperiodic graph (over the entry's own field) is
+# already realized by an earlier entry in the same table - same degree,
+# polynomial/rational, and base field degree - are commented out and
+# marked DUPLICATE, so each table holds one function per graph structure.
+
 cites = ['DoHy2025']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -454,32 +458,28 @@ func_list = []
 # conjugate to II18 (one of Benedetto et al.'s record cubics, as the paper notes):
 # adds no new function, only attaches the DoHy2025 citation to the existing one
 # d=3, m=11, n=11: f(z) = (z^3 - 18z^2 + 89z - 66)/6
+
 func_list.append(DynamicalSystem([x**3 - 18*x**2*y + 89*x*y**2 - 66*y**3, 6*y**3]))
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
+maps.extend(func_list, cites)
 
 
 my_session.commit()
 
 ###########################################
-#Hutz Examples (genetic algorithm)
-#arXiv:2601.11482 / Hutz2026, Appendix (Extended Data Set): the maps from the
-#Many Preperiodic Points ("many"), Long Periodic Cycles ("cycle") and Long
-#Preperiodic Tail ("tail") tables; the Small Height ratio tables are not used.
-#Each map is determined by the orbit the paper lists for it: f sends each orbit
-#point to the next (d+2 points for a degree d polynomial, 2d+2 for a degree d
-#rational map), recovered here by interpolation. Some tables print an orbit
-#without its leading 0 (the map sends 0 to the first printed point); the 0 is
-#restored below. Comments give the paper's result: (tail, cycle) of the orbit,
-#after the number of rational preperiodic points in the "many" table. A map
-#listed in several tables appears once. Not yet checked for repeated graph
-#structures - the site generator drops repeats within a table.
+# Hutz Examples (genetic algorithm)
+# arXiv:2601.11482 / Hutz2026, Appendix (Extended Data Set): the maps from the
+# Many Preperiodic Points ("many"), Long Periodic Cycles ("cycle") and Long
+# Preperiodic Tail ("tail") tables; the Small Height ratio tables are not used.
+# Each map is determined by the orbit the paper lists for it: f sends each orbit
+# point to the next (d+2 points for a degree d polynomial, 2d+2 for a degree d
+# rational map), recovered here by interpolation. Some tables print an orbit
+# without its leading 0 (the map sends 0 to the first printed point); the 0 is
+# restored below. Comments give the paper's result: (tail, cycle) of the orbit,
+# after the number of rational preperiodic points in the "many" table. A map
+# listed in several tables appears once. Not yet checked for repeated graph
+# structures - the website generator drops repeats within a table.
+
 cites = ['Hutz2026']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -509,29 +509,23 @@ func_list.append(orbit_poly_system([0, 1, 4, 9, 10]))
 # tail (4, 1): orbit [0, 1, 7, 3, 8]
 func_list.append(orbit_poly_system([0, 1, 7, 3, 8]))
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
-    my_session.commit()
+maps.extend(func_list, cites)
 
 
 my_session.commit()
 
 ###########################################
-#postcritically finite (PCF) cubic polynomials over QQ
-#Anderson-Manes-Tobin, Cubic post-critically finite polynomials defined over Q
-#(AMT2020), Theorem: exactly fifteen conjugacy classes over QQbar.
-#The theorem statement prints (5) and (13) identically as -z^3 + 3/2z^2 - 1;
-#Table 1 has both -z^3 + 3/2z^2 - 1 and -z^3 + 3/2z^2 + 1, and both are PCF,
-#so (13) is taken to be the + 1 map.
-#Every class is kept, even when its rational preperiodic graph repeats one
-#already in the table: this is a complete classification of PCF maps (the site
-#generator still shows one function per graph). A map conjugate to one already
-#in the database adds no new function, only this citation.
+# postcritically finite (PCF) cubic polynomials over QQ
+# Anderson-Manes-Tobin, Cubic post-critically finite polynomials defined over Q
+# (AMT2020), Theorem: exactly fifteen conjugacy classes over QQbar.
+# The theorem statement prints (5) and (13) identically as -z^3 + 3/2z^2 - 1;
+# Table 1 has both -z^3 + 3/2z^2 - 1 and -z^3 + 3/2z^2 + 1, and both are PCF,
+# so (13) is taken to be the + 1 map.
+# Every class is kept, even when its rational preperiodic graph repeats one
+# already in the table: this is a complete classification of PCF maps (the site
+# generator still shows one function per graph). A map conjugate to one already
+# in the database adds no new function, only this citation.
+
 cites = ['AMT2020']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -569,27 +563,21 @@ func_list.append(DynamicalSystem([-QQ(1)/4*x**3 + QQ(3)/2*x*y**2 + 2*y**3, y**3]
 # (15) -1/28z^3 - 3/4z + 7/2
 func_list.append(DynamicalSystem([-QQ(1)/28*x**3 - QQ(3)/4*x*y**2 + QQ(7)/2*y**3, y**3]))
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
-    my_session.commit()
+maps.extend(func_list, cites)
 
 
 my_session.commit()
 
 ###########################################
-#postcritically finite (PCF) monic centered cubic polynomials z^3 + Az + B over QQ
-#Ingram, A finiteness result for post-critically finite polynomials (Ingram2012),
-#Section 4. The two (-3/4, +-3/4) maps are conjugate; all seven are among the
-#AMT2020 classes above.
-#Every class is kept, even when its rational preperiodic graph repeats one
-#already in the table: this is a complete classification of PCF maps (the site
-#generator still shows one function per graph). A map conjugate to one already
-#in the database adds no new function, only this citation.
+# postcritically finite (PCF) monic centered cubic polynomials z^3 + Az + B over QQ
+# Ingram, A finiteness result for post-critically finite polynomials (Ingram2012),
+# Section 4. The two (-3/4, +-3/4) maps are conjugate; all seven are among the
+# AMT2020 classes above.
+# Every class is kept, even when its rational preperiodic graph repeats one
+# already in the table: this is a complete classification of PCF maps (the site
+# generator still shows one function per graph). A map conjugate to one already
+# in the database adds no new function, only this citation.
+
 cites = ['Ingram2012']
 P = ProjectiveSpace(QQ,1,'x,y')
 x,y = P.gens()
@@ -611,47 +599,37 @@ func_list.append(DynamicalSystem([x**3 + QQ(3)/2*x*y**2, y**3]))
 # (A, B) = (3, 0)
 func_list.append(DynamicalSystem([x**3 + 3*x*y**2, y**3]))
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
-    my_session.commit()
+maps.extend(func_list, cites)
 
 
 my_session.commit()
 
 ###########################################
-#Doyle-Hindes Examples
-#arXiv:2510.14067 / DoHi2025, Table 1 (Theorem 1.1 and its corollary): the 12 nonempty
-#skeletons of PrePer(x^d + c, K) for algebraic integers c and large d. One map x^d + c
-#for each, found 2026-10-12 from the conditions in the proofs (arXiv:2408.14657,
-#Section 4: c built from roots of unity; (1)a from c = y - y^d): smallest field, then
-#smallest d. The 12 are split by degree over the quadratic, cubic and higher degree
-#polynomial files; the full list is in the higher degree file.
-#Here (verified with the full preperiodic computation): (1)a x^3 - 6 over QQ, c = y - y^3
-#with y = 2; its only finite QQ-rational preperiodic point is the fixed point 2 (for d = 2,
-#y = 2 gives x^2 - 2, which has more).
+# Doyle-Hindes Examples
+# arXiv:2510.14067 / DoHi2025, Table 1 (Theorem 1.1 and its corollary): the 12 nonempty
+# skeletons of PrePer(x^d + c, K) for algebraic integers c and large d. One map x^d + c
+# for each, found 2026-10-12 from the conditions in the proofs (arXiv:2408.14657,
+# Section 4: c built from roots of unity; (1)a from c = y - y^d): smallest field, then
+# smallest d. The 12 are split by degree over the quadratic, cubic and higher degree
+# polynomial files; the full list is in the higher degree file.
+# Here (verified with the full preperiodic computation): (1)a x^3 - 6 over QQ, c = y - y^3
+# with y = 2; its only finite QQ-rational preperiodic point is the fixed point 2 (for d = 2,
+# y = 2 gives x^2 - 2, which has more).
+
 cites = ['DoHi2025']
 func_list = []
 P = ProjectiveSpace(QQ, 1, 'x,y')
 x, y = P.gens()
 func_list.append(DynamicalSystem([x**3 - 6*y**3, y**3]))  # (1)a
 
-for F in func_list:
-    found, F_id = model_in_database_NF(F, my_cursor)
-    if found:
-        add_citations_NF(F_id, cites, my_cursor, log_file=log_file)
-    else: #not in database (or not over this field)
-        label = add_function_all_NF(F, my_cursor,\
-                citations=cites, log_file=log_file)
-    my_session.commit()
+maps.extend(func_list, cites)
 
+
+
+# add them all: computed in parallel, written in order (functions/parallel_load.py)
+add_maps_NF(maps, my_session, my_cursor, log_file=log_file)
 
 my_session.commit()
-
 log_file.close()
 
 #my_session.close()
