@@ -31,6 +31,7 @@ from sage.misc.verbose import set_verbose
 from sage.rings.fraction_field import FractionField
 from sage.rings.fraction_field import FractionField_generic
 from sage.rings.integer_ring import ZZ
+from sage.rings.number_field.number_field import NumberField
 from sage.rings.polynomial.multi_polynomial_ring_base import MPolynomialRing_base
 from sage.rings.polynomial.polynomial_ring import PolynomialRing_general
 from sage.rings.polynomial.polynomial_ring_constructor import PolynomialRing
@@ -531,38 +532,236 @@ def add_function_NF(F, my_cursor, bool_add_field=False, log_file=sys.stdout, tim
             log_file.write('updating twist list for: ' + str(twist_id) + '\n')
     return True, F_id
 
+######
+## helpers for a faster is_pcf()
+
+def critical_point_factors_NF(F):
+    """
+    Represent the critical points of F as the distinct irreducible factors over the
+    base field K of the Wronskian: a list of polynomials in K[z], or None for the point
+    at infinity. A factor's roots are Galois conjugate critical points.
+    """
+    K = F.base_ring()
+    S = PolynomialRing(K, 'z')
+    z = S.gen()
+    wr = F.wronskian_ideal().gen(0)
+    factors = []
+    for w, e in wr.factor():
+        if w.degree() == 0:
+            continue
+        w1 = S(w([z, 1]))
+        if w1.degree() == 0:
+            factors.append(None) # w is a multiple of y
+        else:
+            factors.append(w1)
+    return factors
+
+
+def norm_polynomial_NF(w):
+    """
+    For w in K[z], the product of its conjugates, in QQ[z], as a primitive integer
+    polynomial. Its roots are the roots of the conjugates of w.
+    """
+    K = w.base_ring()
+    S = PolynomialRing(QQ, 'z')
+    if K is QQ:
+        N = S(w)
+    else:
+        T = PolynomialRing(S, 't')
+        wt = T(0)
+        for i, coeff in enumerate(w.list()):
+            wt += T(coeff.polynomial().list()) * S.gen()**i
+        N = T(K.defining_polynomial().list()).resultant(wt)
+    N = (N * N.denominator()).change_ring(ZZ)
+    return N // N.content()
+
+
+def critical_orbit_escapes_NF(F, factors):
+    """
+    Quick tests that prove a polynomial is not postcritically finite. Return True if
+    some critical point provably has an infinite orbit, False if nothing was decided.
+
+    F must be written as a polynomial, (f(x, y) : e*y^d), so g(z) = f(z, 1)/e =
+    a_d z^d + ... + a_0 over the number field K; factors from critical_point_factors_NF.
+    Both tests work with the conjugates of g and of the critical points all at once,
+    which is enough: g is postcritically finite exactly when its conjugates are.
+
+    - a prime p where every a_i is integral and a_d is a unit: a point c with
+      |c|_p > 1 has |g(c)|_p = |c|_p^d, so its orbit is infinite. A factor has such a
+      root exactly when p divides the leading coefficient of its (primitive integer)
+      norm polynomial.
+    - a complex embedding: with R = max(1, (1 + sum_{i<d} |a_i|)/|a_d|), a point with
+      |z| > R has |g(z)| > |z|, so its orbit is infinite. The critical points are
+      iterated with interval arithmetic, under every embedding of g.
+    """
+    from sage.rings.complex_interval_field import ComplexIntervalField
+    K = F.base_ring()
+    d = F.degree()
+    S = PolynomialRing(K, 'z')
+    z = S.gen()
+    g = S(F[0]([z, 1])) / K(F[1]([0, 1]))
+    coeffs = g.list()
+    if K is QQ:
+        bad = coeffs[d].numerator() * coeffs[d].denominator()
+        for a in coeffs:
+            bad *= a.denominator()
+    else:
+        N = coeffs[d].norm()
+        bad = N.numerator() * N.denominator()
+        for a in coeffs:
+            bad *= a.denominator()
+    norms = [norm_polynomial_NF(w) for w in factors if w is not None]
+
+    # nonarchimedean: a prime dividing a leading coefficient but not bad
+    for N in norms:
+        lead = ZZ(N.leading_coefficient()).abs()
+        common = gcd(lead, bad)
+        while common != 1:
+            lead = lead // common
+            common = gcd(lead, bad)
+        if lead != 1:
+            return True
+
+    # archimedean
+    CIF = ComplexIntervalField(200)
+    T = PolynomialRing(CIF, 'z')
+    if K is QQ:
+        maps = [T([CIF(a) for a in coeffs])]
+    else:
+        maps = [T([CIF(sigma(a)) for a in coeffs]) for sigma in K.embeddings(QQbar)]
+    radii = []
+    for gs in maps:
+        cs = gs.list()
+        R = (1 + sum(a.abs() for a in cs[:-1])) / cs[-1].abs()
+        radii.append(max(R.upper(), 1))
+    for N in norms:
+        for root in N.roots(ring=CIF, multiplicities=False):
+            escapes = True
+            for gs, R in zip(maps, radii):
+                pt = root
+                escaped = False
+                for n in range(60):
+                    size = pt.abs()
+                    if size.lower() > R:
+                        escaped = True
+                        break
+                    if not size.upper() < 2*R + 2:
+                        # the interval is too wide to decide
+                        break
+                    pt = gs(pt)
+                if not escaped:
+                    escapes = False
+                    break
+            if escapes:
+                return True
+    return False
+
+
+def critical_point_is_preperiodic_NF(F, w, height_bound):
+    """
+    Whether the critical points of F that are the roots of w (irreducible over the
+    base field, or None for infinity) are preperiodic. They are conjugate, so all are
+    or none is.
+
+    The orbit of a root is computed through iteration, in the field the root generates,
+    until a point repeats (preperiodic) or a point has height larger than height_bound,
+    a bound on the difference between the height and the canonical height.
+
+    The height is bounded below from the characteristic polynomial chi of the
+    coordinate, made primitive: its Mahler measure is H^n, and its largest coefficient
+    is at most 2^n times that, for n the degree of the field.
+    """
+    K = F.base_ring()
+    if w is None or w.degree() == 1:
+        L = K
+        FL = F
+        if w is None:
+            pt = FL.domain()([1, 0])
+        else:
+            pt = FL.domain()([-w[0]/w[1], 1])
+    elif K is QQ:
+        L = NumberField(w.monic(), 'c')
+        FL = F.change_ring(L)
+        pt = FL.domain()([L.gen(), 1])
+    else:
+        Lrel = K.extension(w.monic(), 'c')
+        L = Lrel.absolute_field('b')
+        from_L, to_L = L.structure()
+        FL = F.change_ring(K.hom([to_L(Lrel(K.gen()))], L))
+        pt = FL.domain()([to_L(Lrel.gen()), 1])
+    n = L.absolute_degree()
+    #approximationof log 2 precomputed
+    log2 = 0.6931471805599453
+    seen = set()
+    while True:
+        if tuple(pt) in seen:
+            return True
+        seen.add(tuple(pt))
+        if pt[1] != 0:
+            if L is QQ:
+                size = ZZ(max(pt[0].numerator().abs(), pt[0].denominator()))
+                lower = (size.nbits() - 1)*log2
+            else:
+                chi = pt[0].charpoly()
+                chi = chi * chi.denominator()
+                size = ZZ(max(a.abs() for a in chi.list()))
+                lower = (size.nbits() - 1)*log2/n - log2
+            if lower > height_bound:
+                return False
+        pt = FL(pt)
+
+
+def is_pcf_helper_NF(F):
+    """
+    Return whether F is postcritically finite, and its number of critical points
+    over QQbar. This replaces Sage's F.is_postcritically_finite(), which works over
+    the splitting field of the critical points (or QQbar).
+
+    Here the critical points are represented as the irreducible factors of the
+    Wronskian over the base field, and each factor is decided in the field one
+    root generates (degree at most 2d-2), see critical_point_is_preperiodic_NF.
+    For a polynomial written as one, critical_orbit_escapes_NF first tries
+    to prove it is not postcritically finite without any field arithmetic.
+
+    Characteristic 0 and degree at least 2 only.
+    """
+    factors = critical_point_factors_NF(F)
+    cp_cardinality = int(sum(1 if w is None else w.degree() for w in factors))
+    d = F.degree()
+    den = F[1]
+    if den.number_of_terms() == 1 and den.degree(den.parent().gen(1)) == d:
+        if critical_orbit_escapes_NF(F, factors):
+            return False, cp_cardinality
+    height_bound = float(F.height_difference_bound()) + 1e-6
+    # small fields first
+    factors.sort(key=lambda w: 0 if w is None else w.degree())
+    for w in factors:
+        if not critical_point_is_preperiodic_NF(F, w, height_bound):
+            return False, cp_cardinality
+    return True, cp_cardinality
+
 
 def add_is_pcf(my_cursor, function_id=None, model_name='original', bool_add_field=False, log_file=sys.stdout, timeout=30):
     """
     Determine if the given function (identified by label) is postcritically finite.
 
-    'is_pcf'
+    'is_pcf', 'cp_cardinality'
 
+    bool_add_field - also compute 'cp_field_of_defn' (add_cp_field_of_defn_NF), if it
+    is not known. That is a separate computation with its own time limit: it needs the
+    splitting field of the critical points, which is_pcf does not.
     """
+    done = False
     try:
         log_file.write('computing is_pcf for : ' + str(function_id) + '\n')
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
-        def compute():
-            try:
-                is_pcf = F.is_postcritically_finite()
-            except ValueError:
-                is_pcf = F.is_postcritically_finite(embedding=F.base_ring().embeddings(QQbar)[0])
-            K, phi = F.field_of_definition_critical(return_embedding=True)
-            L, psi = normalize_field_NF(K, log_file=log_file)
-            F_cp = F.change_ring(psi*phi)
-            cp = F_cp.critical_points()
-            return is_pcf, L, len(cp)
-        is_pcf, L, cp_cardinality = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('pcf', F))
+        is_pcf, cp_cardinality = run_in_child(lambda: is_pcf_helper_NF(F), timeout=timeout, log_file=log_file, key=computation_key('pcf', F))
         pcf = {'function_id':function_id}
         pcf['is_pcf']=is_pcf
-        # L_id is L's defining polynomial if L is not in the LMFDB (see lmfdb_field_label_NF)
-        bool, L_id = lmfdb_field_label_NF(L, log_file=log_file)
         pcf['cp_cardinality'] = cp_cardinality
-        pcf['cp_field_of_defn'] = L_id
         my_cursor.execute("""UPDATE functions_dim_1_NF
                     SET is_pcf = %(is_pcf)s,
-                        cp_cardinality = %(cp_cardinality)s,
-                        cp_field_of_defn = %(cp_field_of_defn)s
+                        cp_cardinality = %(cp_cardinality)s
                     WHERE function_id=%(function_id)s
                     """,pcf)
 
@@ -572,13 +771,52 @@ def add_is_pcf(my_cursor, function_id=None, model_name='original', bool_add_fiel
         else:
             log_file.write('updated ' + str(my_cursor.rowcount) + ' functions for is_pcf \n')
         log_file.write('is_pcf finished\n')
-        return True
+        done = True
     except ChildTimeout:
         log_file.write('timeout: is_pcf for:' + str(timeout) + ':' + str(function_id) + '\n')
     except Exception as e:
         log_file.write('failure: is_pcf for:' + str(function_id) + 'with error:' + str(e) + '\n')
         #raise
 
+    if bool_add_field:
+        my_cursor.execute("""SELECT cp_field_of_defn FROM functions_dim_1_NF
+                WHERE function_id=%s""", [function_id])
+        row = my_cursor.fetchone()
+        if row is not None and row['cp_field_of_defn'] is None:
+            add_cp_field_of_defn_NF(function_id, my_cursor, model_name=model_name, log_file=log_file, timeout=timeout)
+    return done
+
+
+def add_cp_field_of_defn_NF(function_id, my_cursor, model_name='original', log_file=sys.stdout, timeout=30):
+    """
+    Determine the field of definition of the critical points: the splitting field of
+    the Wronskian, so slow or hopeless when its Galois group is large.
+
+    'cp_field_of_defn'
+    """
+    try:
+        log_file.write('computing cp_field_of_defn for : ' + str(function_id) + '\n')
+        F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
+        def compute():
+            K = F.field_of_definition_critical()
+            L, psi = normalize_field_NF(K, log_file=log_file)
+            return L
+        L = run_in_child(compute, timeout=timeout, log_file=log_file, key=computation_key('cp field', F))
+        # L_id is L's defining polynomial if L is not in the LMFDB (see lmfdb_field_label_NF)
+        bool, L_id = lmfdb_field_label_NF(L, log_file=log_file)
+        my_cursor.execute("""UPDATE functions_dim_1_NF
+                    SET cp_field_of_defn = %s
+                    WHERE function_id=%s
+                    """, [L_id, function_id])
+        if my_cursor.rowcount == 0:
+            log_file.write('cp_field_of_defn: function ' + str(function_id) + 'not found \n')
+            raise ValueError("cp_field_of_defn: function not found to update")
+        log_file.write('cp_field_of_defn finished\n')
+        return True
+    except ChildTimeout:
+        log_file.write('timeout: cp_field_of_defn for:' + str(timeout) + ':' + str(function_id) + '\n')
+    except Exception as e:
+        log_file.write('failure: cp_field_of_defn for:' + str(function_id) + 'with error:' + str(e) + '\n')
     return False
 
 
@@ -635,6 +873,8 @@ def add_critical_portrait(function_id, my_cursor, model_name='original', log_fil
 
     return False
 
+# end of pcf functionality
+####
 
 def dihedral_group_name(n):
     """GAP's StructureDescription name of the dihedral group of order 2n"""
@@ -1849,7 +2089,7 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         # with compute_missing, rerun any step whose result is missing, e.g. it timed out when
         # the function was added. reduced (number fields) and family (no families of that
         # degree) can be missing legitimately; those reruns fail or return quickly
-        my_cursor.execute("""SELECT is_pcf, critical_portrait_graph_id, automorphism_group_cardinality,
+        my_cursor.execute("""SELECT is_pcf, cp_field_of_defn, critical_portrait_graph_id, automorphism_group_cardinality,
                 (reduced_model).coeffs AS reduced_model, is_polynomial, (monic_centered).coeffs AS monic_centered,
                 is_chebyshev, is_newton, is_lattes, family, smallest_height_ratio,
                 automorphism_group_iso_type, (original_model).base_field_label AS own_field_label
@@ -1874,6 +2114,8 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
             log_file.write('rerunning missing ' + str(missing) + ' for:' + str(F_id) + '\n')
         if 'is_pcf' in missing:
             add_is_pcf(my_cursor, F_id, 'original', bool_add_field=True, log_file=log_file, timeout=timeout)
+        elif 'cp_field_of_defn' in missing:
+            add_cp_field_of_defn_NF(F_id, my_cursor, 'original', log_file=log_file, timeout=timeout)
         if 'critical_portrait_graph_id' in missing:
             add_critical_portrait(F_id, my_cursor, 'original', log_file=log_file, timeout=timeout)
         if 'automorphism_group_cardinality' in missing or 'automorphism_group_iso_type' in missing:
