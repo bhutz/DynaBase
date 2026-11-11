@@ -31,7 +31,7 @@ P=ProjectiveSpace(R,1,'x,y')
 x,y = P.gens()
 
 F=DynamicalSystem([x**2+c*y**2,y**2])
-family_id = add_family_NF(F, my_cursor, is_poly=True, num_crit=int(2), num_aut=int(1), aut_iso_type='1', name='poly_deg_2')
+family_id = add_family_NF(F, my_cursor, is_poly=True, num_crit=int(2), num_aut=int(1), aut_iso_type='1', name='poly_deg_2', log_file=log_file)
 
 my_cursor.execute("""SELECT
         id
@@ -39,13 +39,13 @@ my_cursor.execute("""SELECT
         WHERE label=%s
         """,['Poonen1998'])
 cites = my_cursor.fetchone()
-add_citations_family_NF(family_id, cites, my_cursor)
+add_citations_family_NF(family_id, cites, my_cursor, log_file=log_file)
 
 
 for d in range(3,16):
     F=DynamicalSystem([x**d+c*y**d,y**d])
     fam_name = 'unicritical_poly_deg_' + str(d)
-    family_id = add_family_NF(F, my_cursor, is_poly=True, num_crit=int(2), num_aut=int(1), aut_iso_type='1', name=fam_name)
+    family_id = add_family_NF(F, my_cursor, is_poly=True, num_crit=int(2), num_aut=int(1), aut_iso_type='1', name=fam_name, log_file=log_file)
 
 
 ###########################

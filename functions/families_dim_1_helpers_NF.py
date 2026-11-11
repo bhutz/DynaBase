@@ -145,14 +145,14 @@ def add_family_NF(F, my_cursor, is_poly=None, num_crit=None, num_aut=None, aut_i
     f['degree'] = int(F.degree())
     f['dimension'] = int(F.codomain().dimension_relative())
     #f['keywords'] = keywords
-    F = normalize_family_NF(F)
+    F = normalize_family_NF(F, log_file=log_file)
 
     base_field = F.base_ring().base_ring()
     f['num_parameters'] = int(base_field.ngens())
 
     f['name'] = name
 
-    bool, K_id = lmfdb_field_label_NF(base_field)
+    bool, K_id = lmfdb_field_label_NF(base_field, log_file=log_file)
     if not bool:
         log_file.write('Could not add : ' + str(list(F)) + ' because ' + str(base_field) + ' not in database \n')
         raise ValueError("base_field not in database")
@@ -162,11 +162,27 @@ def add_family_NF(F, my_cursor, is_poly=None, num_crit=None, num_aut=None, aut_i
     f['base_field_degree'] = int(base_field.degree())
     #f['base_field_emb'] = int(emb_index)
 
+    #original model
+    f['model_coeffs'] = [get_coefficients(g) for g in F]
+
+    #see if this exact model is already in the database. Checked before the sigma
+    #invariants, which are slow in high degree
+    log_file.write('Searching for family: ' + str(list(F)) + ': ')
+    my_cursor.execute("""SELECT family_id FROM families_dim_1_NF
+        WHERE degree=%(degree)s AND
+            num_parameters=%(num_parameters)s AND
+            base_field_label=%(base_field_label)s AND
+            model_coeffs=%(model_coeffs)s::varchar[]
+            """, f)
+    if my_cursor.rowcount != 0:
+        F_id = my_cursor.fetchone()['family_id']
+        log_file.write('family already known (same model) as ' + str(F_id) + '\n')
+        return F_id
+
     f['sigma_one'] = sigma_hash(F.sigma_invariants(1))
     f['sigma_two'] = sigma_hash(F.sigma_invariants(2))
 
     #see if a conjugate is already in the database
-    log_file.write('Searching for functions: ' + str(list(F)) + ': ')
     query = {'degree':f['degree'], 'sigma_one': f['sigma_one'],\
             'sigma_two': f['sigma_two']}
     my_cursor.execute("""SELECT * FROM families_dim_1_NF
@@ -176,14 +192,12 @@ def add_family_NF(F, my_cursor, is_poly=None, num_crit=None, num_aut=None, aut_i
             """,query)
     if my_cursor.rowcount != 0:
         F_id = my_cursor.fetchone()['family_id']
-        log_file.write('family already known : ' + str(list(F)) + ' as ' + str(F_id) + '\n')
+        log_file.write('family already known (conjugate) as ' + str(F_id) + '\n')
         return F_id
     # otherwise we'll add the function
     # TODO have multiple families with the same sigmas
     f['ordinal'] = 1
 
-    #original model
-    f['model_coeffs'] = [get_coefficients(g) for g in F]
     f['model_resultant'] = str(F.resultant())
     log_file.write('model computed: \n')
 
