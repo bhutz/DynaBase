@@ -1932,7 +1932,7 @@ def function_in_family_NF(f, F, maxk=3):
             return True,v
     return False,{}
 
-def add_families_NF(function_id, my_cursor, log_file=sys.stdout, f_sigmas=None):
+def add_families_NF(function_id, my_cursor, log_file=sys.stdout, f_sigmas=None, timeout=30):
     """
         Check if F is a member of any family in the table of families.
         Add those families to the record
@@ -1941,7 +1941,12 @@ def add_families_NF(function_id, my_cursor, log_file=sys.stdout, f_sigmas=None):
         caller already has them. They may be over a different copy of the field (see
         below), or over another field when a conjugate was found there; either way the
         stored function has the same hashes, so the same strings over its own field.
+
+        Each family's membership test (the variety of its sigma invariants and a
+        conjugacy check over QQbar) runs in a child with the timeout. If any of them
+        times out or fails nothing is stored, so family stays null: a missing step.
     """
+    log_file.write('starting families for:' + str(function_id) + '\n')
     my_cursor.execute("""SELECT degree, base_field_label, family
             FROM functions_dim_1_NF where function_id = %s""",[function_id])
     if my_cursor.rowcount == 0:
@@ -1958,55 +1963,67 @@ def add_families_NF(function_id, my_cursor, log_file=sys.stdout, f_sigmas=None):
             FROM families_dim_1_NF where degree = %s""",[d])
     if my_cursor.rowcount == 0:
         return False
-    if f_sigmas is None:
-        f_sigmas = []
-        for k in range(1,3):
-            f_sigmas.append(f.sigma_invariants(k))
-    else:
+    fams = [(fam['family_id'], fam['num_parameters']) for fam in my_cursor.fetchall()]
+    # the database reads before the children: they must not use the cursor
+    fams = [(fam_id, n, get_sage_family_NF(fam_id, my_cursor, log_file=log_file)) for fam_id, n in fams]
+    if f_sigmas is not None:
         #by string: get_sage_field_NF's K need not be the same Sage parent as the
         #caller's field (over Q(i) they compared unequal)
-        f_sigmas = [[K(str(v)) for v in sig] for sig in f_sigmas]
+        f_sigmas = [[str(v) for v in sig] for sig in f_sigmas]
 
-    for fam in my_cursor.fetchall():
-        F = get_sage_family_NF(fam['family_id'], my_cursor, log_file=sys.stdout)
-        fam_sigmas = []
-        func_sigmas = []
-        # TODO: what if the function is defined over an extension of the family base field?
-        # assume for now that the family is defined over QQ
-        S = PolynomialRing(K, fam['num_parameters'], 't')
-        SF = FractionField(S)
-        for k in [1, 2]:
-            # compute the family sigmas and
-            # move the function sigmas to the same ring
-            fam_sigmas.append([SF(v) for v in F.sigma_invariants(k)])
-            func_sigmas.append([S(v) for v in f_sigmas[k-1]])
-        L = []
-        for k in range(len(fam_sigmas)):
-            for i in range(len(fam_sigmas[k])):
-                L.append(func_sigmas[k][i]*fam_sigmas[k][i].denominator() - fam_sigmas[k][i].numerator())
-        I = S.ideal(L)
-        phi_bar = K.embeddings(QQbar)[0]
-        fbar = f.change_ring(phi_bar)
-        F = get_sage_family_NF(fam['family_id'], my_cursor).change_ring(S)
+    for fam_id, n, F_fam in fams:
+        def compute():
+            if f_sigmas is None:
+                func_sig = [f.sigma_invariants(k) for k in [1, 2]]
+            else:
+                func_sig = [[K(v) for v in sig] for sig in f_sigmas]
+            # TODO: what if the function is defined over an extension of the family base field?
+            # assume for now that the family is defined over QQ
+            S = PolynomialRing(K, n, 't')
+            SF = FractionField(S)
+            L = []
+            for k in [1, 2]:
+                # compute the family sigmas and
+                # move the function sigmas to the same ring
+                fam_sigmas = [SF(v) for v in F_fam.sigma_invariants(k)]
+                func_sigmas = [S(v) for v in func_sig[k-1]]
+                for i in range(len(fam_sigmas)):
+                    L.append(func_sigmas[i]*fam_sigmas[i].denominator() - fam_sigmas[i].numerator())
+            I = S.ideal(L)
+            phi_bar = K.embeddings(QQbar)[0]
+            fbar = f.change_ring(phi_bar)
+            F = F_fam.change_ring(S)
+            for v in I.variety():
+                g = F.specialization(v)
+                gbar = g.change_ring(phi_bar)
+                if fbar.is_conjugate(gbar):
+                    return True
+            return False
+        try:
+            is_member = run_in_child(compute, timeout=timeout, log_file=log_file,
+                                     key=computation_key('family', f, F_fam))
+        except ChildTimeout:
+            log_file.write('families timeout: ' + str(timeout) + ':' + str(function_id) + ' family ' + str(fam_id) + '\n')
+            return False
+        except Exception as e:
+            log_file.write('families failure: ' + str(function_id) + ' family ' + str(fam_id) + ' with error:' + str(e) + '\n')
+            return False
+        if is_member:
+            families.append(fam_id)
 
-        for v in I.variety():
-            print(v)
-            g = F.specialization(v)
-            gbar = g.change_ring(phi_bar)
-            if fbar.is_conjugate(gbar):
-                families.append(fam['family_id'])
-        #remove any duplicates
-        families = sorted(list(set(families)))
-        log_file.write('Updating families for ' + str(function_id) + ' to ' + str(families) + '\n')
-        # TODO: merge citation lists too!
-        my_cursor.execute("""UPDATE functions_dim_1_NF
-            SET family = %s
-            WHERE function_id=%s
-            """,[families, function_id])
-        if my_cursor.rowcount == 0: #error check rowcount after update
-            log_file.write('Families update failure:' + str(function_id) + '\n')
-        else:
-            log_file.write('Families updated: ' + str(function_id) + ' successful \n')   
+    #remove any duplicates
+    families = sorted(list(set(families)))
+    log_file.write('Updating families for ' + str(function_id) + ' to ' + str(families) + '\n')
+    # TODO: merge citation lists too!
+    my_cursor.execute("""UPDATE functions_dim_1_NF
+        SET family = %s
+        WHERE function_id=%s
+        """,[families, function_id])
+    if my_cursor.rowcount == 0: #error check rowcount after update
+        log_file.write('Families update failure:' + str(function_id) + '\n')
+        return False
+    log_file.write('Families updated: ' + str(function_id) + ' successful \n')
+    return True
 
 def stored_model_point_NF(F, function_id, point, my_cursor, log_file=sys.stdout):
     """
@@ -2079,7 +2096,7 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         add_newton_model_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
         add_is_lattes_NF(F_id, my_cursor, log_file=log_file, timeout=timeout)
         choose_display_model(F_id, my_cursor, log_file=log_file)
-        add_families_NF(F_id, my_cursor, log_file=log_file, f_sigmas=f_sigmas)
+        add_families_NF(F_id, my_cursor, log_file=log_file, f_sigmas=f_sigmas, timeout=timeout)
         if sh_point is not None:
             add_smallest_height(F_id, my_cursor, point=sh_point, model_name=sh_model, log_file=log_file, timeout=timeout)
     else:
@@ -2135,7 +2152,7 @@ def add_function_all_NF(F, my_cursor, citations=[], log_file=sys.stdout, timeout
         if missing:
             choose_display_model(F_id, my_cursor, log_file=log_file)
         if 'family' in missing:
-            add_families_NF(F_id, my_cursor, log_file=log_file, f_sigmas=f_sigmas)
+            add_families_NF(F_id, my_cursor, log_file=log_file, f_sigmas=f_sigmas, timeout=timeout)
         if 'smallest_height_ratio' in missing:
             add_smallest_height(F_id, my_cursor, point=sh_point, model_name=sh_model, log_file=log_file, timeout=timeout)
 
