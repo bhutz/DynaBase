@@ -42,7 +42,7 @@ cites = my_cursor.fetchone()
 add_citations_family_NF(family_id, cites, my_cursor, log_file=log_file)
 
 
-for d in range(3,16):
+for d in range(3,4):
     F=DynamicalSystem([x**d+c*y**d,y**d])
     fam_name = 'unicritical_poly_deg_' + str(d)
     family_id = add_family_NF(F, my_cursor, is_poly=True, num_crit=int(2), num_aut=int(1), aut_iso_type='1', name=fam_name, log_file=log_file)
