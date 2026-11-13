@@ -10,6 +10,6 @@ dynabase_systems = []
 K = QQ
 P.<x,y> = ProjectiveSpace(K, 1)
 # FN1997
-dynabase_systems.append([DynamicalSystem([x^7, y^7], domain=P), '1.6c5154c1.84c0eaef.1'])
+dynabase_systems.append([DynamicalSystem([x^7, y^7], domain=P), '1.4b1ca9ed.023ff0b9.1'])
 
 print("Dynabase: 1 dynamical system in dynabase_systems")

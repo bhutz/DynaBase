@@ -10,14 +10,14 @@ dynabase_systems = []
 K = QQ
 P.<x,y> = ProjectiveSpace(K, 1)
 # dFH2018
-dynabase_systems.append([DynamicalSystem([y^7, x^7], domain=P), '1.2b775e9a.84c0eaef.1'])
+dynabase_systems.append([DynamicalSystem([y^7, x^7], domain=P), '1.9190add3.023ff0b9.1'])
 # FN1997
-dynabase_systems.append([DynamicalSystem([x^7, y^7], domain=P), '1.6c5154c1.84c0eaef.1'])
+dynabase_systems.append([DynamicalSystem([x^7, y^7], domain=P), '1.4b1ca9ed.023ff0b9.1'])
 # FN1997, dFH2018
-dynabase_systems.append([DynamicalSystem([x^7 + x*y^6, y^7], domain=P), '1.e614ceae.cc96fc25.1'])
+dynabase_systems.append([DynamicalSystem([x^7 + x*y^6, y^7], domain=P), '1.48690a94.9c571960.1'])
 # FN1997
-dynabase_systems.append([DynamicalSystem([x^7 + x^4*y^3, y^7], domain=P), '1.567e3af6.0eb4f200.1'])
+dynabase_systems.append([DynamicalSystem([x^7 + x^4*y^3, y^7], domain=P), '1.d10cb60c.a191ee94.1'])
 # FN1997
-dynabase_systems.append([DynamicalSystem([x^7 + x^3*y^4, y^7], domain=P), '1.796eda56.b6dd4150.1'])
+dynabase_systems.append([DynamicalSystem([x^7 + x^3*y^4, y^7], domain=P), '1.87db90d3.89dadf22.1'])
 
 print("Dynabase: 5 dynamical systems in dynabase_systems")

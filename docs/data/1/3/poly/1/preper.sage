@@ -10,212 +10,212 @@ dynabase_systems = []
 K = QQ
 P.<x,y> = ProjectiveSpace(K, 1)
 # Benedetto2009, DoHy2025
-dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - 8*x*y^2 - 6*y^3, 3*y^3], domain=P), '1.8559ffe5.347dee9d.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - 8*x*y^2 - 6*y^3, 3*y^3], domain=P), '1.a9e0d4b5.1e91cdd4.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - 8*x*y^2 - 3*y^3, -3*y^3], domain=P), '1.cd902a24.347dee9d.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - 8*x*y^2 - 3*y^3, -3*y^3], domain=P), '1.74b9543b.1e91cdd4.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 37*x*y^2, 12*y^3], domain=P), '1.79ee5a65.0f4c28a2.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 37*x*y^2, 12*y^3], domain=P), '1.9eb167bd.33420087.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([4*x^3 + 24*x^2*y + 11*x*y^2 - 18*y^3, -12*y^3], domain=P), '1.d780f2b1.0f4c28a2.1'])
+dynabase_systems.append([DynamicalSystem([4*x^3 + 24*x^2*y + 11*x*y^2 - 18*y^3, -12*y^3], domain=P), '1.9804eaa0.33420087.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 73*x*y^2, 24*y^3], domain=P), '1.7a8d9186.ba7e61ef.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 73*x*y^2, 24*y^3], domain=P), '1.33e07b79.59ec3e59.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([4*x^3 + 36*x^2*y + 35*x*y^2 - 39*y^3, -24*y^3], domain=P), '1.863416b3.ba7e61ef.1'])
+dynabase_systems.append([DynamicalSystem([4*x^3 + 36*x^2*y + 35*x*y^2 - 39*y^3, -24*y^3], domain=P), '1.7ad3765d.59ec3e59.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 169*x*y^2, 120*y^3], domain=P), '1.0914e46b.014962df.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 169*x*y^2, 120*y^3], domain=P), '1.60cf1f41.93839f3d.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 15*x^2*y - 94*x*y^2 - 120*y^3, -120*y^3], domain=P), '1.ff7fdce9.014962df.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 15*x^2*y - 94*x*y^2 - 120*y^3, -120*y^3], domain=P), '1.d5bb2990.93839f3d.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 151*x*y^2 + 30*y^3, 60*y^3], domain=P), '1.cc9dd188.453dbf8b.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 151*x*y^2 + 30*y^3, 60*y^3], domain=P), '1.c713f014.80ec0177.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - 5*x*y^2 - 3*y^3, 3*y^3], domain=P), '1.d4e1d9bd.b6030427.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - 5*x*y^2 - 3*y^3, 3*y^3], domain=P), '1.6c31920d.23659318.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 - 3*x^2*y - 5*x*y^2, -3*y^3], domain=P), '1.3c3b4962.9789849b.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 - 3*x^2*y - 5*x*y^2, -3*y^3], domain=P), '1.8ed28586.c3c96ba2.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 31*x*y^2 + 6*y^3, 12*y^3], domain=P), '1.94bd291c.95d1a964.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 31*x*y^2 + 6*y^3, 12*y^3], domain=P), '1.5fa265ca.ad865cba.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 9*x^2*y - 11*x*y^2 - 18*y^3, 12*y^3], domain=P), '1.2c40cb6c.bc0790b1.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 9*x^2*y - 11*x*y^2 - 18*y^3, 12*y^3], domain=P), '1.d61ab607.6e78b9a4.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 15*x^2*y + 13*x*y^2 - 30*y^3, 30*y^3], domain=P), '1.7b36f59a.95831402.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 15*x^2*y + 13*x*y^2 - 30*y^3, 30*y^3], domain=P), '1.7333bde9.be966046.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 15*x^2*y + 13*x*y^2 - 30*y^3, -30*y^3], domain=P), '1.d17acb7c.63e986f1.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 15*x^2*y + 13*x*y^2 - 30*y^3, -30*y^3], domain=P), '1.bd418e2c.a4db7274.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 88*x*y^2, 20*y^3], domain=P), '1.ee12426a.efb26159.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 88*x*y^2, 20*y^3], domain=P), '1.151edc71.3fd5de43.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 13*x*y^2, 6*y^3], domain=P), '1.00a8d209.fb578664.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 13*x*y^2, 6*y^3], domain=P), '1.a79bf777.e803e141.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 13*x*y^2, 12*y^3], domain=P), '1.eda89b36.4c6458de.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 13*x*y^2, 12*y^3], domain=P), '1.f77ec7d5.96ba9243.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 10*x*y^2, -12*y^3], domain=P), '1.f8b704d7.4c6458de.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 10*x*y^2, -12*y^3], domain=P), '1.bd47ba17.96ba9243.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 49*x*y^2, 24*y^3], domain=P), '1.7cfe5367.3d07bd2a.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 49*x*y^2, 24*y^3], domain=P), '1.e6e08c6b.4de3c910.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([30*x^3 + 10*x^2*y - 73*x*y^2 - 51*y^3, -51*x^3 - 73*x^2*y + 10*x*y^2 + 30*y^3], domain=P), '1.52685069.30202a88.1'])
+dynabase_systems.append([DynamicalSystem([30*x^3 + 10*x^2*y - 73*x*y^2 - 51*y^3, -51*x^3 - 73*x^2*y + 10*x*y^2 + 30*y^3], domain=P), '1.047b178d.ca430fda.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 289*x*y^2, 120*y^3], domain=P), '1.c9377ea5.ffb2a57a.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 289*x*y^2, 120*y^3], domain=P), '1.d3322e60.fe6b480f.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([4*x^3 + 72*x^2*y + 143*x*y^2 - 150*y^3, -120*y^3], domain=P), '1.aca30c10.ffb2a57a.1'])
+dynabase_systems.append([DynamicalSystem([4*x^3 + 72*x^2*y + 143*x*y^2 - 150*y^3, -120*y^3], domain=P), '1.5895b006.fe6b480f.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2, 6*y^3], domain=P), '1.2f943509.9f423aad.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2, 6*y^3], domain=P), '1.d35164de.5a2d4a89.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y + 5*x*y^2 - 12*y^3, -6*y^3], domain=P), '1.74f13bd4.f40f7ed9.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y + 5*x*y^2 - 12*y^3, -6*y^3], domain=P), '1.0af15aa5.e4860b8a.1'])
 # Benedetto2009, Hutz2026
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 10*x*y^2 - 6*y^3, 6*y^3], domain=P), '1.d5b21280.a4b7fd53.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 10*x*y^2 - 6*y^3, 6*y^3], domain=P), '1.b8af95a9.624cfacf.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([4*x^3 + 12*x^2*y - x*y^2 - 21*y^3, -12*y^3], domain=P), '1.296d565f.20c33639.1'])
+dynabase_systems.append([DynamicalSystem([4*x^3 + 12*x^2*y - x*y^2 - 21*y^3, -12*y^3], domain=P), '1.9311831c.cf7ad5cc.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 - 9*x^2*y + x*y^2, -6*y^3], domain=P), '1.9c94c3be.8f280c56.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 - 9*x^2*y + x*y^2, -6*y^3], domain=P), '1.d6971cbf.b2200cbf.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 19*x*y^2 + 6*y^3, 12*y^3], domain=P), '1.c953bd66.ebeb7ac0.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 19*x*y^2 + 6*y^3, 12*y^3], domain=P), '1.9941e270.85003a1f.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([4*x^3 + 12*x^2*y - 61*x*y^2 - 69*y^3, 24*y^3], domain=P), '1.e61d8484.65d4dcaa.1'])
+dynabase_systems.append([DynamicalSystem([4*x^3 + 12*x^2*y - 61*x*y^2 - 69*y^3, 24*y^3], domain=P), '1.e0cb4159.6b4adfe7.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 21*x^2*y + 56*x*y^2 + 54*y^3, -30*y^3], domain=P), '1.e2ccbdf8.be93fd76.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 21*x^2*y + 56*x*y^2 + 54*y^3, -30*y^3], domain=P), '1.d2313152.1db7b367.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 21*x^2*y + 116*x*y^2 - 84*y^3, -60*y^3], domain=P), '1.2bd9f383.ea9751b0.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 21*x^2*y + 116*x*y^2 - 84*y^3, -60*y^3], domain=P), '1.1e525da7.7d85bdbd.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 9*x^2*y - 71*x*y^2, 60*y^3], domain=P), '1.5d99de76.000c31d9.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 9*x^2*y - 71*x*y^2, 60*y^3], domain=P), '1.ec62e512.1527212a.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 9*x^2*y - 82*x*y^2 + 72*y^3, -24*y^3], domain=P), '1.54fc67f0.1e4b51b9.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 9*x^2*y - 82*x*y^2 + 72*y^3, -24*y^3], domain=P), '1.ec9eaa2b.ae019b43.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2 - 6*y^3, 3*y^3], domain=P), '1.596006ca.582041e4.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2 - 6*y^3, 3*y^3], domain=P), '1.0e0be859.9f04d392.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y + 5*x*y^2 - 6*y^3, -6*y^3], domain=P), '1.d073ed60.88a37e20.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y + 5*x*y^2 - 6*y^3, -6*y^3], domain=P), '1.c45dd638.d972c071.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2 - 6*y^3, 6*y^3], domain=P), '1.e25e3e69.bbc2e348.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2 - 6*y^3, 6*y^3], domain=P), '1.87c6ae53.890e2ac9.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2 - 6*y^3, -6*y^3], domain=P), '1.062d6fd4.8aa6fecd.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2 - 6*y^3, -6*y^3], domain=P), '1.d8acc9af.32df6876.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 9*x^2*y + 3*x*y^2 - 9*y^3, 5*y^3], domain=P), '1.8b819948.3ed81102.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 9*x^2*y + 3*x*y^2 - 9*y^3, 5*y^3], domain=P), '1.dddef542.8aeff7ce.1'])
 # Benedetto2009, Hutz2026
-dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - 11*x*y^2 - 6*y^3, 6*y^3], domain=P), '1.1da98dda.1cfac040.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - 11*x*y^2 - 6*y^3, 6*y^3], domain=P), '1.cd59cbfd.2bdca34d.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - 11*x*y^2, 6*y^3], domain=P), '1.8873a09e.feb3ffc2.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y - 11*x*y^2, 6*y^3], domain=P), '1.dd5f9beb.84d0b34a.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 12*x^2*y + 11*x*y^2 + 12*y^3, -12*y^3], domain=P), '1.96253f25.4f70736a.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 12*x^2*y + 11*x*y^2 + 12*y^3, -12*y^3], domain=P), '1.7c789043.8073331e.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 76*x*y^2 - 78*y^3, 30*y^3], domain=P), '1.39cb5615.d8266ebf.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 76*x*y^2 - 78*y^3, 30*y^3], domain=P), '1.76f21757.09704162.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 - 15*x^2*y - 47*x*y^2, -60*y^3], domain=P), '1.3e7c18e1.86a5f1f4.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 - 15*x^2*y - 47*x*y^2, -60*y^3], domain=P), '1.63646942.8affd45b.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 - 15*x^2*y - 53*x*y^2, -15*y^3], domain=P), '1.127b28ef.d2895030.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 - 15*x^2*y - 53*x*y^2, -15*y^3], domain=P), '1.6abb72e3.f196590f.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 130*x*y^2 - 72*y^3, 48*y^3], domain=P), '1.58e0e473.30035c41.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 130*x*y^2 - 72*y^3, 48*y^3], domain=P), '1.7fb8bcc3.886a30f4.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2 - 4*y^3, -2*y^3], domain=P), '1.6767275a.82516cf9.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2 - 4*y^3, -2*y^3], domain=P), '1.ec71db64.0066809e.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - x*y^2, 24*y^3], domain=P), '1.5c0a726d.766edf39.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - x*y^2, 24*y^3], domain=P), '1.60605974.f661ff4a.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - x*y^2, -24*y^3], domain=P), '1.c8db720a.766edf39.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - x*y^2, -24*y^3], domain=P), '1.afdc6092.f661ff4a.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 25*x*y^2, 12*y^3], domain=P), '1.184d863d.9f8684f6.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 25*x*y^2, 12*y^3], domain=P), '1.f6ace77d.6e0c8fc6.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 25*x*y^2, 24*y^3], domain=P), '1.c9f75935.05cf79d3.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 25*x*y^2, 24*y^3], domain=P), '1.ba05b5e1.4f9d87f6.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 34*x*y^2, 15*y^3], domain=P), '1.1e2b5cc3.42692a0a.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 34*x*y^2, 15*y^3], domain=P), '1.32d4db34.b4f711d2.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 12*x^2*y + 14*x*y^2 + 12*y^3, -15*y^3], domain=P), '1.9f549580.42692a0a.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 12*x^2*y + 14*x*y^2 + 12*y^3, -15*y^3], domain=P), '1.a391bfe6.b4f711d2.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y + x*y^2, 3*y^3], domain=P), '1.930d87c7.62a84f51.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y + x*y^2, 3*y^3], domain=P), '1.5666a87e.1d985361.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y + 2*x*y^2 - 6*y^3, -6*y^3], domain=P), '1.ae26dd44.18f135b8.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y + 2*x*y^2 - 6*y^3, -6*y^3], domain=P), '1.55f18213.229aab61.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 7/4*x*y^2 + 1/4*y^3, y^3], domain=P), '1.c1e1ae4b.d73171c9.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 7/4*x*y^2 + 1/4*y^3, y^3], domain=P), '1.30a66fa1.cce8c7aa.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 3*x^2*y - 4*x*y^2, -4*y^3], domain=P), '1.143c76d8.2e93d8f3.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 3*x^2*y - 4*x*y^2, -4*y^3], domain=P), '1.71877eb4.a78ed56b.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2, 12*y^3], domain=P), '1.cd6f9660.7873c9dd.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*x*y^2, 12*y^3], domain=P), '1.c05e093e.52b59e97.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 12*x^2*y + 32*x*y^2, -15*y^3], domain=P), '1.1e4d1273.5dc5464a.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 12*x^2*y + 32*x*y^2, -15*y^3], domain=P), '1.51d7c810.f53daa91.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 9*x^2*y - 10*x*y^2, -12*y^3], domain=P), '1.7e1c6f61.f94f3b7b.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 9*x^2*y - 10*x*y^2, -12*y^3], domain=P), '1.3843fd20.387af309.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 12*x^2*y + 11*x*y^2 + 12*y^3, -6*y^3], domain=P), '1.57c6ed2f.aa46601a.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 12*x^2*y + 11*x*y^2 + 12*y^3, -6*y^3], domain=P), '1.a6b1f546.aed3904d.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y - 49*x*y^2 + 6*y^3, 30*y^3], domain=P), '1.90fab641.c4a4a8a3.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y - 49*x*y^2 + 6*y^3, 30*y^3], domain=P), '1.0f580613.d8d7bb52.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 18*x^2*y + 35*x*y^2 + 30*y^3, -24*y^3], domain=P), '1.6e125599.2bc4970f.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 18*x^2*y + 35*x*y^2 + 30*y^3, -24*y^3], domain=P), '1.e9735421.93293a6b.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y - 67*x*y^2, 30*y^3], domain=P), '1.8aa5e8e4.fa972e5e.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y - 67*x*y^2, 30*y^3], domain=P), '1.7dd05d6e.90c47663.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 118*x*y^2 - 30*y^3, 30*y^3], domain=P), '1.ba669632.1388f678.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 118*x*y^2 - 30*y^3, 30*y^3], domain=P), '1.8c34f324.ff87b2cc.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 15*x^2*y + 4*x*y^2 + 20*y^3, -20*y^3], domain=P), '1.56efb0a4.f101c3f5.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 15*x^2*y + 4*x*y^2 + 20*y^3, -20*y^3], domain=P), '1.719a1fdf.3f0bfdc6.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 18*x^2*y - 43*x*y^2 - 60*y^3, 30*y^3], domain=P), '1.bd2a8de2.6265c653.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 18*x^2*y - 43*x*y^2 - 60*y^3, 30*y^3], domain=P), '1.50fb41f1.86a98177.1'])
 # Benedetto2009, AMT2020
-dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2 + 2*y^3, 2*y^3], domain=P), '1.5ac401c2.34c3c88c.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2 + 2*y^3, 2*y^3], domain=P), '1.2142a8dc.f10f2f86.1'])
 # Benedetto2009, AMT2020
-dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2 - 2*y^3, -2*y^3], domain=P), '1.5b621046.0e8d94e9.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2 - 2*y^3, -2*y^3], domain=P), '1.48280c35.4e1a6268.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - x*y^2 - 3*y^3, 3*y^3], domain=P), '1.bd42efc7.6176739e.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - x*y^2 - 3*y^3, 3*y^3], domain=P), '1.f14c2462.680953df.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - x*y^2, 3*y^3], domain=P), '1.8aeb464f.0c20066b.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - x*y^2, 3*y^3], domain=P), '1.85c067c0.6b78205b.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y + x*y^2, -3*y^3], domain=P), '1.4f2ccba6.7a3e142f.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y + x*y^2, -3*y^3], domain=P), '1.ae9136c5.bc06a773.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y + x*y^2 - 3*y^3, -3*y^3], domain=P), '1.9f695940.aa1b7dc0.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 3*x^2*y + x*y^2 - 3*y^3, -3*y^3], domain=P), '1.7382ad30.12658370.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 9/4*x*y^2 + 1/2*y^3, y^3], domain=P), '1.daf0cc02.21d9e611.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 9/4*x*y^2 + 1/2*y^3, y^3], domain=P), '1.4b35d28b.633a1882.1'])
 # Benedetto2009, Ingram2012, AMT2020
-dynabase_systems.append([DynamicalSystem([x^3 - 3/4*x*y^2 + 3/4*y^3, y^3], domain=P), '1.9fcfd25c.91fd0195.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 3/4*x*y^2 + 3/4*y^3, y^3], domain=P), '1.8d1d75ce.14532702.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 9*x^2*y + x*y^2 - 6*y^3, 6*y^3], domain=P), '1.9722bcc8.3f1e1a77.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 9*x^2*y + x*y^2 - 6*y^3, 6*y^3], domain=P), '1.019f69a4.c8555179.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y - 7*x*y^2 - 30*y^3, -30*y^3], domain=P), '1.3e6c85c6.a07c0a70.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y - 7*x*y^2 - 30*y^3, -30*y^3], domain=P), '1.e3427bb2.e2beb76d.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 + 6*x^2*y - 41*x*y^2, 15*y^3], domain=P), '1.e21821ae.66818176.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 + 6*x^2*y - 41*x*y^2, 15*y^3], domain=P), '1.4e671526.19a1b895.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 55*x*y^2 + 18*y^3, 24*y^3], domain=P), '1.a8de819c.37accabd.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 55*x*y^2 + 18*y^3, 24*y^3], domain=P), '1.32aa0f82.f44ebad6.1'])
 # Benedetto2009, AMT2020
-dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2, -y^3], domain=P), '1.e8bb745c.fe98c06c.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2, -y^3], domain=P), '1.da2b6adb.6af3bd89.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 5*x*y^2, 2*y^3], domain=P), '1.86af38cb.639acb45.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 5*x*y^2, 2*y^3], domain=P), '1.e8f34f37.b869fe93.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - x*y^2 + 2*y^3, 2*y^3], domain=P), '1.cb051a84.cd6fab67.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - x*y^2 + 2*y^3, 2*y^3], domain=P), '1.59621430.4a780c14.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y + 2*x*y^2 - 2*y^3, -2*y^3], domain=P), '1.d4a34d4b.6a79bec0.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y + 2*x*y^2 - 2*y^3, -2*y^3], domain=P), '1.8297d2a5.571fa648.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y + 2*x*y^2, 3*y^3], domain=P), '1.5aac8d61.852d660b.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y + 2*x*y^2, 3*y^3], domain=P), '1.8686294c.9df607e0.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([2*x^3 - 5*x*y^2 - 3*y^3, -3*y^3], domain=P), '1.7c4d9da4.cf052ce5.1'])
+dynabase_systems.append([DynamicalSystem([2*x^3 - 5*x*y^2 - 3*y^3, -3*y^3], domain=P), '1.c44ceb4d.cf082869.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 9*x^2*y + 16*x*y^2 - 6*y^3, -10*y^3], domain=P), '1.43a9b821.d0442390.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 9*x^2*y + 16*x*y^2 - 6*y^3, -10*y^3], domain=P), '1.eebc2ff8.f1d610d4.1'])
 # Benedetto2009, AMT2020
-dynabase_systems.append([DynamicalSystem([3*x^3 - 9*x*y^2 + 2*y^3, 4*y^3], domain=P), '1.6502de33.969c7b25.1'])
+dynabase_systems.append([DynamicalSystem([3*x^3 - 9*x*y^2 + 2*y^3, 4*y^3], domain=P), '1.3204476a.7fdfbb3b.1'])
 # Benedetto2009, AMT2020
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*y^3, -4*y^3], domain=P), '1.194ce1a9.8660b31e.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 4*y^3, -4*y^3], domain=P), '1.fe349f2e.400608e6.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([7*x^3 + 21*x^2*y - 4*x*y^2 - 18*y^3, 6*y^3], domain=P), '1.10af2e63.d5d4442d.1'])
+dynabase_systems.append([DynamicalSystem([7*x^3 + 21*x^2*y - 4*x*y^2 - 18*y^3, 6*y^3], domain=P), '1.09c470ea.1adf0fba.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y, 10*y^3], domain=P), '1.8f2b80e6.c0500433.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y, 10*y^3], domain=P), '1.d8f448b3.c9115a8f.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 12*x*y^2 + 4*y^3, 5*y^3], domain=P), '1.9f5ab3b9.1d588276.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 12*x*y^2 + 4*y^3, 5*y^3], domain=P), '1.9c7c5c77.82d8f347.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y + 9*x*y^2, -10*y^3], domain=P), '1.56de700a.098d271b.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y + 9*x*y^2, -10*y^3], domain=P), '1.02e22378.e8ed0b25.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 9*x^2*y + 10*y^3, -10*y^3], domain=P), '1.44d31e0e.f2c2067f.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 9*x^2*y + 10*y^3, -10*y^3], domain=P), '1.c67b1a1f.27a80360.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - x*y^2 + y^3, y^3], domain=P), '1.b00ed9b9.04728702.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - x*y^2 + y^3, y^3], domain=P), '1.a05bf936.ba882769.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2 - 2*y^3, -y^3], domain=P), '1.7131a09e.8573ce82.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 3*x*y^2 - 2*y^3, -y^3], domain=P), '1.6611fe6d.98a8f852.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([4*x^3 - 5*x*y^2 - 4*y^3, -4*y^3], domain=P), '1.34f852bb.e2925272.1'])
+dynabase_systems.append([DynamicalSystem([4*x^3 - 5*x*y^2 - 4*y^3, -4*y^3], domain=P), '1.d2ec6044.b5fa8d49.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([3*x^3 - 9*x*y^2 + 2*y^3, 2*y^3], domain=P), '1.0e5bf0af.6c3e1388.1'])
+dynabase_systems.append([DynamicalSystem([3*x^3 - 9*x*y^2 + 2*y^3, 2*y^3], domain=P), '1.e5a6937e.9d1e2ff7.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 2*x*y^2, 2*y^3], domain=P), '1.721c6bfd.9ba98839.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 3*x^2*y - 2*x*y^2, 2*y^3], domain=P), '1.8fa7c1b0.9cdf89a9.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y + 13*x*y^2, -10*y^3], domain=P), '1.7b2113e3.48912438.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + 6*x^2*y + 13*x*y^2, -10*y^3], domain=P), '1.8a748cc1.13d3bf64.1'])
 # Benedetto2009, AMT2020
-dynabase_systems.append([DynamicalSystem([x^3 - y^3, -y^3], domain=P), '1.7e36c441.20e2ac14.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - y^3, -y^3], domain=P), '1.ad88b95b.f2825a1c.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 3*x^2*y, -y^3], domain=P), '1.facf0049.688d3315.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 3*x^2*y, -y^3], domain=P), '1.d5e44e8e.d6b0130c.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 - 2*x*y^2 + 2*y^3, y^3], domain=P), '1.f1d8a4f8.0c07551b.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 2*x*y^2 + 2*y^3, y^3], domain=P), '1.79a7edb3.71476f7d.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + x*y^2 + y^3, y^3], domain=P), '1.0055c590.ed64de1e.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + x*y^2 + y^3, y^3], domain=P), '1.ecedbdf0.a703bcb0.1'])
 # Benedetto2009
-dynabase_systems.append([DynamicalSystem([x^3 + y^3, y^3], domain=P), '1.9a82bd54.3667f7d9.1'])
+dynabase_systems.append([DynamicalSystem([x^3 + y^3, y^3], domain=P), '1.28588048.de1f547a.1'])
 
 print("Dynabase: 104 dynamical systems in dynabase_systems")

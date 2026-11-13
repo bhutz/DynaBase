@@ -6,6 +6,6 @@
 # Loading also (re)defines K, P, x, y.
 
 dynabase_systems = []
-# left out: 1.9a5b88ad.54cdc9a6.1 (field 6.0.19683.1: only QQ and quadratic LMFDB labels can be rebuilt)
+# left out: 1.6c4e5c28.c3612aca.1 (field 6.0.19683.1: only QQ and quadratic LMFDB labels can be rebuilt)
 
 print("Dynabase: 0 dynamical systems in dynabase_systems")

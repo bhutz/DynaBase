@@ -10,10 +10,10 @@ dynabase_systems = []
 K = QQ
 P.<x,y> = ProjectiveSpace(K, 1)
 # GHJSX2021
-dynabase_systems.append([DynamicalSystem([x^3 - 3*y^3, -3*x^2*y], domain=P), '1.ee2edc14.06479f56.1'])
-# dFH2018, GHJSX2021
-dynabase_systems.append([DynamicalSystem([y^3, x^3], domain=P), '1.ee2edc14.3d72adff.1'])
+dynabase_systems.append([DynamicalSystem([x^3 - 3*y^3, -3*x^2*y], domain=P), '1.fcc3f607.78dde912.1'])
 # GHJSX2021
-dynabase_systems.append([DynamicalSystem([y^3, -x^3], domain=P), '1.ee2edc14.3d72adff.2'])
+dynabase_systems.append([DynamicalSystem([y^3, -x^3], domain=P), '1.fcc3f607.790bef87.1'])
+# dFH2018, GHJSX2021
+dynabase_systems.append([DynamicalSystem([y^3, x^3], domain=P), '1.fcc3f607.790bef87.2'])
 
 print("Dynabase: 3 dynamical systems in dynabase_systems")

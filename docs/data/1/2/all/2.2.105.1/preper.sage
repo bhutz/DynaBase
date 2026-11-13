@@ -11,6 +11,6 @@ dynabase_systems = []
 K.<a> = NumberField(t^2 - t - 26)  # 2.2.105.1
 P.<x,y> = ProjectiveSpace(K, 1)
 # Doyle2014, Doyle2018
-dynabase_systems.append([DynamicalSystem([x^2 - 95/48*y^2, y^2], domain=P), '1.059fb1f3.24824224.1'])
+dynabase_systems.append([DynamicalSystem([x^2 - 95/48*y^2, y^2], domain=P), '1.ea60287f.20733fcb.1'])
 
 print("Dynabase: 1 dynamical system in dynabase_systems")
