@@ -7,11 +7,13 @@ branch" source only offers repo root or /docs as the served folder, so this
 lets Pages serve the site directly with no build/Actions step.
 
 Usage:
-    python3 generate_site.py               # uses postgresql_local
-    python3 generate_site.py --section postgresql   # Neon - currently stale, avoid
+    sage -python generate_site.py               # uses postgresql_local
+    sage -python generate_site.py --section postgresql   # Neon
 
-This only ever reads from the database. It requires no Sage, only psycopg2 +
-Jinja2 (both plain Python).
+This only ever reads from the database. It needs psycopg2 and Jinja2, and Sage
+(with the LMFDB) for the Export to Sage files of maps over fields of degree 3+
+(sage_export.lmfdb_field_polynomial); a database with no such maps can still be
+generated in plain Python.
 """
 
 # ****************************************************************************

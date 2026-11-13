@@ -5,14 +5,14 @@ defines the maps of one site table (or section) as a list of dynamical systems.
     sage: load("rational-preperiodic-QQ.sage")
     sage: f, label = dynabase_systems[0]
 
-Pure Python - no Sage needed to write the files. Each map is written over the
-field of its table row, in the model the table displays (render.choose_coeffs).
-A field is rebuilt from its label: QQ, a quadratic field from its LMFDB label
-(the polredabs defining polynomial is determined by the discriminant, and the
-stored coefficients are in its generator a, as normalize_field_NF makes them),
-or the defining polynomial itself for a field not in the LMFDB. Other LMFDB
-labels (degree 3+) can't be rebuilt without the LMFDB, so those maps are left
-out with a comment and a printed warning.
+Each map is written over the field of its table row, in the model the table
+displays (render.choose_coeffs). A field is rebuilt from its label: QQ, a
+quadratic field from its LMFDB label (the polredabs defining polynomial is
+determined by the discriminant, and the stored coefficients are in its
+generator a, as normalize_field_NF makes them), the defining polynomial itself
+for a field not in the LMFDB, and any other LMFDB label (degree 3+) by looking
+up its defining polynomial in the LMFDB with fields.field_helpers_NF. That last
+case needs Sage, so the site is generated with sage -python.
 """
 
 # ****************************************************************************
@@ -38,7 +38,7 @@ DATA_VERSION = None  # the data's version, set by generate_site.main before any 
 def field_polynomial(label):
     """
     The defining polynomial (in t) of the field with this label, None for QQ.
-    Raises NotImplementedError for an LMFDB label of degree 3 or more.
+    An LMFDB label of degree 3 or more is looked up in the LMFDB (needs Sage).
     """
     if not is_lmfdb_label(label):
         return label.replace('x', 't')  # a defining-polynomial label, in x
@@ -51,7 +51,21 @@ def field_polynomial(label):
             c = (1 - D) // 4
             return f't^2 - t {"+" if c >= 0 else "-"} {abs(c)}'
         return f't^2 {"-" if D > 0 else "+"} {abs(D) // 4}'
-    raise NotImplementedError(f'field {label}: only QQ and quadratic LMFDB labels can be rebuilt')
+    return lmfdb_field_polynomial(label)
+
+
+def lmfdb_field_polynomial(label):
+    """the LMFDB's defining polynomial (polredabs, in t) of the field with this LMFDB label"""
+    import sys
+    import sage.all  # noqa: F401 - Sage's modules can't be imported on their own before it
+    repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if repo not in sys.path:
+        sys.path.append(repo)
+    from fields.field_helpers_NF import get_sage_field_NF
+    K = get_sage_field_NF(label)
+    if not K:
+        raise ValueError(f'field {label} not found in the LMFDB')
+    return str(K.defining_polynomial().change_variable_name('t'))
 
 
 def sage_homog_poly(coeffs):
@@ -106,11 +120,7 @@ def write_sage_file(path, title, rows, citations_by_id, dimension=1, model_of=No
             skipped.append((label, 'no model stored'))
             continue
         if field != current_field:
-            try:
-                poly = field_polynomial(field)
-            except NotImplementedError as e:
-                skipped.append((label, str(e)))
-                continue
+            poly = field_polynomial(field)
             current_field = field
             body.append('')
             if poly is None:
