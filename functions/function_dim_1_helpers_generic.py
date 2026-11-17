@@ -154,6 +154,25 @@ def choose_display_model(function_id, my_cursor, log_file=sys.stdout):
         """, query)
     return True
 
+def check_worker_results(results, what):
+    """
+    results (a list from Sage's parallel conjugating_set / automorphism_group), or a
+    RuntimeError if a worker failed.
+
+    With num_cpus > 1 those split the search over p_iter_fork workers, and a worker that
+    fails (e.g. PARI's stack overflows, out of memory) comes back as the string 'NO DATA'
+    (or 'INVALID DATA ...'), which Sage's conjugating_set_helper adds to its list with
+    `Conj += ret[1]`, character by character, and loses that worker's matrices. Sage 10.4.
+    is_conjugate can't be checked this way (`if ret[1]: is_conj = True` makes it True), so
+    it is called with num_cpus=1 instead.
+    """
+    failed = [r for r in results if isinstance(r, str)]
+    if failed:
+        raise RuntimeError('a Sage ' + what + ' worker failed (' + ''.join(failed)
+                           + '), e.g. PARI stack overflow or out of memory')
+    return results
+
+
 def normalize_pgl(m):
     """the representative of the projective matrix m whose first nonzero entry is 1"""
     for e in m.list():

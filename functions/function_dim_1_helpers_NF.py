@@ -62,6 +62,7 @@ from functions.function_dim_1_helpers_generic import sigma_hash
 from functions.function_dim_1_helpers_generic import build_timeout, build_compute_missing
 from functions.release_files import entries_with_hashes
 from functions.function_dim_1_helpers_generic import automorphism_group_structure
+from functions.function_dim_1_helpers_generic import check_worker_results
 
 
 ##############################################################
@@ -210,7 +211,7 @@ def check_conjugates_NF(F,G, normalize_base=False, log_file=sys.stdout):
         Gbar = G.change_ring(QQbar)
     except ValueError:
         Gbar = G.change_ring(G.base_ring().embeddings(QQbar)[0])
-    CS = Fbar.conjugating_set(Gbar)
+    CS = check_worker_results(Fbar.conjugating_set(Gbar), 'conjugating_set')
 
     if len(CS) == 0:
         return 0
@@ -931,7 +932,18 @@ def add_automorphism_group_NF(function_id, my_cursor, model_name='original', log
     A_4, S_4 and A_5.
 
     A polynomial written as one, (f(x, y) : c*y^d), skips that computation:
-    polynomial_automorphism_group reads its group off its exponents (FN1997).
+    polynomial_automorphism_group reads its group off its exponents (FN1997). So does
+    a map whose fixed point multipliers already force the group to be trivial (in the
+    child, with the timeout): at least 3 simple roots of the polynomial whose elementary
+    symmetric functions are sigma_invariants(1). An automorphism permutes the fixed points
+    and keeps their multipliers, so it fixes each fixed point whose multiplier occurs
+    once, and a Mobius map fixing 3 points is the identity. (A multiple fixed point has
+    multiplier 1, listed with its multiplicity, so it never gives a simple root.)
+
+    Sage's automorphism_group over QQbar runs conjugating_set in 2 forked workers, and a
+    failed worker's 'NO DATA' ends up in its list (check_worker_results), which raises
+    here instead of reaching automorphism_group_structure, whose error for it was
+    "'str' object has no attribute 'list'".
 
     'automorphism_group_cardinality', 'automorphism_group_iso_type'
     """
@@ -941,11 +953,21 @@ def add_automorphism_group_NF(function_id, my_cursor, model_name='original', log
     try:
         F = get_sage_func_NF(function_id, model_name, my_cursor, log_file=log_file)
         def compute():
+            #check the sigma(1) for a group that must be trivial (enough distinct multipliers)
+            sigma = F.sigma_invariants(1)
+            T = PolynomialRing(F.base_ring(), 't')
+            t = T.gen()
+            n = len(sigma)
+            m = t**n + sum((-1)**i * sigma[i - 1] * t**(n - i) for i in range(1, n + 1))
+            num_simple = sum(g.degree() for g, e in m.squarefree_decomposition() if e == 1)
+            if num_simple >= 3:
+                log_file.write('aut group trivial from fixed point multipliers for:' + str(function_id) + '\n')
+                return 1, '1'
             try:
                 Fbar = F.change_ring(QQbar)
             except ValueError:
                 Fbar = F.change_ring(F.base_ring().embeddings(QQbar)[0])
-            G = Fbar.automorphism_group()
+            G = check_worker_results(Fbar.automorphism_group(), 'automorphism_group')
             return len(G), automorphism_group_structure(G)
         # a polynomial written as one: the group is known from its exponents, instantly
         known = polynomial_automorphism_group(F)
@@ -1928,7 +1950,7 @@ def function_in_family_NF(f, F, maxk=3):
     I = S.ideal(L)
     for v in I.variety():
         g = F.specialization(v)
-        if f.change_ring(QQbar).is_conjugate(g.change_ring(QQbar)):
+        if f.change_ring(QQbar).is_conjugate(g.change_ring(QQbar), num_cpus=1): #see check_worker_results
             return True,v
     return False,{}
 
@@ -1996,7 +2018,9 @@ def add_families_NF(function_id, my_cursor, log_file=sys.stdout, f_sigmas=None, 
             for v in I.variety():
                 g = F.specialization(v)
                 gbar = g.change_ring(phi_bar)
-                if fbar.is_conjugate(gbar):
+                #serial: with workers, a failed one ('NO DATA') makes is_conjugate True
+                #(see check_worker_results); this way its error is raised
+                if fbar.is_conjugate(gbar, num_cpus=1):
                     return True
             return False
         try:
