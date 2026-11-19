@@ -27,6 +27,8 @@ keywords:
   - SageMath
 # data_release/make_release.py sets version and date-released for each data version. After
 # the first Zenodo upload, add its concept DOI once here as: doi: "10.5281/zenodo.NNNNNNN"
+version: "1.0.0"
+date-released: "2026-11-19"
 preferred-citation:
   type: article
   title: "Dynabase: A Database of Extreme Examples in Arithmetic Dynamics"

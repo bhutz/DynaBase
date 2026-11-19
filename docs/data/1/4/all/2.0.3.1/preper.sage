@@ -1,4 +1,5 @@
 # Dynabase (https://dynabase.org): Dimension 1, degree 4 maps over QQ(&radic;&minus;3) (2.0.3.1), Rational Preperiodic
+# Data version 1.0.0
 # Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/): cite Dynabase
 # and the data version, and the sources listed with each map.
 #

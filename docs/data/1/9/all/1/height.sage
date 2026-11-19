@@ -1,4 +1,5 @@
 # Dynabase (https://dynabase.org): Dimension 1, degree 9 maps over QQ, Small Height Ratio
+# Data version 1.0.0
 # Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/): cite Dynabase
 # and the data version, and the sources listed with each map.
 #

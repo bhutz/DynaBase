@@ -1,4 +1,5 @@
 # Dynabase (https://dynabase.org): Summary of Extreme Examples, small canonical heights, non-polynomial maps over QQ
+# Data version 1.0.0
 # Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/): cite Dynabase
 # and the data version, and the sources listed with each map.
 #

@@ -1,0 +1,32 @@
+{"cardinality": 11, "characteristic": 11, "label": "11.1", "modulus_coeffs": [10, 1]}
+{"cardinality": 121, "characteristic": 11, "label": "11.2", "modulus_coeffs": [2, 7, 1]}
+{"cardinality": 125, "characteristic": 5, "label": "5.3", "modulus_coeffs": [3, 3, 0, 1]}
+{"cardinality": 13, "characteristic": 13, "label": "13.1", "modulus_coeffs": [12, 1]}
+{"cardinality": 130321, "characteristic": 19, "label": "19.4", "modulus_coeffs": [2, 11, 2, 0, 1]}
+{"cardinality": 1331, "characteristic": 11, "label": "11.3", "modulus_coeffs": [9, 2, 0, 1]}
+{"cardinality": 14641, "characteristic": 11, "label": "11.4", "modulus_coeffs": [2, 10, 8, 0, 1]}
+{"cardinality": 16, "characteristic": 2, "label": "2.4", "modulus_coeffs": [1, 1, 0, 0, 1]}
+{"cardinality": 169, "characteristic": 13, "label": "13.2", "modulus_coeffs": [2, 12, 1]}
+{"cardinality": 17, "characteristic": 17, "label": "17.1", "modulus_coeffs": [16, 1]}
+{"cardinality": 19, "characteristic": 19, "label": "19.1", "modulus_coeffs": [18, 1]}
+{"cardinality": 2, "characteristic": 2, "label": "2.1", "modulus_coeffs": [1, 1]}
+{"cardinality": 2197, "characteristic": 13, "label": "13.3", "modulus_coeffs": [11, 2, 0, 1]}
+{"cardinality": 2401, "characteristic": 7, "label": "7.4", "modulus_coeffs": [3, 4, 5, 0, 1]}
+{"cardinality": 25, "characteristic": 5, "label": "5.2", "modulus_coeffs": [2, 4, 1]}
+{"cardinality": 27, "characteristic": 3, "label": "3.3", "modulus_coeffs": [1, 2, 0, 1]}
+{"cardinality": 28561, "characteristic": 13, "label": "13.4", "modulus_coeffs": [2, 12, 3, 0, 1]}
+{"cardinality": 289, "characteristic": 17, "label": "17.2", "modulus_coeffs": [3, 16, 1]}
+{"cardinality": 3, "characteristic": 3, "label": "3.1", "modulus_coeffs": [2, 1]}
+{"cardinality": 343, "characteristic": 7, "label": "7.3", "modulus_coeffs": [4, 0, 6, 1]}
+{"cardinality": 361, "characteristic": 19, "label": "19.2", "modulus_coeffs": [2, 18, 1]}
+{"cardinality": 4, "characteristic": 2, "label": "2.2", "modulus_coeffs": [1, 1, 1]}
+{"cardinality": 49, "characteristic": 7, "label": "7.2", "modulus_coeffs": [3, 6, 1]}
+{"cardinality": 4913, "characteristic": 17, "label": "17.3", "modulus_coeffs": [14, 1, 0, 1]}
+{"cardinality": 5, "characteristic": 5, "label": "5.1", "modulus_coeffs": [4, 1]}
+{"cardinality": 625, "characteristic": 5, "label": "5.4", "modulus_coeffs": [2, 4, 4, 0, 1]}
+{"cardinality": 6859, "characteristic": 19, "label": "19.3", "modulus_coeffs": [17, 4, 0, 1]}
+{"cardinality": 7, "characteristic": 7, "label": "7.1", "modulus_coeffs": [6, 1]}
+{"cardinality": 8, "characteristic": 2, "label": "2.3", "modulus_coeffs": [1, 1, 0, 1]}
+{"cardinality": 81, "characteristic": 3, "label": "3.4", "modulus_coeffs": [2, 0, 0, 2, 1]}
+{"cardinality": 83521, "characteristic": 17, "label": "17.4", "modulus_coeffs": [3, 10, 7, 0, 1]}
+{"cardinality": 9, "characteristic": 3, "label": "3.2", "modulus_coeffs": [2, 2, 1]}
