@@ -14,7 +14,7 @@ from configparser import ConfigParser
 # database.ini sits next to this file, in the repository root
 DATABASE_INI = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.ini')
 
-def load_config(filename=DATABASE_INI, section='postgresql'):
+def load_config(filename=DATABASE_INI, section='postgresql_local'):
     parser = ConfigParser()
     parser.read(filename)
 

@@ -49,9 +49,9 @@ from functions.function_dim_1_helpers_generic import build_cpus, build_timeout, 
 #   citations. To fill in what timed out with a longer limit:
 #   DYNABASE_COMPUTE_MISSING=1 DYNABASE_TIMEOUT=1800 sage extreme_examples_data/extreme_examples.sage
 
-os.environ['DYNABASE_CPUS'] = '4'
-os.environ['DYNABASE_TIMEOUT'] = '1800'
-os.environ['DYNABASE_COMPUTE_MISSING'] = '1'
+#os.environ['DYNABASE_CPUS'] = '4'
+#os.environ['DYNABASE_TIMEOUT'] = '1800'
+#os.environ['DYNABASE_COMPUTE_MISSING'] = '1'
 
 # a bad value stops here, before any computing
 print('build settings: cpus', build_cpus(), ' timeout', build_timeout(int(30)),
