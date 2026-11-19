@@ -231,8 +231,11 @@ def find_sage(sage):
 
 
 def sage_version(sage):
+    """'SageMath 10.4', from `sage --version` ('SageMath version 10.4, Release Date: ...')."""
     out = subprocess.run([sage, '--version'], check=True, stdout=subprocess.PIPE, text=True).stdout
-    return out.strip().splitlines()[-1]
+    line = out.strip().splitlines()[-1]
+    match = re.search(r'SageMath version (\S+?),', line)
+    return f'SageMath {match.group(1)}' if match else line
 
 
 def check_labels(cur, entries, force):
