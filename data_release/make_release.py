@@ -221,6 +221,15 @@ def dirty_paths():
     return [p for p in paths if not p.startswith(GENERATED_PATHS)]
 
 
+def find_sage(sage):
+    """The SageMath executable named by --sage: a path, or a command on the path."""
+    path = shutil.which(sage)
+    if path is None:
+        fail(f'SageMath not found ({sage!r}). Pass --sage /path/to/sage, or set the DYNABASE_SAGE '
+             'environment variable. A shell alias for sage is not enough: scripts cannot see it.')
+    return path
+
+
 def sage_version(sage):
     out = subprocess.run([sage, '--version'], check=True, stdout=subprocess.PIPE, text=True).stdout
     return out.strip().splitlines()[-1]
@@ -291,6 +300,7 @@ def main():
     parser.add_argument('--allow-dirty', action='store_true', help='allow uncommitted code or data changes')
     parser.add_argument('--force', action='store_true', help='release despite label or version number problems')
     args = parser.parse_args()
+    args.sage = find_sage(args.sage)
 
     if not re.fullmatch(r'\d+\.\d+\.\d+', args.version):
         fail('the version must be major.minor.patch')
