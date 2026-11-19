@@ -11,9 +11,14 @@
 # Can be run independently, but must set the environment variables to change the defaults
 # of DYNABASE_CPUS, DYNABASE_TIMEOUT, DYNABASE_COMPUTE_MISSING
 
-load_attach_path('/home/ben/dynabase')
+import os
 import sys
-sys.path.append('/home/ben/dynabase')
+# the repository: set by the driver, otherwise the working directory
+DYNABASE_ROOT = os.environ.get('DYNABASE_ROOT') or os.getcwd()
+if not os.path.isfile(os.path.join(DYNABASE_ROOT, 'connect.py')):
+    raise RuntimeError(DYNABASE_ROOT + ' is not the Dynabase repository: run from its root, or set DYNABASE_ROOT')
+load_attach_path(DYNABASE_ROOT)
+sys.path.append(DYNABASE_ROOT)
 
 from fields.field_helpers_NF import normalize_field_NF
 from fields.field_helpers_NF import lmfdb_field_label_NF
@@ -32,7 +37,7 @@ load("connect.py")
 
 #########################
 
-path_to_log = "/home/ben/dynabase/functions_quadratic_polys_log.txt"
+path_to_log = os.path.join(DYNABASE_ROOT, "functions_quadratic_polys_log.txt")
 log_file = open(path_to_log, 'w', 1)
 
 # the file's maps, in order; added (and computed) together at the end

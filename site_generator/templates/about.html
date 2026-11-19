@@ -89,6 +89,21 @@ map in the database for each problem, in each degree.</p>
 <p>Dynabase is maintained by Benjamin Hutz (Saint Louis University).
 <a href="{{ root }}comments.html">Corrections and new examples</a> are welcome.</p>
 
+<h2 id="license">License and citation</h2>
+<p>The data on this site, including its tables, Sage export files and graph images, is licensed
+under the <a href="{{ data_license_url }}">Creative Commons Attribution 4.0 International license
+({{ data_license_name }})</a>: you may share and adapt it, as long as you give credit. The code
+that computes the data and builds this site is licensed under the GNU General Public License,
+version 3 or later. See <a href="{{ repo_url }}/blob/main/LICENSE-DATA">LICENSE-DATA</a> and
+<a href="{{ repo_url }}/blob/main/LICENSE">LICENSE</a> in the
+<a href="{{ repo_url }}">GitHub repository</a>.</p>
+
+<p>To give credit, cite the Dynabase article and the data version you used{% if data_version %}
+(this is version {{ data_version }}){% else %}, shown at the bottom of every page once the first
+version is released{% endif %}. The repository's
+<a href="{{ repo_url }}/blob/main/CITATION.cff">CITATION.cff</a> has the details. Each map lists
+the published sources it comes from; please cite them too when you use their examples.</p>
+
 {% if goatcounter_code %}
 <h2>Privacy</h2>
 <p>This site counts page views with <a href="https://www.goatcounter.com/">GoatCounter</a>, which

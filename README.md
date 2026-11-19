@@ -3,18 +3,24 @@
 Database of Arithmetic Dynamics
 
 This database collects arithmetic information on algebraic dynamical systems.
-The database in implemented in PSQL, while the computations are done in Python/SageMath.
-The code/functionality is written to be run under a SageMath kernel.
+The data is stored in a PostgreSQL database, and the computations are done in SageMath.
+The code is written to be run under SageMath.
 
 # Dynabase.org
 
-A static rendering of some of the data can be found on https://dynabase.org This is a static rendering served through github pages.
+A static rendering of the data is at https://dynabase.org, served through GitHub Pages from `docs/`.
 
 # License
 
 The code is licensed under the GNU General Public License, version 3 or later (see `LICENSE`).
-The data, as released in the Zenodo packages, is licensed under the Creative Commons Attribution
-4.0 International license (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/).
+The data is licensed under the Creative Commons Attribution 4.0 International license (CC BY 4.0,
+https://creativecommons.org/licenses/by/4.0/); see `LICENSE-DATA` for which files that covers.
+
+# Citing Dynabase
+
+See `CITATION.cff` (GitHub's "Cite this repository" button reads it). Please cite the article and
+give the data version you used, as listed on the website and in its changelog. Each map also
+lists the published sources it comes from.
 
 # Data versions
 
@@ -26,16 +32,6 @@ Versions of the data are numbered `major.minor.patch`:
 
 See the changelog at https://dynabase.org/changelog.html. `data_release/make_release.py` compares
 the database with the previous version and refuses a number that doesn't match the changes. Labels are permanent from v1.0.0 on, so it also refuses a release in which a recorded label changed or disappeared.
-
-Run everything from the repo root with sage in your path.
-
-The driver runs its computations in parallel on half of the CPUs by default. Set
-`DYNABASE_CPUS` to change that; `DYNABASE_CPUS=1` skips the parallel step. If the driver is interrupted during the parallel step, its results are lost. Maps already written to the database are skipped on a rerun.
-
-Each computation has a time limit, 30 seconds unless a data file asks for longer (120 for the
-automorphisms file, 300 for `x^2 + 1/4` over quadratic fields). Set `DYNABASE_TIMEOUT` to a whole
-number of seconds to override all of them for a build; 0 means no limit. It only affects maps
-computed in that build, as stored maps are skipped.
 
 ## Making the next version
 
@@ -87,7 +83,10 @@ don't run `setup_all.sage` unless the schema change requires it (see step 1). Th
    ```
 
 7. Make the release. This updates `labels.jsonl`, `releases.jsonl` and `data_release/latest/` (the
-   exports the next version is compared with), and regenerates `docs/`:
+   exports the next version is compared with), sets the version and release date in
+   `CITATION.cff`, and regenerates `docs/`. It runs SageMath to record its version and to build the
+   site: the `sage` on your path, or the one given by `--sage` or the `DYNABASE_SAGE` environment
+   variable:
    
    ```bash
    python3 data_release/make_release.py 1.1.0 --notes "What changed."
@@ -96,7 +95,7 @@ don't run `setup_all.sage` unless the schema change requires it (see step 1). Th
 8. Commit and tag. Pushing is what publishes the site:
    
    ```bash
-   git add data_release/latest extreme_examples_data/labels.jsonl extreme_examples_data/releases.jsonl docs
+   git add data_release/latest extreme_examples_data/labels.jsonl extreme_examples_data/releases.jsonl docs CITATION.cff
    ```
    
    ```bash
@@ -114,112 +113,165 @@ don't run `setup_all.sage` unless the schema change requires it (see step 1). Th
 
 10. On zenodo.org, upload the `.zip` with "New version" on the existing record, so the versions
     share one concept DOI (for 1.0.0, "New upload"). Fill in the form from
-    `releases/dynabase-v1.1.0.zenodo.json`, then publish.
+    `releases/dynabase-v1.1.0.zenodo.json`, then publish. After the first upload, add the concept
+    DOI to `CITATION.cff` (`doi: "10.5281/zenodo.NNNNNNN"`), once.
 
-# Pre-requisites and Set-up
+# Setting up a copy
 
-On an existing 20.02 ubunutu install with release sage built from sage github
-(https://github.com/sagemath/sage.git)
+These are the steps to build the database and the website yourself. Dynabase was developed and
+its data computed with:
 
-# Install PostGreSQL
+| Software          | Version                                           |
+| ----------------- | ------------------------------------------------- |
+| Ubuntu            | 22.04 (under the Windows Subsystem for Linux)     |
+| SageMath          | 10.4 (its Python 3.10, PARI 2.15.4, GAP 4.12.2)   |
+| PostgreSQL        | 14                                                |
+| psycopg2          | 2.9.9                                             |
+| lmfdb-lite        | from GitHub, commit `4c4262b`                     |
+| Jinja2            | 3.1.4 (included with SageMath)                    |
 
+Building the database also needs network access to the LMFDB, which `lmfdb-lite` queries for
+number field labels.
+
+## 1. Install SageMath
+
+Follow https://doc.sagemath.org/html/en/installation/ and make sure `sage` is on your path.
+
+## 2. Install PostgreSQL and create a database
+
+```bash
 sudo apt update
-sudo apt upgrade
 sudo apt install postgresql
-
-# start it
-
 sudo systemctl start postgresql
+```
 
-# check its status
+Create a user and a database:
 
-sudo systemctl status postgresql
+```bash
+sudo -u postgres psql
+```
 
-# From a terminal
+```sql
+CREATE USER [username] WITH PASSWORD '[password]';
+CREATE DATABASE [databasename] OWNER [username];
+\q
+```
 
-# create database and user
+A GUI client is optional, e.g. Beekeeper Studio (https://github.com/beekeeper-studio/beekeeper-studio).
 
-sudo su - postgres
-psql
-postgres=# CREATE USER [username] WITH PASSWORD '[password]';
-postgres=# CREATE DATABASE [db name];
-postgres=# GRANT ALL PRIVILEGES ON DATABASE [db name] to [user];
-postgres=# \q
+## 3. Install the Python packages
 
-# Install a GUI client
-
-# Beekeeper community edition
-
-# Get link from readme in: https://github.com/beekeeper-studio/beekeeper-studio
-
-# download .deb and install with
-
-sudo dpkg -i [filename]
-
-# Connecting via python needs the dependencies
-
-sudo apt-get install python3-dev
-sudo apt-get install libpq-dev
-
-# Sage needs psql interface
-
+```bash
+sudo apt install python3-dev libpq-dev
 sage -pip install psycopg2
+sage -pip install -U "lmfdb-lite[pgbinary] @ git+https://github.com/roed314/lmfdb-lite.git"
+```
 
-# Sage uses the LMFDB-lite interface for number field data
+The release scripts in `data_release/` run under plain Python 3, which needs psycopg2 too
+(`sudo apt install python3-psycopg2`).
 
-sage --pip install -U "lmfdb-lite[pgbinary] @ git+https://github.com/roed314/lmfdb-lite.git"
+## 4. Get the code
 
-# Connect to the DAD github project
+Fork https://github.com/bhutz/DynaBase on GitHub, then clone your fork:
 
-# log in to you github account
-
-# navigate to database page
-
-https://github.com/bhutz/DAD.git
-
-Click on "Fork" to create your personal fork of the project
-
-# this creates your own person DAD repository. e.g., https://github.com/alice/DAD.git
-
-# clone the repository
-
-git clone git clone https://github.com/alice/Dynabase.git
-cd DAD
-git remote -v
-
-# add the remote as the upstream
-
-git remote add upstream https://github.com/bhutz/Dynabase.git
-git remote -v
-
-# disable pushes to upstream instead of origin
-
+```bash
+git clone https://github.com/[your account]/DynaBase.git dynabase
+cd dynabase
+git remote add upstream https://github.com/bhutz/DynaBase.git
 git remote set-url --push upstream DISABLE
+```
 
-# If you are using SSH for github, then you would do the following instead:
+The repository can be anywhere. `config.py` reads `database.ini` from the repository root, and
+`setup_all.sage` and the driver find the root from their own location (or from the
+`DYNABASE_ROOT` environment variable, if set) and pass it on to the files they load. A data file
+run on its own uses `DYNABASE_ROOT`, else the working directory, so run it from the repository
+root. The log files are written to the repository root.
 
-# create local directory for the project
+## 5. Configure the database connection
 
-# initialize as a git repository
+Create `database.ini` in the repository root. It holds passwords, so it is not tracked by git:
 
-git init
+```ini
+[postgresql]
+host=localhost
+port=5432
+database=[databasename]
+user=[username]
+password=[password]
 
-# add the remotes
+[postgresql_local]
+host=localhost
+port=5432
+database=[databasename]
+user=[username]
+password=[password]
+```
 
-git remote add origin git@github.com:alice/Dynabase.git
-git remote add upstream git@github.com:bhutz/Dynabase.git
-git remote -v
+`connect.py`, which every setup and data file loads, uses the `[postgresql]` section. The site
+generator and the release scripts default to `[postgresql_local]` and take `--section` to choose
+another. To build and publish from the same database, give both sections the same values. For a
+hosted server that closes idle transactions (Neon closes them after 5 minutes), add
+`options=-c idle_in_transaction_session_timeout=0` to its section, as computations can keep a
+transaction idle for longer.
 
-# pull the repository
+## 6. Create the tables
 
-git pull origin main
+```bash
+sage setup_tables/setup_all.sage
+```
 
-# set tracking so you don't have to specify origin/main everytime
+This drops and recreates every table, so don't run it against a database you want to keep.
 
-git branch --set-upstream-to=origin/main
+## 7. Compute the data
 
-# to load the .oy files in Sage. It assumes you've added the root of
+Run everything from the repository root:
 
-# the project to the load_attach_path
+```bash
+sage extreme_examples_data/extreme_examples.sage
+```
 
-sage: load_attach_path('[path]')
+The driver loads the citations, fields, families and every data file in order. Three settings
+control it, each an environment variable (e.g. `DYNABASE_TIMEOUT=600 sage
+extreme_examples_data/extreme_examples.sage`) or a line near the top of `extreme_examples.sage`,
+which overrides the environment. Check those lines before a build:
+
+- `DYNABASE_CPUS`: how many maps are computed at once, half of the CPUs by default. `1` computes
+  serially.
+- `DYNABASE_TIMEOUT`: the time limit in seconds of every computation, overriding each file's own
+  (30 seconds, 120 for the automorphisms file, 300 for `x^2 + 1/4` over quadratic fields). `0`
+  means no limit.
+- `DYNABASE_COMPUTE_MISSING`: `1` reruns the missing steps (a property left unset, e.g. by a
+  timeout) of maps already in the database; `0`, the default, only adds new citations to them.
+
+A full build took about 2 days with 8 processes and a 7200 second limit; most properties finish
+within 300 seconds. A computation that reaches its limit leaves the property unset, and a later
+run with `DYNABASE_COMPUTE_MISSING=1` and a longer limit fills it in. A stopped build keeps what
+it has written, map by map. A single data file can also be run on its own, against what is
+already in the database:
+
+```bash
+sage -c 'load("extreme_examples_data/add_functions_cubic_polys_dim_1.py")'
+```
+
+(Not `sage [file].py`, which runs a `.py` file as plain Python, without SageMath's names.)
+
+## 8. Build the website
+
+```bash
+sage -python site_generator/generate_site.py
+```
+
+This rewrites `docs/` from the database, using `[postgresql_local]` unless given `--section`.
+It runs under SageMath, and needs the LMFDB, for the SageMath exports of maps over fields of
+degree 3 or more. The About page has the licence and how to cite Dynabase, linked from every page's footer,
+and every SageMath export states the licence in its header.
+
+## 9. Use the code in SageMath
+
+To load the helper files in a SageMath session, add the repository root to the load path:
+
+```python
+sage: load_attach_path('[path to the repository]')
+sage: import sys; sys.path.append('[path to the repository]')
+sage: load("connect.py")
+```

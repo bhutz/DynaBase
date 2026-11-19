@@ -17,7 +17,8 @@ load("connect.py")
 # my_session - database connection
 # my_cursor - cursor to my_session
 
-path_to_log = "/home/ben/dynabase/families_log.txt"
+import os
+path_to_log = os.path.join(os.environ.get("DYNABASE_ROOT") or os.getcwd(), "families_log.txt")
 log_file = open(path_to_log, 'w', 1)
 
 from functions.families_dim_1_helpers_NF import add_family_NF

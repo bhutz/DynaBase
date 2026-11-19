@@ -1,4 +1,6 @@
 # Dynabase (https://dynabase.org): Dimension 1, degree 6 maps over QQ, Rational Preperiodic
+# Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/): cite Dynabase
+# and the data version, and the sources listed with each map.
 #
 # Load in Sage with load("<this file>"). It defines dynabase_systems, a list of
 # [map, label] pairs in table order: the map as a DynamicalSystem over the field of

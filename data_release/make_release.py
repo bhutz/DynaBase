@@ -11,11 +11,14 @@ number that doesn't match is refused.
 
 It checks the labels against extreme_examples_data/labels.jsonl, records the version in
 data_releases and functions_dim_1_NF's first_release / last_changed_release, updates the
-label file, releases.jsonl and data_release/latest/, and regenerates docs/. Committing,
-tagging and the Zenodo package (data_release/package_zenodo.py, from the tag) are not done;
-it prints the steps. --dry-run stops after the checks and changes nothing.
+label file, releases.jsonl and data_release/latest/, sets the version and release date in
+CITATION.cff, and regenerates docs/. Committing, tagging and the Zenodo package
+(data_release/package_zenodo.py, from the tag) are not done; it prints the steps. --dry-run
+stops after the checks and changes nothing.
 
-Plain Python, like the site generator: it only reads what is already computed.
+Plain Python: it only reads what is already computed. It runs SageMath (--sage, else the
+DYNABASE_SAGE environment variable, else the sage on the path) to record its version and to
+regenerate the site.
 """
 
 # ****************************************************************************
@@ -52,11 +55,12 @@ from functions.release_files import (LABEL_ROWS_QUERY, compare_labels, format_la
 # this version's tables and schema, which the next version is compared with. Tracked in git,
 # so each version's tag holds its own.
 BASELINE_DIR = os.path.join(REPO_ROOT, 'data_release', 'latest')
-SAGE = '/home/ben/sage-rel/sage'
+SAGE = os.environ.get('DYNABASE_SAGE') or shutil.which('sage') or 'sage'
+CITATION_FILE = os.path.join(REPO_ROOT, 'CITATION.cff')
 
 # files make_release.py itself rewrites, or generates: they don't make the code version unclear
 GENERATED_PATHS = ('docs/', 'data_release/latest/', 'extreme_examples_data/labels.jsonl',
-                   'extreme_examples_data/releases.jsonl')
+                   'extreme_examples_data/releases.jsonl', 'CITATION.cff')
 
 # x^2 + y^2's invariants and label hashes (function_dim_1_helpers_generic.sigma_hash): the
 # hashes are comma separated.
@@ -244,6 +248,30 @@ def check_labels(cur, entries, force):
     return rows
 
 
+def update_citation_file(version, date):
+    """
+    Set CITATION.cff's top-level version and date-released to this version's, adding them
+    before preferred-citation if they are missing. The rest of the file, comments included,
+    stays as it is.
+    """
+    if not os.path.isfile(CITATION_FILE):
+        print('no CITATION.cff to update')
+        return
+    with open(CITATION_FILE, encoding='utf-8') as f:
+        lines = f.read().splitlines()
+    for key, value in [('version', version), ('date-released', date)]:
+        line = f'{key}: "{value}"'
+        # top level keys start a line; the same keys under preferred-citation are indented
+        at = next((i for i, l in enumerate(lines) if l.startswith(key + ':')), None)
+        if at is None:
+            at = next((i for i, l in enumerate(lines) if l.startswith('preferred-citation:')), len(lines))
+            lines.insert(at, line)
+        else:
+            lines[at] = line
+    with open(CITATION_FILE, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(lines) + '\n')
+
+
 def write_baseline(tables, schema):
     """Replace data_release/latest/ with this version's exports and schema."""
     shutil.rmtree(BASELINE_DIR, ignore_errors=True)
@@ -342,16 +370,18 @@ def main():
     conn.commit()
     write_label_file(new_entries)
     write_release_file([r for r in history if r['version'] != version] + [release])
+    update_citation_file(version, today)
 
     # --- the comparison point for the next version
     write_baseline(export_tables(conn), dump_schema(config))
 
     if not args.no_site:
-        run([sys.executable, 'site_generator/generate_site.py', '--section', args.section])
+        # the site generator runs under SageMath (the exports' fields of degree 3 and more)
+        run([args.sage, '-python', 'site_generator/generate_site.py', '--section', args.section])
 
     print(f"""
 Version {version} is recorded. Next:
-  git add data_release/latest extreme_examples_data/labels.jsonl extreme_examples_data/releases.jsonl docs
+  git add data_release/latest extreme_examples_data/labels.jsonl extreme_examples_data/releases.jsonl docs CITATION.cff
   git commit -m "data version {version}" && git tag data-v{version}
 Then package it for Zenodo:
   python3 data_release/package_zenodo.py {version}{'' if args.section == 'postgresql_local' else ' --section ' + args.section}""")

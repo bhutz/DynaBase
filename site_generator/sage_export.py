@@ -150,6 +150,8 @@ def write_sage_file(path, title, rows, citations_by_id, dimension=1, model_of=No
     lines = [
         f'# Dynabase ({SITE_URL}): {title}',
     ] + ([f'# Data version {DATA_VERSION}'] if DATA_VERSION else []) + [
+        '# Licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/): cite Dynabase',
+        '# and the data version, and the sources listed with each map.',
         '#',
         '# Load in Sage with load("<this file>"). It defines dynabase_systems, a list of',
         ('# [map, label, point] triples in table order: the map as a DynamicalSystem over the'

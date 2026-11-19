@@ -1,0 +1,39 @@
+cff-version: 1.2.0
+message: "If you use Dynabase, please cite the article below and give the data version you used."
+type: dataset
+title: "Dynabase: A Database of Extreme Examples in Arithmetic Dynamics"
+abstract: >-
+  Dynabase is a database of extreme examples in arithmetic dynamics, related to the
+  Morton-Silverman uniform boundedness conjecture, the dynamical analogue of Lang's
+  conjecture on canonical heights, postcritically finite maps and maps with nontrivial
+  automorphisms. It collects the known examples of extreme behavior for these problems
+  and tracks the status of their subproblems by degree and field of definition.
+authors:
+  - family-names: Hutz
+    given-names: Benjamin
+    affiliation: Saint Louis University
+repository-code: "https://github.com/bhutz/DynaBase"
+url: "https://dynabase.org"
+license:
+  - GPL-3.0-or-later
+  - CC-BY-4.0
+keywords:
+  - arithmetic dynamics
+  - dynamical systems
+  - preperiodic points
+  - postcritically finite maps
+  - canonical height
+  - automorphism groups
+  - SageMath
+# data_release/make_release.py sets version and date-released for each data version. After
+# the first Zenodo upload, add its concept DOI once here as: doi: "10.5281/zenodo.NNNNNNN"
+preferred-citation:
+  type: article
+  title: "Dynabase: A Database of Extreme Examples in Arithmetic Dynamics"
+  authors:
+    - family-names: Hutz
+      given-names: Benjamin
+      affiliation: Saint Louis University
+  status: in-preparation
+  year: 2026
+  url: "https://dynabase.org"

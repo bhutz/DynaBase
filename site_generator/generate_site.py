@@ -55,6 +55,11 @@ CUSTOM_DOMAIN = 'dynabase.org'
 # goatcounter.com, i.e. <code>.goatcounter.com. None leaves the script off every page.
 GOATCOUNTER_CODE = 'dynabase'
 
+# the licences, shown in every page's footer and on the About page
+REPO_URL = 'https://github.com/bhutz/DynaBase'
+DATA_LICENSE_NAME = 'CC BY 4.0'
+DATA_LICENSE_URL = 'https://creativecommons.org/licenses/by/4.0/'
+
 # The comments page embeds this Google Form (fields: who is submitting, contact
 # information, comment). Paste the form's "Send" link - the docs.google.com/forms/
 # .../viewform URL. None shows a "coming soon" note instead.
@@ -311,6 +316,9 @@ def make_env():
     env.globals['problem_slugs'] = PROBLEM_SLUGS
     env.globals['page_types'] = PAGE_TYPES
     env.globals['goatcounter_code'] = GOATCOUNTER_CODE
+    env.globals['repo_url'] = REPO_URL
+    env.globals['data_license_name'] = DATA_LICENSE_NAME
+    env.globals['data_license_url'] = DATA_LICENSE_URL
     return env
 
 

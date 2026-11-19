@@ -8,9 +8,13 @@
 #                  https://www.gnu.org/licenses/
 # ****************************************************************************
 
+import os
 from configparser import ConfigParser
 
-def load_config(filename='/home/ben/dynabase/database.ini', section='postgresql'):
+# database.ini sits next to this file, in the repository root
+DATABASE_INI = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'database.ini')
+
+def load_config(filename=DATABASE_INI, section='postgresql'):
     parser = ConfigParser()
     parser.read(filename)
 
