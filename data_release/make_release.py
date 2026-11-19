@@ -11,9 +11,9 @@ number that doesn't match is refused.
 
 It checks the labels against extreme_examples_data/labels.jsonl, records the version in
 data_releases and functions_dim_1_NF's first_release / last_changed_release, updates the
-label file, releases.jsonl and data_release/latest/, and regenerates docs/. Committing and
-tagging are not done; it prints the steps. --dry-run stops after the checks and changes
-nothing.
+label file, releases.jsonl and data_release/latest/, and regenerates docs/. Committing,
+tagging and the Zenodo package (data_release/package_zenodo.py, from the tag) are not done;
+it prints the steps. --dry-run stops after the checks and changes nothing.
 
 Plain Python, like the site generator: it only reads what is already computed.
 """
@@ -352,7 +352,9 @@ def main():
     print(f"""
 Version {version} is recorded. Next:
   git add data_release/latest extreme_examples_data/labels.jsonl extreme_examples_data/releases.jsonl docs
-  git commit -m "data version {version}" && git tag data-v{version}""")
+  git commit -m "data version {version}" && git tag data-v{version}
+Then package it for Zenodo:
+  python3 data_release/package_zenodo.py {version}{'' if args.section == 'postgresql_local' else ' --section ' + args.section}""")
 
 
 if __name__ == '__main__':

@@ -10,6 +10,12 @@ The code/functionality is written to be run under a SageMath kernel.
 
 A static rendering of some of the data can be found on https://dynabase.org This is a static rendering served through github pages.
 
+# License
+
+The code is licensed under the GNU General Public License, version 3 or later (see `LICENSE`).
+The data, as released in the Zenodo packages, is licensed under the Creative Commons Attribution
+4.0 International license (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/).
+
 # Data versions
 
 Versions of the data are numbered `major.minor.patch`:
@@ -96,6 +102,19 @@ don't run `setup_all.sage` unless the schema change requires it (see step 1). Th
    ```bash
    git commit -m "data version 1.1.0" && git tag data-v1.1.0
    ```
+
+9. Package the version for Zenodo. This builds `releases/dynabase-v1.1.0.zip` (not in git) from
+   the tag: the database dump, schema, table exports, labels, version history, the source at the
+   tag, a README and a manifest of checksums. The dump is only made while the database still holds
+   exactly this version; once it has moved on, add `--no-database` to package the exports alone.
+
+   ```bash
+   python3 data_release/package_zenodo.py 1.1.0
+   ```
+
+10. On zenodo.org, upload the `.zip` with "New version" on the existing record, so the versions
+    share one concept DOI (for 1.0.0, "New upload"). Fill in the form from
+    `releases/dynabase-v1.1.0.zenodo.json`, then publish.
 
 # Pre-requisites and Set-up
 
